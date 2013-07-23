@@ -30,6 +30,7 @@ namespace Pondman.MediaPortal
         {
             Guard.NotNull(() => window, window);
             _logger = logger ?? NullLogger.Instance;
+            _state = MediaPlayerState.Idle;
             
             // hookup internal playback handlers
             g_Player.PlayBackStarted += new g_Player.StartedHandler(OnPlaybackStarted);
@@ -65,8 +66,11 @@ namespace Pondman.MediaPortal
 
         protected void OnPlaybackStarted(g_Player.MediaType type, string filename)
         {
-            g_Player.ShowFullScreenWindow();
+            if (!IsPlaying)
+                return;
 
+            g_Player.ShowFullScreenWindow();
+            _state = MediaPlayerState.Playing;
             MediaPlayerInfo info = new MediaPlayerInfo(filename);
             if (PlayerStarted != null)
             {
@@ -77,18 +81,26 @@ namespace Pondman.MediaPortal
 
         protected void OnPlayBackStoppedOrChanged(g_Player.MediaType type, int timeMovieStopped, string filename)
         {
-            Reset();
+            if (IsPlaying)
+            {
+                Reset();
+            }
         }
 
         protected void OnPlayBackEnded(g_Player.MediaType type, string filename)
         {
-            Reset();
+            if (IsPlaying)
+            {
+                Reset();
+            }
         }
 
         #endregion
 
         public virtual void Play(string path)
         {
+            _state = MediaPlayerState.Processing;
+            
             // Play the file using the mediaportal player
             _logger.Debug("Play: Path={0}", path);           
             
@@ -110,6 +122,14 @@ namespace Pondman.MediaPortal
             }
         }
 
+        public MediaPlayerState State
+        {
+            get
+            {
+                return _state;
+            }
+        }
+        
         public bool IsPlaying
         {
             get
@@ -125,14 +145,8 @@ namespace Pondman.MediaPortal
 
         protected void UpdateOSD(MediaPlayerInfo info)
         {
-            Timer delayed = new Timer((x) => 
-            {
-                GUIPropertyManager.SetProperty("#Play.Current.Title", info.Title);
-                GUIPropertyManager.SetProperty("#Play.Current.Plot", info.Plot);
-                GUIPropertyManager.SetProperty("#Play.Current.Thumb", info.Thumb);
-                GUIPropertyManager.SetProperty("#Play.Current.Year", info.Year);
-                GUIPropertyManager.SetProperty("#Play.Current.Genre", info.Genre);
-            }, null, 2000, -1);
+            // todo: listen to property set event?
+            Timer delayed = new Timer((x) => info.Publish("#Play.Current"), null, 2000, -1);
         }
     }
 }
