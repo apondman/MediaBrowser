@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<window>
+  <controls>
+
+    <!--            :: LISTVIEW ::            -->
+
+    <control>
+      <description>Video resolution</description>
+      <type>image</type>
+      <id>21</id>
+      <posX>660</posX>
+      <posY>886</posY>
+      <width>99</width>
+      <height>65</height>
+      <texture>Logos\resolution\#MediaBrowser.Selected.MediaStreams.Video.0.Heightp.png</texture>
+      <keepaspectratio>yes</keepaspectratio>
+      <visible>facadeview.list+string.equals(#MediaBrowser.Selected.IsVideo,True)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="MediaLogos">
+      <description>Video codec</description>
+      <type>image</type>
+      <id>0</id>
+      <posX>750</posX>
+      <posY>886</posY>
+      <width>99</width>
+      <height>65</height>
+      <texture>Logos\video\#MediaBrowser.Selected.MediaStreams.Video.0.Codec.png</texture>
+      <keepaspectratio>yes</keepaspectratio>
+      <visible>Control.IsVisible(21)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="MediaLogos">
+      <description>Audio codec</description>
+      <type>image</type>
+      <id>0</id>
+      <posX>850</posX>
+      <posY>886</posY>
+      <width>99</width>
+      <height>65</height>
+      <texture>Logos\audio\#MediaBrowser.Selected.MediaStreams.Audio.0.Codec.png</texture>
+      <keepaspectratio>yes</keepaspectratio>
+      <visible>Control.IsVisible(21)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="MediaLogos">
+      <description>Audio channels</description>
+      <type>image</type>
+      <id>0</id>
+      <posX>940</posX>
+      <posY>886</posY>
+      <width>99</width>
+      <height>65</height>
+      <texture>Logos\audio\#MediaBrowser.Selected.MediaStreams.Audio.0.Channels.png</texture>
+      <keepaspectratio>yes</keepaspectratio>
+      <visible>Control.IsVisible(21)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="MediaLogos">
+      <description>Aspect ratio</description>
+      <type>image</type>
+      <id>0</id>
+      <posX>1020</posX>
+      <posY>886</posY>
+      <width>99</width>
+      <height>65</height>
+      <texture>Logos\aspectratio\#MediaBrowser.Selected.MediaStreams.Video.0.AspectRatio.png</texture>
+      <keepaspectratio>yes</keepaspectratio>
+      <visible>Control.IsVisible(21)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+
+    <!--            :: THUMBVIEW ::            -->
+
+
+    <control Style="MediaLogos">
+      <description>Video resolution</description>
+      <type>image</type>
+      <id>22</id>
+      <posX>1132</posX>
+      <posY>880</posY>
+      <width>99</width>
+      <height>65</height>
+      <texture>Logos\resolution\#MediaBrowser.Selected.MediaStreams.Video.0.Heightp.png</texture>
+      <keepaspectratio>yes</keepaspectratio>
+      <visible>[facadeview.smallicons | facadeview.largeicons]+string.equals(#MediaBrowser.Selected.IsVideo,True)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="MediaLogos">
+      <description>Video codec</description>
+      <type>image</type>
+      <id>0</id>
+      <posX>1222</posX>
+      <posY>880</posY>
+      <width>99</width>
+      <height>65</height>
+      <texture>Logos\video\#MediaBrowser.Selected.MediaStreams.Video.0.Codec.png</texture>
+      <keepaspectratio>yes</keepaspectratio>
+      <visible>Control.IsVisible(22)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="MediaLogos">
+      <description>Audio codec</description>
+      <type>image</type>
+      <id>0</id>
+      <posX>1322</posX>
+      <posY>880</posY>
+      <width>99</width>
+      <height>65</height>
+      <texture>Logos\audio\#MediaBrowser.Selected.MediaStreams.Audio.0.Codec.png</texture>
+      <keepaspectratio>yes</keepaspectratio>
+      <visible>Control.IsVisible(22)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="MediaLogos">
+      <description>Audio channels</description>
+      <type>image</type>
+      <id>0</id>
+      <posX>1412</posX>
+      <posY>880</posY>
+      <width>99</width>
+      <height>65</height>
+      <texture>Logos\audio\#MediaBrowser.Selected.MediaStreams.Audio.0.Channels.png</texture>
+      <keepaspectratio>yes</keepaspectratio>
+      <visible>Control.IsVisible(22)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="MediaLogos">
+      <description>Aspect ratio</description>
+      <type>image</type>
+      <id>0</id>
+      <posX>1492</posX>
+      <posY>880</posY>
+      <width>99</width>
+      <height>65</height>
+      <texture>Logos\aspectratio\#MediaBrowser.Selected.MediaStreams.Video.0.AspectRatio.png</texture>
+      <keepaspectratio>yes</keepaspectratio>
+      <visible>Control.IsVisible(22)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+  </controls>
+</window>

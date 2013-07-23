@@ -1,0 +1,35 @@
+﻿<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+
+  <!-- A -->
+
+  <string name="Actor">Actor</string>
+  <string name="Actors">Actors</string>
+
+  <!-- D -->
+
+  <string name="Director">Director</string>
+  <string name="Directors">Directors</string>
+
+
+  <!-- G -->
+
+  <string name="Genre">Genre</string>
+  <string name="Genres">Genres</string>
+
+  <!-- M -->
+  
+  <string name="Movie">Movie</string>
+  <string name="Movies">Movies</string>
+  
+  <!-- T -->
+  
+  <string name="TVShow">TV Show</string>
+  <string name="TVShows">TV Shows</string>
+
+  <!-- W -->
+  
+  <string name="Writer">Writer</string>
+  <string name="Writers">Writers</string>
+
+</resources>

@@ -1,0 +1,574 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<window>
+  <controls>
+
+    <!--            :: Title ::            -->
+
+    <control Style="smallTitle">
+      <description>Selected Item Label</description>
+      <type>fadelabel</type>
+      <id>0</id>
+      <posX>510</posX>
+      <posY>1015</posY>
+      <label>#MediaBrowser.Selected.Name</label>
+      <visible>control.isvisible(50)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <!--            :: LISTVIEW ::            -->
+
+    <control>
+      <description>Poster shadow</description>
+      <type>image</type>
+      <id>0</id>
+      <posX>105</posX>
+      <posY>346</posY>
+      <width>429</width>
+      <height>613</height>
+      <texture>list_poster_shadow.png</texture>
+      <visible>facadeview.list</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control>
+      <description>Default Cover Art</description>
+      <type>image</type>
+      <id>0</id>
+      <posX>123</posX>
+      <posY>360</posY>
+      <width>379</width>
+      <height>563</height>
+      <texture>defaultVideoBig.png</texture>
+      <visible>facadeview.list+!Control.HasThumb(60)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control>
+      <description>Cover Art</description>
+      <type>image</type>
+      <id>60</id>
+      <posX>123</posX>
+      <posY>360</posY>
+      <width>379</width>
+      <height>563</height>
+      <texture>#MediaBrowser.Coverart</texture>
+      <visible>facadeview.list</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="InfoLabel">
+      <description>Release Date Label (and visibility control)</description>
+      <type>label</type>
+      <id>777</id>
+      <posX>565</posX>
+      <posY>387</posY>
+      <label>#(string.rtrim(L(172),' :'))</label>
+      <visible>facadeview.list+string.equals(#MediaBrowser.Selected.Type,Movie)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="InfoValueSmall">
+      <description>Release Date Value</description>
+      <type>label</type>
+      <id>0</id>
+      <posX>798</posX>
+      <posY>387</posY>
+      <label>#MediaBrowser.Selected.PremiereDate.ShortDate</label>
+      <visible>Control.IsVisible(777)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="InfoLabel">
+      <description>Runtime Label</description>
+      <type>label</type>
+      <id>0</id>
+      <posX>565</posX>
+      <posY>419</posY>
+      <label>#(string.rtrim(L(299),' :'))</label>
+      <visible>Control.IsVisible(777)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="InfoValueSmall">
+      <description>Runtime Value</description>
+      <type>label</type>
+      <id>0</id>
+      <posX>798</posX>
+      <posY>419</posY>
+      <label>#(math.round(cflt(#MediaBrowser.Selected.Runtime.TotalMinutes.Localized))) min</label>
+      <visible>Control.IsVisible(777)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="InfoLabel">
+      <description>Genre Label</description>
+      <type>label</type>
+      <id>0</id>
+      <posX>565</posX>
+      <posY>451</posY>
+      <label>#MediaBrowser.Translation.Genre.Label</label>
+      <visible>Control.IsVisible(777)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="InfoValueSmall">
+      <description>Genre Value</description>
+      <type>fadelabel</type>
+      <id>0</id>
+      <posX>798</posX>
+      <posY>451</posY>
+      <label>#MediaBrowser.Selected.Genres.List</label>
+      <visible>Control.IsVisible(777)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="InfoLabel">
+      <description>Director Label</description>
+      <type>label</type>
+      <id>0</id>
+      <posX>565</posX>
+      <posY>483</posY>
+      <label>#MediaBrowser.Translation.Director.Label</label>
+      <visible>Control.IsVisible(777)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="InfoValueSmall">
+      <description>Director Value</description>
+      <type>fadelabel</type>
+      <id>0</id>
+      <posX>798</posX>
+      <posY>483</posY>
+      <label>#MediaBrowser.Selected.People.Directing.List</label>
+      <visible>Control.IsVisible(777)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="InfoLabel">
+      <description>Cast Label</description>
+      <type>label</type>
+      <id>0</id>
+      <posX>565</posX>
+      <posY>515</posY>
+      <label>#MediaBrowser.Translation.Actors.Label</label>
+      <visible>Control.IsVisible(777)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="InfoValueSmall">
+      <description>Cast Value</description>
+      <type>fadelabel</type>
+      <id>0</id>
+      <posX>798</posX>
+      <posY>515</posY>
+      <label>#MediaBrowser.Selected.People.Actor.1.Name, #MediaBrowser.Selected.People.Actor.2.Name, #MediaBrowser.Selected.People.Actor.3.Name</label>
+      <visible>Control.IsVisible(777)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="textBox">
+      <description>Summary (list)</description>
+      <type>textboxscrollup</type>
+      <id>1025</id>
+      <posX>568</posX>
+      <posY>570</posY>
+      <height>275</height>
+      <label>#MediaBrowser.Selected.Overview</label>
+      <seperator>---------------------------------------------------------------------------------------------------------</seperator>
+      <onleft>1026</onleft>
+      <onright>1026</onright>
+      <onup>1026</onup>
+      <ondown>1026</ondown>
+      <visible>Control.IsVisible(777)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control>
+      <description>Logo frame</description>
+      <type>image</type>
+      <id>0</id>
+      <posX>569</posX>
+      <posY>882</posY>
+      <width>550</width>
+      <height>73</height>
+      <texture>logoframe.png</texture>
+      <visible>Control.IsVisible(777)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control>
+      <description>certification logo</description>
+      <type>image</type>
+      <id>101</id>
+      <posX>588</posX>
+      <posY>893</posY>
+      <width>55</width>
+      <height>55</height>
+      <keepaspectratio>yes</keepaspectratio>
+      <centered>yes</centered>
+      <texture>certification\#MediaBrowser.Selected.OfficialRating.png</texture>
+      <visible>Control.IsVisible(777)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control>
+      <description>Unwatched Icon</description>
+      <type>image</type>
+      <id>0</id>
+      <posX>68</posX>
+      <posY>306</posY>
+      <width>114</width>
+      <height>114</height>
+      <texture>unwatched_flag_big.png</texture>
+      <visible>Control.IsVisible(777) + Control.HasThumb(60) + string.equals(#MediaBrowser.Selected.UserData.Played,False)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <!--            :: THUMBVIEW ::            -->
+
+    <control>
+      <description>Item Title value (and visibility control for facade small/large)</description>
+      <type>fadelabel</type>
+      <id>5</id>
+      <posX>1040</posX>
+      <posY>332</posY>
+      <width>700</width>
+      <label>#MediaBrowser.Selected.Name</label>
+      <font>fontB16</font>
+      <textcolor>FF00b7ff</textcolor>
+      <shadowAngle>120</shadowAngle>
+      <shadowDistance>2</shadowDistance>
+      <shadowColor>FF000000</shadowColor>
+      <visible>[facadeview.smallicons | facadeview.largeicons]</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="InfoLabel">
+      <description>Release Date Label</description>
+      <type>label</type>
+      <id>0</id>
+      <posX>1038</posX>
+      <posY>445</posY>
+      <label>#(string.rtrim(L(172),' :'))</label>
+      <visible>Control.IsVisible(5)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="InfoValueWide">
+      <description>Release Date Value</description>
+      <type>label</type>
+      <id>0</id>
+      <posX>1270</posX>
+      <posY>445</posY>
+      <label>#MediaBrowser.Selected.PremiereDate.LongDate</label>
+      <visible>Control.IsVisible(5)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="InfoLabel">
+      <description>Runtime Label</description>
+      <type>label</type>
+      <id>0</id>
+      <posX>1038</posX>
+      <posY>481</posY>
+      <label>#(string.rtrim(L(299),' :'))</label>
+      <visible>Control.IsVisible(5)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="InfoValueWide">
+      <description>Runtime Value</description>
+      <type>label</type>
+      <id>0</id>
+      <posX>1270</posX>
+      <posY>481</posY>
+      <label>#(math.round(cflt(#MediaBrowser.Selected.Runtime.TotalMinutes.Localized))) min</label>
+      <visible>Control.IsVisible(5)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="InfoLabel">
+      <description>Genre Label</description>
+      <type>label</type>
+      <id>0</id>
+      <posX>1038</posX>
+      <posY>516</posY>
+      <label>#Genres</label>
+      <visible>Control.IsVisible(5)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="InfoValueWide">
+      <description>Genre Value</description>
+      <type>fadelabel</type>
+      <id>0</id>
+      <posX>1270</posX>
+      <posY>516</posY>
+      <label>#MediaBrowser.Selected.Genres.List</label>
+      <visible>Control.IsVisible(5)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="InfoLabel">
+      <description>Director Label</description>
+      <type>label</type>
+      <id>0</id>
+      <posX>1038</posX>
+      <posY>554</posY>
+      <label>#Directors</label>
+      <visible>Control.IsVisible(5)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="InfoValueWide">
+      <description>Director Value</description>
+      <type>fadelabel</type>
+      <id>0</id>
+      <posX>1270</posX>
+      <posY>554</posY>
+      <label>#MediaBrowser.Selected.People.Directing.List</label>
+      <visible>Control.IsVisible(5)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="InfoLabel">
+      <description>Cast Label</description>
+      <type>label</type>
+      <id>0</id>
+      <posX>1038</posX>
+      <posY>592</posY>
+      <label>#Actors</label>
+      <visible>Control.IsVisible(5)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control Style="InfoValueWide">
+      <description>Cast Value</description>
+      <type>fadelabel</type>
+      <id>0</id>
+      <posX>1270</posX>
+      <posY>592</posY>
+      <label>#MediaBrowser.Selected.People.Actor.0.Name #MediaBrowser.Selected.People.Actor.1.Name #MediaBrowser.Selected.People.Actor.2.Name</label>
+      <visible>Control.IsVisible(5)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control>
+      <description>Summary (list)</description>
+      <type>textboxscrollup</type>
+      <id>1025</id>
+      <posX>1040</posX>
+      <posY>635</posY>
+      <width>790</width>
+      <height>205</height>
+      <label>#MediaBrowser.Selected.Overview</label>
+      <seperator>---------------------------------------------------------------------------------------------------------</seperator>
+      <onleft>1026</onleft>
+      <onright>1026</onright>
+      <onup>1026</onup>
+      <ondown>1026</ondown>
+      <lineSpacing>0.92</lineSpacing>
+      <visible>Control.IsVisible(5)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control>
+      <description>Logo frame</description>
+      <type>image</type>
+      <id>0</id>
+      <posX>1041</posX>
+      <posY>876</posY>
+      <width>550</width>
+      <height>73</height>
+      <texture>logoframe.png</texture>
+      <visible>Control.IsVisible(5)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control>
+      <description>certification logo</description>
+      <type>image</type>
+      <id>101</id>
+      <posX>1060</posX>
+      <posY>887</posY>
+      <width>50</width>
+      <height>50</height>
+      <keepaspectratio>yes</keepaspectratio>
+      <centered>yes</centered>
+      <texture>certification\#MediaBrowser.Selected.OfficialRating.png</texture>
+      <visible>Control.IsVisible(5)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control>
+      <description>Unwatched Icon</description>
+      <type>image</type>
+      <id>0</id>
+      <posX>1754</posX>
+      <posY>320</posY>
+      <width>92</width>
+      <height>92</height>
+      <texture>unwatched_flag_big.png</texture>
+      <visible>Control.IsVisible(5) + string.equals(#MediaBrowser.Selected.UserData.Played,False)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <!--            :: FILMSTRIP ::            -->
+
+    <control>
+      <description>Year / Runtime / Genre</description>
+      <type>label</type>
+      <id>6</id>
+      <posX>122</posX>
+      <posY>996</posY>
+      <width>475</width>
+      <font>TitanLight12</font>
+      <textcolor>FF000000</textcolor>
+      <label>#MediaBrowser.Selected.PremiereDate.Year - #(math.round(cflt(#MediaBrowser.Selected.Runtime.TotalMinutes.Localized))) min - #MediaBrowser.Selected.Genres.1</label>
+      <visible>[facadeview.filmstrip | facadeview.coverflow]</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control>
+      <type>imagelist</type>
+      <id>101</id>
+      <posX>1460</posX>
+      <posY>1001</posY>
+      <width>315</width>
+      <height>29</height>
+      <textureWidth>32</textureWidth>
+      <textureHeight>27</textureHeight>
+      <subitems>
+        <subitem>starblue2.png</subitem>
+        <subitem>starblack2.png</subitem>
+      </subitems>
+      <orientation>horizontal</orientation>
+      <align>left</align>
+      <imagesToDraw>10</imagesToDraw>
+      <percentage>#MediaBrowser.Selected.CommunityRating.Localized</percentage>
+      <visible>Control.IsVisible(6)+string.equals(#MediaBrowser.Selected.Type,Movie)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control>
+      <description>Rating Value</description>
+      <type>label</type>
+      <id>0</id>
+      <posX>1790</posX>
+      <posY>998</posY>
+      <label>#MediaBrowser.Selected.CommunityRating.Localized</label>
+      <font>fontB12</font>
+      <textcolor>000000</textcolor>
+      <visible>Control.IsVisible(6)+string.equals(#MediaBrowser.Selected.Type,Movie)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control>
+      <type>imagelist</type>
+      <id>101</id>
+      <posX>561</posX>
+      <posY>345</posY>
+      <width>315</width>
+      <height>29</height>
+      <textureWidth>32</textureWidth>
+      <textureHeight>27</textureHeight>
+      <subitems>
+        <subitem>starblack.png</subitem>
+        <subitem>starblue.png</subitem>
+      </subitems>
+      <orientation>horizontal</orientation>
+      <align>left</align>
+      <imagesToDraw>10</imagesToDraw>
+      <percentage>#(math.round(cflt(#MediaBrowser.Selected.CommunityRating.Localized)))</percentage>
+      <visible>facadeview.list+string.equals(#MediaBrowser.Selected.Type,Movie)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control>
+      <description>Rating Value</description>
+      <type>label</type>
+      <id>0</id>
+      <posX>894</posX>
+      <posY>343</posY>
+      <label>#MediaBrowser.Selected.CommunityRating.Localized</label>
+      <font>fontB12</font>
+      <textcolor>FF00b7ff</textcolor>
+      <visible>facadeview.list+string.equals(#MediaBrowser.Selected.Type,Movie)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control>
+      <type>imagelist</type>
+      <id>101</id>
+      <posX>1035</posX>
+      <posY>399</posY>
+      <width>315</width>
+      <height>29</height>
+      <textureWidth>32</textureWidth>
+      <textureHeight>27</textureHeight>
+      <subitems>
+        <subitem>starblack.png</subitem>
+        <subitem>starblue.png</subitem>
+      </subitems>
+      <orientation>horizontal</orientation>
+      <align>left</align>
+      <imagesToDraw>10</imagesToDraw>
+      <percentage>#(math.round(cflt(#MediaBrowser.Selected.CommunityRating.Localized)))</percentage>
+      <visible>Control.IsVisible(5)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control>
+      <description>Rating Value</description>
+      <type>label</type>
+      <id>0</id>
+      <posX>1368</posX>
+      <posY>394</posY>
+      <label>#MediaBrowser.Selected.CommunityRating.Localized</label>
+      <font>fontB12</font>
+      <textcolor>FF00b7ff</textcolor>
+      <visible>Control.IsVisible(5) + string.equals(#hideinfo, False)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+  </controls>
+</window>

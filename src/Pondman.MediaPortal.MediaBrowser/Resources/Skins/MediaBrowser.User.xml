@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<window>
+  <controls>
+
+    <control>
+      <id>0</id>
+      <type>image</type>
+      <posX>60</posX>
+      <posY>34</posY>
+      <width>68</width>
+      <height>60</height>
+      <texture>icon_movies.png</texture>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+
+    <control>
+      <id>0</id>
+      <type>label</type>
+      <posX>1778</posX>
+      <posY>156</posY>
+      <width>500</width>
+      <font>TitanLight14</font>
+      <textcolor>ffffff</textcolor>
+      <label>#MediaBrowser.User.Name</label>
+      <align>right</align>
+      <visible></visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control>
+      <id>0</id>
+      <type>label</type>
+      <posX>1778</posX>
+      <posY>200</posY>
+      <width>500</width>
+      <font>TitanLight8</font>
+      <textcolor>ffffff</textcolor>
+      <label>#MediaBrowser.Settings.DisplayName #MediaBrowser.Version.String</label>
+      <align>right</align>
+      <visible></visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control>
+      <description>Default User Image</description>
+      <type>image</type>
+      <id>0</id>
+      <posX>1788</posX>
+      <posY>156</posY>
+      <width>60</width>
+      <height>60</height>
+      <texture>alpha\m.png</texture>
+      <keepaspectratio>no</keepaspectratio>
+      <visible>!Control.HasThumb(201)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+    
+    <control>
+      <description>User Image</description>
+      <type>image</type>
+      <id>201</id>
+      <posX>1788</posX>
+      <posY>156</posY>
+      <width>60</width>
+      <height>60</height>
+      <texture>#MediaBrowser.User.Avatar</texture>
+      <keepaspectratio>no</keepaspectratio>
+      <visible>string.equals(#MediaBrowser.User.HasPrimaryImage,True)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>   
+
+  </controls>
+</window>
