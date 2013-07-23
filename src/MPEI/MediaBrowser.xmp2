@@ -1,0 +1,463 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PackageClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Version>2.0</Version>
+  <Groups>
+    <Items>
+      <GroupItem Name="Default">
+        <ParentGroup />
+        <DisplayName>Main</DisplayName>
+        <DefaulChecked>true</DefaulChecked>
+        <Description>Main Program Files for MediaBrowser plugin.</Description>
+        <Files>
+          <Items>
+            <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
+              <Param1 />
+              <UpdateOption>AlwaysOverwrite</UpdateOption>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\MediaBrowser.dll</LocalFileName>
+              <ZipFileName>Installer{CopyFile}\{3ad12a79-515e-4871-b99e-421c4c46e3f4}-MediaBrowser.dll</ZipFileName>
+              <DestinationFilename>%Plugins%\Windows\MediaBrowser.dll</DestinationFilename>
+            </FileItem>
+            <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
+              <Param1 />
+              <UpdateOption>OverwriteIfOlder</UpdateOption>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\MediaBrowser.ApiInteraction.net35.dll</LocalFileName>
+              <ZipFileName>Installer{CopyFile}\{6c51bd74-92dd-4f69-be0b-d8520cadd6e7}-MediaBrowser.ApiInteraction.net35.dll</ZipFileName>
+              <DestinationFilename>%Base%\MediaBrowser.ApiInteraction.net35.dll</DestinationFilename>
+            </FileItem>
+            <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
+              <Param1 />
+              <UpdateOption>OverwriteIfOlder</UpdateOption>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\MediaBrowser.Model.net35.dll</LocalFileName>
+              <ZipFileName>Installer{CopyFile}\{4a6ec321-be3e-4377-b0af-1481b7c42a10}-MediaBrowser.Model.net35.dll</ZipFileName>
+              <DestinationFilename>%Base%\MediaBrowser.Model.net35.dll</DestinationFilename>
+            </FileItem>
+            <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
+              <Param1 />
+              <UpdateOption>OverwriteIfOlder</UpdateOption>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Newtonsoft.Json.dll</LocalFileName>
+              <ZipFileName>Installer{CopyFile}\{71a80c58-bb55-4980-906f-df48f54178ab}-Newtonsoft.Json.dll</ZipFileName>
+              <DestinationFilename>%Base%\Newtonsoft.Json.dll</DestinationFilename>
+            </FileItem>
+            <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
+              <Param1 />
+              <UpdateOption>OverwriteIfOlder</UpdateOption>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\WebSocket4Net.dll</LocalFileName>
+              <ZipFileName>Installer{CopyFile}\{33978656-5154-42ea-a0f3-a5cc45fdd4c1}-WebSocket4Net.dll</ZipFileName>
+              <DestinationFilename>%Base%\WebSocket4Net.dll</DestinationFilename>
+            </FileItem>
+            <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
+              <Param1 />
+              <UpdateOption>OverwriteIfOlder</UpdateOption>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Pondman.MediaPortal.dll</LocalFileName>
+              <ZipFileName>Installer{CopyFile}\{7cc5a198-7811-4dac-8276-fc696c37d95e}-Pondman.MediaPortal.dll</ZipFileName>
+              <DestinationFilename>%Base%\Pondman.MediaPortal.dll</DestinationFilename>
+            </FileItem>
+          </Items>
+        </Files>
+      </GroupItem>
+      <GroupItem Name="Languages">
+        <ParentGroup />
+        <DisplayName>Languages</DisplayName>
+        <DefaulChecked>true</DefaulChecked>
+        <Description>Languages</Description>
+        <Files>
+          <Items>
+            <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
+              <Param1 />
+              <UpdateOption>AlwaysOverwrite</UpdateOption>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Languages\en.xml</LocalFileName>
+              <ZipFileName>Installer{CopyFile}\{280a6e56-e706-44e3-b738-6fc914695634}-en.xml</ZipFileName>
+              <DestinationFilename>%Language%\MediaBrowser\en.xml</DestinationFilename>
+            </FileItem>
+          </Items>
+        </Files>
+      </GroupItem>
+      <GroupItem Name="DefaultSkin">
+        <ParentGroup />
+        <DisplayName>Skin</DisplayName>
+        <DefaulChecked>true</DefaulChecked>
+        <Description>Generic skin for MediaBrowser plugin (based on TITAN for now)</Description>
+        <Files>
+          <Items>
+            <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
+              <Param1 />
+              <UpdateOption>AlwaysOverwrite</UpdateOption>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Fanart.xml</LocalFileName>
+              <ZipFileName>Installer{GenericSkinFile}\{b7a89798-27bb-4140-8a7d-9c055b6c0d5d}-MediaBrowser.Fanart.xml</ZipFileName>
+              <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Fanart.xml</DestinationFilename>
+            </FileItem>
+            <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
+              <Param1 />
+              <UpdateOption>AlwaysOverwrite</UpdateOption>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Main.HiddenMenu.xml</LocalFileName>
+              <ZipFileName>Installer{GenericSkinFile}\{ba0a90cd-d6e8-4630-bd7a-39d56f89f7c1}-MediaBrowser.Main.HiddenMenu.xml</ZipFileName>
+              <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Main.HiddenMenu.xml</DestinationFilename>
+            </FileItem>
+            <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
+              <Param1 />
+              <UpdateOption>AlwaysOverwrite</UpdateOption>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Main.MediaInfo.xml</LocalFileName>
+              <ZipFileName>Installer{GenericSkinFile}\{b05ccd81-e671-45fc-99a5-aec87e46b923}-MediaBrowser.Main.MediaInfo.xml</ZipFileName>
+              <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Main.MediaInfo.xml</DestinationFilename>
+            </FileItem>
+            <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
+              <Param1 />
+              <UpdateOption>AlwaysOverwrite</UpdateOption>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Main.Views.xml</LocalFileName>
+              <ZipFileName>Installer{GenericSkinFile}\{f6383623-87b9-45e2-8b4e-f5435e161071}-MediaBrowser.Main.Views.xml</ZipFileName>
+              <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Main.Views.xml</DestinationFilename>
+            </FileItem>
+            <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
+              <Param1 />
+              <UpdateOption>AlwaysOverwrite</UpdateOption>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Main.xml</LocalFileName>
+              <ZipFileName>Installer{GenericSkinFile}\{ce9ee416-52b3-41e5-b924-aa29723d9b82}-MediaBrowser.Main.xml</ZipFileName>
+              <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Main.xml</DestinationFilename>
+            </FileItem>
+            <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
+              <Param1 />
+              <UpdateOption>AlwaysOverwrite</UpdateOption>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Movie.MediaInfo.xml</LocalFileName>
+              <ZipFileName>Installer{GenericSkinFile}\{f20cecdd-120d-4a7d-83f0-629fb33302fd}-MediaBrowser.Movie.MediaInfo.xml</ZipFileName>
+              <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Movie.MediaInfo.xml</DestinationFilename>
+            </FileItem>
+            <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
+              <Param1 />
+              <UpdateOption>AlwaysOverwrite</UpdateOption>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Movie.xml</LocalFileName>
+              <ZipFileName>Installer{GenericSkinFile}\{5a3805cd-d69b-423b-8771-f75a6a1da537}-MediaBrowser.Movie.xml</ZipFileName>
+              <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Movie.xml</DestinationFilename>
+            </FileItem>
+            <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
+              <Param1 />
+              <UpdateOption>AlwaysOverwrite</UpdateOption>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.User.xml</LocalFileName>
+              <ZipFileName>Installer{GenericSkinFile}\{03d951d0-8ee9-4e7c-83aa-a221a8bcddd2}-MediaBrowser.User.xml</ZipFileName>
+              <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.User.xml</DestinationFilename>
+            </FileItem>
+          </Items>
+        </Files>
+      </GroupItem>
+    </Items>
+  </Groups>
+  <Sections>
+    <Items>
+      <SectionItem Guid="45a38bde-5988-4d62-be93-dacf23a38024" Name="Welcome Screen" ConditionGroup="">
+        <Params>
+          <Items>
+            <SectionParam Name="Header text">
+              <Value>Welcome to the Extension Installer for [Name]</Value>
+              <ValueType>String</ValueType>
+              <Description />
+            </SectionParam>
+            <SectionParam Name="Description">
+              <Value>This will install [Name] version [Version] on your computer.
+It is recommended that you close all other applications before continuing.
+Click Next to continue or Cancel to exit Setup.</Value>
+              <ValueType>String</ValueType>
+              <Description />
+            </SectionParam>
+            <SectionParam Name="Left part image">
+              <Value />
+              <ValueType>File</ValueType>
+              <Description />
+            </SectionParam>
+            <SectionParam Name="Header image">
+              <Value />
+              <ValueType>File</ValueType>
+              <Description>Image in upper right part</Description>
+            </SectionParam>
+          </Items>
+        </Params>
+        <Actions>
+          <Items />
+        </Actions>
+        <IncludedGroups />
+        <PanelName>Welcome Screen</PanelName>
+        <WizardButtonsEnum>NextCancel</WizardButtonsEnum>
+      </SectionItem>
+      <SectionItem Guid="6fc2ac9b-1167-4ed7-984b-38d3f660f899" Name="Install Section" ConditionGroup="">
+        <Params>
+          <Items>
+            <SectionParam Name="Header Title">
+              <Value />
+              <ValueType>String</ValueType>
+              <Description>Header title</Description>
+            </SectionParam>
+            <SectionParam Name="Header description">
+              <Value />
+              <ValueType>String</ValueType>
+              <Description>Description of section, shown in under section title</Description>
+            </SectionParam>
+            <SectionParam Name="Header image">
+              <Value />
+              <ValueType>File</ValueType>
+              <Description>Image in upper right part</Description>
+            </SectionParam>
+          </Items>
+        </Params>
+        <Actions>
+          <Items>
+            <ActionItem Name="InstallFiles" ActionType="InstallFiles" ConditionGroup="">
+              <Params>
+                <Items />
+              </Params>
+              <ExecuteLocation>AfterPanelShow</ExecuteLocation>
+            </ActionItem>
+          </Items>
+        </Actions>
+        <IncludedGroups />
+        <PanelName>Install Section</PanelName>
+        <WizardButtonsEnum>Next</WizardButtonsEnum>
+      </SectionItem>
+      <SectionItem Guid="caf9a6dc-787b-45e4-8d99-e35af15a2297" Name="Setup Complete" ConditionGroup="">
+        <Params>
+          <Items>
+            <SectionParam Name="Header text">
+              <Value>The Extension Installer Wizard has successfully installed [Name].</Value>
+              <ValueType>String</ValueType>
+              <Description />
+            </SectionParam>
+            <SectionParam Name="Left part image">
+              <Value />
+              <ValueType>File</ValueType>
+              <Description />
+            </SectionParam>
+            <SectionParam Name="Show radio buttons">
+              <Value />
+              <ValueType>Bool</ValueType>
+              <Description>Use radiobutton in place of combobox</Description>
+            </SectionParam>
+            <SectionParam Name="Header image">
+              <Value />
+              <ValueType>File</ValueType>
+              <Description>Image in upper right part</Description>
+            </SectionParam>
+          </Items>
+        </Params>
+        <Actions>
+          <Items />
+        </Actions>
+        <IncludedGroups />
+        <PanelName>Setup Complete</PanelName>
+        <WizardButtonsEnum>Finish</WizardButtonsEnum>
+      </SectionItem>
+    </Items>
+  </Sections>
+  <Dependencies>
+    <Items>
+      <DependencyItem>
+        <Type>MediaPortal</Type>
+        <Id />
+        <MinVersion>
+          <Major>1</Major>
+          <Minor>1</Minor>
+          <Build>6</Build>
+          <Revision>27644</Revision>
+        </MinVersion>
+        <MaxVersion>
+          <Major>1</Major>
+          <Minor>1</Minor>
+          <Build>6</Build>
+          <Revision>27644</Revision>
+        </MaxVersion>
+        <WarnOnly>false</WarnOnly>
+        <Message>requires MediaPortal version 1.1.6.27644 to 1.1.6.27644.</Message>
+        <Name>MediaPortal</Name>
+      </DependencyItem>
+    </Items>
+  </Dependencies>
+  <PluginDependencies>
+    <Items>
+      <PluginDependencyItem AssemblyName="MediaBrowser.dll">
+        <CompatibleVersion>
+          <Items>
+            <CompatibleVersionItem>
+              <MinRequiredVersion>1.1.6.27644</MinRequiredVersion>
+              <DesignedForVersion>1.2.100.0</DesignedForVersion>
+            </CompatibleVersionItem>
+          </Items>
+        </CompatibleVersion>
+        <SubSystemsUsed>
+          <Items />
+        </SubSystemsUsed>
+      </PluginDependencyItem>
+    </Items>
+  </PluginDependencies>
+  <GeneralInfo>
+    <Name>MediaBrowser for MediaPortal</Name>
+    <Id>8445e953-979a-481a-ac31-83c83f922c85</Id>
+    <Author>Armand Pondman</Author>
+    <HomePage>https://github.com/apondman/MediaBrowser/</HomePage>
+    <ForumPage>http://forum.team-mediaportal.com/threads/plugin-mediabrowser-3-client-for-mediaportal.119513/</ForumPage>
+    <UpdateUrl />
+    <Version>
+      <Major>0</Major>
+      <Minor>5</Minor>
+      <Build>4952</Build>
+      <Revision>40807</Revision>
+    </Version>
+    <ExtensionDescription>MediaPortal client for MediaBrowser3 server (http://www.mediabrowser3.com). </ExtensionDescription>
+    <VersionDescription>Initial beta release</VersionDescription>
+    <DevelopmentStatus>Beta</DevelopmentStatus>
+    <OnlineLocation />
+    <ReleaseDate>2013-07-23T23:40:16.6657028+02:00</ReleaseDate>
+    <Tags />
+    <Location>MediaBrowser-[Version].mpe1</Location>
+    <Params>
+      <Items>
+        <SectionParam Name="Icon">
+          <Value>..\Pondman.MediaPortal.MediaBrowser\Resources\Images\mblogoicon.png</Value>
+          <ValueType>File</ValueType>
+          <Description>The icon file of the package (jpg,png,bmp)</Description>
+        </SectionParam>
+        <SectionParam Name="Online Icon">
+          <Value />
+          <ValueType>String</ValueType>
+          <Description>The icon file of the package stored online (jpg,png,bmp)</Description>
+        </SectionParam>
+        <SectionParam Name="Configuration file">
+          <Value />
+          <ValueType>Template</ValueType>
+          <Description>The file used to configure the extension.
+ If it has .exe extension the will be executed.
+ If it has .dll extension it's started like MP plugin configuration.</Description>
+        </SectionParam>
+        <SectionParam Name="Online Screenshots">
+          <Value />
+          <ValueType>String</ValueType>
+          <Description>Online stored screenshot urls separated by ; </Description>
+        </SectionParam>
+        <SectionParam Name="Force to uninstall on update">
+          <Value>YES</Value>
+          <ValueType>Bool</ValueType>
+          <Description>Show dialog and force to uninstall previous version when updating an extension. Should only be disabled if you are using an NSIS/MSI installer.</Description>
+        </SectionParam>
+      </Items>
+    </Params>
+  </GeneralInfo>
+  <UniqueFileList>
+    <Items>
+      <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
+        <Param1 />
+        <UpdateOption>AlwaysOverwrite</UpdateOption>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\MediaBrowser.dll</LocalFileName>
+        <ZipFileName>Installer{CopyFile}\{3ad12a79-515e-4871-b99e-421c4c46e3f4}-MediaBrowser.dll</ZipFileName>
+        <DestinationFilename>%Plugins%\Windows\MediaBrowser.dll</DestinationFilename>
+      </FileItem>
+      <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
+        <Param1 />
+        <UpdateOption>OverwriteIfOlder</UpdateOption>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\MediaBrowser.ApiInteraction.net35.dll</LocalFileName>
+        <ZipFileName>Installer{CopyFile}\{6c51bd74-92dd-4f69-be0b-d8520cadd6e7}-MediaBrowser.ApiInteraction.net35.dll</ZipFileName>
+        <DestinationFilename>%Base%\MediaBrowser.ApiInteraction.net35.dll</DestinationFilename>
+      </FileItem>
+      <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
+        <Param1 />
+        <UpdateOption>OverwriteIfOlder</UpdateOption>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\MediaBrowser.Model.net35.dll</LocalFileName>
+        <ZipFileName>Installer{CopyFile}\{4a6ec321-be3e-4377-b0af-1481b7c42a10}-MediaBrowser.Model.net35.dll</ZipFileName>
+        <DestinationFilename>%Base%\MediaBrowser.Model.net35.dll</DestinationFilename>
+      </FileItem>
+      <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
+        <Param1 />
+        <UpdateOption>OverwriteIfOlder</UpdateOption>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Newtonsoft.Json.dll</LocalFileName>
+        <ZipFileName>Installer{CopyFile}\{71a80c58-bb55-4980-906f-df48f54178ab}-Newtonsoft.Json.dll</ZipFileName>
+        <DestinationFilename>%Base%\Newtonsoft.Json.dll</DestinationFilename>
+      </FileItem>
+      <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
+        <Param1 />
+        <UpdateOption>OverwriteIfOlder</UpdateOption>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\WebSocket4Net.dll</LocalFileName>
+        <ZipFileName>Installer{CopyFile}\{33978656-5154-42ea-a0f3-a5cc45fdd4c1}-WebSocket4Net.dll</ZipFileName>
+        <DestinationFilename>%Base%\WebSocket4Net.dll</DestinationFilename>
+      </FileItem>
+      <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
+        <Param1 />
+        <UpdateOption>OverwriteIfOlder</UpdateOption>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Pondman.MediaPortal.dll</LocalFileName>
+        <ZipFileName>Installer{CopyFile}\{7cc5a198-7811-4dac-8276-fc696c37d95e}-Pondman.MediaPortal.dll</ZipFileName>
+        <DestinationFilename>%Base%\Pondman.MediaPortal.dll</DestinationFilename>
+      </FileItem>
+      <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
+        <Param1 />
+        <UpdateOption>AlwaysOverwrite</UpdateOption>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Languages\en.xml</LocalFileName>
+        <ZipFileName>Installer{CopyFile}\{280a6e56-e706-44e3-b738-6fc914695634}-en.xml</ZipFileName>
+        <DestinationFilename>%Language%\MediaBrowser\en.xml</DestinationFilename>
+      </FileItem>
+      <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
+        <Param1 />
+        <UpdateOption>AlwaysOverwrite</UpdateOption>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Fanart.xml</LocalFileName>
+        <ZipFileName>Installer{GenericSkinFile}\{b7a89798-27bb-4140-8a7d-9c055b6c0d5d}-MediaBrowser.Fanart.xml</ZipFileName>
+        <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Fanart.xml</DestinationFilename>
+      </FileItem>
+      <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
+        <Param1 />
+        <UpdateOption>AlwaysOverwrite</UpdateOption>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Main.HiddenMenu.xml</LocalFileName>
+        <ZipFileName>Installer{GenericSkinFile}\{ba0a90cd-d6e8-4630-bd7a-39d56f89f7c1}-MediaBrowser.Main.HiddenMenu.xml</ZipFileName>
+        <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Main.HiddenMenu.xml</DestinationFilename>
+      </FileItem>
+      <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
+        <Param1 />
+        <UpdateOption>AlwaysOverwrite</UpdateOption>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Main.MediaInfo.xml</LocalFileName>
+        <ZipFileName>Installer{GenericSkinFile}\{b05ccd81-e671-45fc-99a5-aec87e46b923}-MediaBrowser.Main.MediaInfo.xml</ZipFileName>
+        <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Main.MediaInfo.xml</DestinationFilename>
+      </FileItem>
+      <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
+        <Param1 />
+        <UpdateOption>AlwaysOverwrite</UpdateOption>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Main.Views.xml</LocalFileName>
+        <ZipFileName>Installer{GenericSkinFile}\{f6383623-87b9-45e2-8b4e-f5435e161071}-MediaBrowser.Main.Views.xml</ZipFileName>
+        <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Main.Views.xml</DestinationFilename>
+      </FileItem>
+      <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
+        <Param1 />
+        <UpdateOption>AlwaysOverwrite</UpdateOption>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Main.xml</LocalFileName>
+        <ZipFileName>Installer{GenericSkinFile}\{ce9ee416-52b3-41e5-b924-aa29723d9b82}-MediaBrowser.Main.xml</ZipFileName>
+        <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Main.xml</DestinationFilename>
+      </FileItem>
+      <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
+        <Param1 />
+        <UpdateOption>AlwaysOverwrite</UpdateOption>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Movie.MediaInfo.xml</LocalFileName>
+        <ZipFileName>Installer{GenericSkinFile}\{f20cecdd-120d-4a7d-83f0-629fb33302fd}-MediaBrowser.Movie.MediaInfo.xml</ZipFileName>
+        <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Movie.MediaInfo.xml</DestinationFilename>
+      </FileItem>
+      <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
+        <Param1 />
+        <UpdateOption>AlwaysOverwrite</UpdateOption>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Movie.xml</LocalFileName>
+        <ZipFileName>Installer{GenericSkinFile}\{5a3805cd-d69b-423b-8771-f75a6a1da537}-MediaBrowser.Movie.xml</ZipFileName>
+        <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Movie.xml</DestinationFilename>
+      </FileItem>
+      <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
+        <Param1 />
+        <UpdateOption>AlwaysOverwrite</UpdateOption>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.User.xml</LocalFileName>
+        <ZipFileName>Installer{GenericSkinFile}\{03d951d0-8ee9-4e7c-83aa-a221a8bcddd2}-MediaBrowser.User.xml</ZipFileName>
+        <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.User.xml</DestinationFilename>
+      </FileItem>
+      <FileItem InstallType="CopyFile" SystemFile="true" Modified="true">
+        <Param1 />
+        <UpdateOption>OverwriteIfOlder</UpdateOption>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\Resources\Images\mblogoicon.png</LocalFileName>
+        <ZipFileName>Installer{CopyFile}\{6afed8bb-ab09-4dd7-9df4-006f09c8767d}-mblogoicon.png</ZipFileName>
+        <DestinationFilename />
+      </FileItem>
+    </Items>
+  </UniqueFileList>
+  <ProjectSettings>
+    <FolderGroups />
+    <ProjectFilename>MediaBrowser.xmp2</ProjectFilename>
+    <UpdatePath1 />
+    <UpdatePath2 />
+    <UpdatePath3 />
+  </ProjectSettings>
+  <IsSkin>false</IsSkin>
+</PackageClass>

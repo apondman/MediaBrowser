@@ -30,6 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Utils, Version=1.4.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -137,21 +138,34 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /y "MediaBrowser.dll"  "%25PROGRAMFILES%25\Team MediaPortal\MediaPortal\Plugins\Windows"
-xcopy /y "Pondman.MediaPortal.dll"  "%25PROGRAMFILES%25\Team MediaPortal\MediaPortal"
-xcopy /y "MediaBrowser.ApiInteraction.net35.dll"  "%25PROGRAMFILES%25\Team MediaPortal\MediaPortal"
-xcopy /y "MediaBrowser.Model.net35.dll"  "%25PROGRAMFILES%25\Team MediaPortal\MediaPortal"
-xcopy /y "Newtonsoft.Json.dll"  "%25PROGRAMFILES%25\Team MediaPortal\MediaPortal"
-xcopy /y "WebSocket4Net.dll"  "%25PROGRAMFILES%25\Team MediaPortal\MediaPortal"
-xcopy /y "Resources\Skins\*.xml" "%25ALLUSERSPROFILE%25\Team MediaPortal\MediaPortal\skin\Titan"
-xcopy /y "Resources\Languages\*.xml" "%25ALLUSERSPROFILE%25\Team MediaPortal\MediaPortal\language\MediaBrowser"</PostBuildEvent>
+    <PostBuildEvent>
+      if $(ConfigurationName) == Debug goto :debug
+
+      goto :exit
+
+      :debug
+      xcopy /y "MediaBrowser.dll"  "%25PROGRAMFILES%25\Team MediaPortal\MediaPortal\Plugins\Windows"
+      xcopy /y "Pondman.MediaPortal.dll"  "%25PROGRAMFILES%25\Team MediaPortal\MediaPortal"
+      xcopy /y "MediaBrowser.ApiInteraction.net35.dll"  "%25PROGRAMFILES%25\Team MediaPortal\MediaPortal"
+      xcopy /y "MediaBrowser.Model.net35.dll"  "%25PROGRAMFILES%25\Team MediaPortal\MediaPortal"
+      xcopy /y "Newtonsoft.Json.dll"  "%25PROGRAMFILES%25\Team MediaPortal\MediaPortal"
+      xcopy /y "WebSocket4Net.dll"  "%25PROGRAMFILES%25\Team MediaPortal\MediaPortal"
+      xcopy /y "Resources\Skins\*.xml" "%25ALLUSERSPROFILE%25\Team MediaPortal\MediaPortal\skin\Titan"
+      xcopy /y "Resources\Languages\*.xml" "%25ALLUSERSPROFILE%25\Team MediaPortal\MediaPortal\language\MediaBrowser"
+
+      :exit</PostBuildEvent>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
-  <Target Name="AfterBuild">
-  </Target>
   -->
+  <Target Name="AfterBuild" Condition="'$(Configuration)' == 'Release'">
+    <GetAssemblyIdentity AssemblyFiles="$(TargetPath)">
+      <Output TaskParameter="Assemblies" ItemName="AssemblyVersion" />
+    </GetAssemblyIdentity>
+    <Exec Command="&quot;$(ProgramFiles)\Team MediaPortal\MediaPortal\MpeMaker.exe&quot; &quot;$(SolutionDir)MPEI\MediaBrowser.xmp2&quot; /V=%(AssemblyVersion.Version)" />
+    <Message Text="Released %(AssemblyVersion.Version)" Importance="high" />
+  </Target>
 </Project>
