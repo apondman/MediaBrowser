@@ -62,16 +62,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <returns></returns>
         public virtual string GetLocalImageUrl(BaseItemDto item, ImageOptions options)
         {
-            if (options.ImageType == ImageType.Backdrop) 
-            {
-                int index = options.ImageIndex != null ? (int)options.ImageIndex : 0;
-                options.Tag = item.BackdropImageTags[index];
-            } 
-            else 
-            {
-                options.Tag = item.ImageTags[options.ImageType];
-            }           
-
+            options.Tag = GetImageTag(item, options);
             return GetCachedImageUrl("items", options, () => GetImageUrl(item, options));
         }
 
@@ -98,7 +89,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         protected string GetCachedImageUrl(string subtype, ImageOptions options, Func<string> func)
         {
             string url = func();
-            string filename = MD5(url);
+            string filename = url.ToMD5Hash();
             string folder = MediaBrowserPlugin.Settings.MediaCacheFolder + "\\" + subtype + "\\" + options.ImageType.ToString();
             string cachedPath = folder + "\\" + filename + ".jpg";
 
@@ -118,7 +109,7 @@ namespace Pondman.MediaPortal.MediaBrowser
                     {
                         using(Stream input = webResp.GetResponseStream()) 
                         {
-                            CopyStream(input, output);
+                            input.CopyStream(output);
                         }
                     }
                 }
@@ -156,31 +147,33 @@ namespace Pondman.MediaPortal.MediaBrowser
 
         // todo: static methods below should be move to a more general location
 
-        /// <summary>
-        /// Creates an MD5 hash
-        /// </summary>
-        /// <param name="input">The input.</param>
-        /// <returns>hash</returns> 
-        static string MD5(string input)
-        {
-            System.Security.Cryptography.MD5 _md5Hasher = System.Security.Cryptography.MD5.Create();
-            byte[] data = _md5Hasher.ComputeHash(Encoding.Default.GetBytes(input));
-            return BitConverter.ToString(data).Replace("-", "").ToLowerInvariant();
-        }
+        
+
 
         /// <summary>
-        /// Copies one stream to the other
+        /// Gets the image tag.
         /// </summary>
-        /// <param name="input">The input stream.</param>
-        /// <param name="output">The output stream.</param>
-        static void CopyStream(Stream input, Stream output)
+        /// <param name="item">The item.</param>
+        /// <param name="options">The options.</param>
+        /// <returns></returns>
+        static Guid GetImageTag(BaseItemDto item, ImageOptions options)
         {
-            byte[] buffer = new byte[8 * 1024];
-            int len;
-            while ( (len = input.Read(buffer, 0, buffer.Length)) > 0)
+            if (options.ImageType == ImageType.Backdrop)
             {
-                output.Write(buffer, 0, len);
-            }    
+                return item.BackdropImageTags[options.ImageIndex ?? 0];
+            }
+
+            if (options.ImageType == ImageType.Screenshot)
+            {
+                //return item.scree[options.ImageIndex ?? 0];
+            }
+
+            if (options.ImageType == ImageType.Chapter)
+            {
+                return item.Chapters[options.ImageIndex ?? 0].ImageTag.Value;
+            }
+
+            return item.ImageTags[options.ImageType];
         }
 
     }
