@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace System
 {
@@ -38,6 +39,18 @@ namespace System
         public static string ToDelimited<T>(this IEnumerable<T> list, Func<T, string> selector, string delimiter = ", ")
         {
             return string.Join(delimiter, list.Select(selector).ToArray());
+        }
+
+        /// <summary>
+        /// Creates an MD5 hash
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <returns>hash</returns> 
+        public static string ToMD5Hash(this string input)
+        {
+            System.Security.Cryptography.MD5 _md5Hasher = System.Security.Cryptography.MD5.Create();
+            byte[] data = _md5Hasher.ComputeHash(Encoding.Default.GetBytes(input));
+            return BitConverter.ToString(data).Replace("-", "").ToLowerInvariant();
         }
     }
 }

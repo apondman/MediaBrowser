@@ -70,6 +70,7 @@
     <Compile Include="Cornerstone\ImageSwapper.cs" />
     <Compile Include="Extensions\GUIControl.cs" />
     <Compile Include="Extensions\GUIWindow.cs" />
+    <Compile Include="Extensions\Stream.cs" />
     <Compile Include="Extensions\String.cs" />
     <Compile Include="GUI\GUIBrowser.cs" />
     <Compile Include="GUI\GUIWindowX.cs" />
