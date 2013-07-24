@@ -1,6 +1,7 @@
 ﻿using MediaBrowser.ApiInteraction.net35;
 using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Entities;
+using MediaBrowser.Model.Querying;
 using System;
 using System.IO;
 using System.Net;
@@ -10,13 +11,15 @@ namespace Pondman.MediaPortal.MediaBrowser
 {
     public class MediaBrowserClient : ApiClient
     {
+        const string CLIENT_NAME = "MediaPortal";
+        
         /// <summary>
         /// Occurs when the current user changes.
         /// </summary>
         public event Action<UserDto> CurrentUserChanged;
-        
-        public MediaBrowserClient(string serverHostName, int serverApiPort, string clientName, string deviceName, string deviceId, string version)
-            : base(serverHostName, serverApiPort, clientName, deviceName, deviceId, version)
+
+        public MediaBrowserClient(string serverHostName, int serverApiPort, string deviceName, string deviceId, string version)
+            : base(serverHostName, serverApiPort, CLIENT_NAME, deviceName, deviceId, version)
         {
             // todo: logging
         }
@@ -144,11 +147,6 @@ namespace Pondman.MediaPortal.MediaBrowser
                 CurrentUserChanged(CurrentUser);
             }
         }
-
-        // todo: static methods below should be move to a more general location
-
-        
-
 
         /// <summary>
         /// Gets the image tag.

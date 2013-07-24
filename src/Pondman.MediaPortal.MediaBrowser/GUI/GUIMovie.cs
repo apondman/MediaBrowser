@@ -14,6 +14,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 {
     public class MediaBrowserMedia : MediaBrowserItem
     {
+        public virtual int ResumeFrom { get; set; }
+        
         public virtual bool Playback { get; set; }
 
         public static MediaBrowserMedia Browse(string id)
@@ -24,6 +26,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         public static MediaBrowserMedia Play(string id)
         {
             return new MediaBrowserMedia { Id = id, Playback = true };
+        }
+
+        public static MediaBrowserMedia Play(string id, int resumeFrom)
+        {
+            return new MediaBrowserMedia { Id = id, Playback = true, ResumeFrom = resumeFrom };
         }
     }
 
@@ -90,9 +97,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         #endregion       
 
-        protected void Play() 
+        protected void Play(int resumeTime = 0) 
         {
-            _player.Play(_movie.Path);
+            _player.Play(_movie.Path, resumeTime);
         }
 
         protected BaseItemDto LoadMovieDetails(GUITask task)
@@ -129,7 +136,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             if (Parameters.Playback) 
             {
                 Parameters.Playback = false;
-                GUITask.MainThreadCallback(Play);
+                GUITask.MainThreadCallback(() => Play(Parameters.ResumeFrom));
             }
         }
 

@@ -19,6 +19,7 @@ namespace Pondman.MediaPortal
         protected GUIWindow _window;
         protected ILogger _logger;
         protected MediaPlayerState _state;
+        protected int _resumeTime = 0;
 
         #endregion
 
@@ -71,6 +72,12 @@ namespace Pondman.MediaPortal
 
             g_Player.ShowFullScreenWindow();
             _state = MediaPlayerState.Playing;
+            
+            if (_resumeTime > 0) 
+            {
+                SeekPosition(_resumeTime);
+            }
+
             MediaPlayerInfo info = new MediaPlayerInfo(filename);
             if (PlayerStarted != null)
             {
@@ -97,12 +104,18 @@ namespace Pondman.MediaPortal
 
         #endregion
 
-        public virtual void Play(string path)
+        /// <summary>
+        /// Plays the specified path.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="resumeTimeInSeconds">The resume time in seconds.</param>
+        public virtual void Play(string path, int resumeTimeInSeconds = 0)
         {
             _state = MediaPlayerState.Processing;
+            _resumeTime = resumeTimeInSeconds;
             
             // Play the file using the mediaportal player
-            _logger.Debug("Play: Path={0}", path);           
+            _logger.Debug("Play: Path={0}, ResumeFrom={1}", path, resumeTimeInSeconds);           
             
             bool success = g_Player.Play(path.Trim(), g_Player.MediaType.Video);
 
@@ -147,6 +160,13 @@ namespace Pondman.MediaPortal
         {
             // todo: listen to property set event?
             Timer delayed = new Timer((x) => info.Publish("#Play.Current"), null, 2000, -1);
+        }
+
+        static void SeekPosition(int resumePositionInSeconds)
+        {
+            GUIMessage msg = new GUIMessage(GUIMessage.MessageType.GUI_MSG_SEEK_POSITION, 0, 0, 0, 0, 0, null);
+            msg.Param1 = resumePositionInSeconds;
+            GUIGraphicsContext.SendMessage(msg);
         }
     }
 }

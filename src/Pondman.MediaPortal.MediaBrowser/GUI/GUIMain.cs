@@ -427,7 +427,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                             .UserId(userId)
                             .Recursive();
 
-               
                 switch (item.Id)
                 {
                     case "genres":

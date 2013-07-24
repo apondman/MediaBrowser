@@ -116,8 +116,9 @@ namespace Pondman.MediaPortal.MediaBrowser
         {
             // todo: support multiple ids
             _logger.Info("Remote Play Request: Id={1}, StartPositionTicks={2}", args.Request.ItemIds[0], args.Request.StartPositionTicks);
+            var resumeTime = (int)TimeSpan.FromTicks(args.Request.StartPositionTicks ?? 0).TotalSeconds;
 
-            GUICommon.Window(MediaBrowserWindow.Movie, MediaBrowserMedia.Play(args.Request.ItemIds[0]));
+            GUICommon.Window(MediaBrowserWindow.Movie, MediaBrowserMedia.Play(args.Request.ItemIds[0], resumeTime));
         }
 
         void OnBrowseCommand(object sender, BrowseRequestEventArgs args)
@@ -139,7 +140,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         protected virtual void OnServerChanged(IPEndPoint endpoint)
         {
             _logger.Debug("Creating Default Media Browser API Client.");
-            var client = new MediaBrowserClient(endpoint.Address.ToString(), endpoint.Port, "MediaPortal", Environment.OSVersion.VersionString, Environment.MachineName, Plugin.Version.ToString());
+            var client = new MediaBrowserClient(endpoint.Address.ToString(), endpoint.Port, Environment.OSVersion.VersionString, Environment.MachineName, Plugin.Version.ToString());
             Client = client;
             Update();
 
