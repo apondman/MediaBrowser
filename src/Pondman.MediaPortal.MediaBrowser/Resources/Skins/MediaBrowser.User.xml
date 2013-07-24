@@ -14,6 +14,20 @@
       <animation effect="fade" time="250">WindowClose</animation>
     </control>
 
+    <control>
+      <description>Client Version</description>
+      <type>label</type>
+      <label>#MediaBrowser.Translation.Client.Label #MediaBrowser.Version.String</label>
+      <id>0</id>
+      <posX>72</posX>
+      <posY>130</posY>
+      <align>left</align>
+      <textcolor>FFFFFFFF</textcolor>
+      <font>TitanLight8</font>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
 
     <control>
       <id>0</id>
@@ -38,7 +52,7 @@
       <width>500</width>
       <font>TitanLight8</font>
       <textcolor>ffffff</textcolor>
-      <label>#MediaBrowser.Settings.DisplayName #MediaBrowser.Version.String</label>
+      <label>#MediaBrowser.Translation.Server.Label #MediaBrowser.System.Version</label>
       <align>right</align>
       <visible></visible>
       <animation effect="fade" time="250">WindowOpen</animation>

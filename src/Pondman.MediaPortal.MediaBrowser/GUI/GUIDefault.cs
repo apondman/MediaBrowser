@@ -63,8 +63,15 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             Log.Debug("Attached backdrop controls.");
 
+            // todo: move this somewhere more central? perhaps event handler on the service
+            if (GUIContext.Instance.IsServerReady)
+            {
+                GUIContext.Instance.Service.System.Publish(MediaBrowserPlugin.DefaultProperty + ".System");
+            }
+
             // Publish Default User
-            GUIContext.Instance.PublishUser();
+            GUIContext.Instance.PublishUser();           
+            
         }
 
         protected override void OnClicked(int controlId, GUIControl control, MPGUI.Action.ActionType actionType)
