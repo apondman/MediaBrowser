@@ -147,10 +147,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
 
             // if we are in the root go to the previous window
-            if (_history.Count < 2)
+            if (_history.Count == 1)
             {
-                _history.Clear();
-                SelectedId = null;
                 base.OnPreviousWindow();
                 return;
             }
@@ -286,7 +284,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             _history.Clear();
             SelectedId = null;
-            Navigate();
+
+            // get root folder
+            GUIContext.Instance.Client.GetRootFolder(GUIContext.Instance.Client.CurrentUserId, LoadRoot, ShowItemsError);
         }
 
         /// <summary>
@@ -307,7 +307,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 {
                     current = _history.Pop();
                 }
-            } 
+            }
             
             // otherwise reload the current state
             Navigate(current);
@@ -334,6 +334,16 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         }
 
         /// <summary>
+        /// Loads the root folder into the navigation system.
+        /// </summary>
+        /// <param name="dto">The dto.</param>
+        protected void LoadRoot(BaseItemDto dto)
+        {
+            var listitem = GetBaseListItem(dto);
+            Navigate(listitem);
+        }
+
+        /// <summary>
         /// Loads en creates GUIListItems using the current item
         /// </summary>
         /// <param name="task">The task.</param>
@@ -346,7 +356,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             // clear browser and set current
             _browser.Current(currentItem);
 
-            if (currentItem == null)
+            var itemInfo = GetMediaBrowserItemFromPath(currentItem);
+            if (itemInfo.Type == "UserRootFolder")
             {
                 // Default views and queries
                 _browser.Add(GetViewListItem("movies", MediaBrowserPlugin.UI.Resource.Movies));
@@ -357,9 +368,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             // we are using the manual reset event because the call on the client is async and we want this method to only complete when it's done.
             _mre.Reset();
-            
+
             // get the query
-            var query = GetItemQuery(currentItem);
+            var query = GetItemQuery(itemInfo);
             GUIContext.Instance.Client.GetItems(query, (result) =>
             {
                 _browser.TotalCount = result.TotalRecordCount;
@@ -377,7 +388,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
             , (e) =>
             {
-                // todo: log error
                 ShowItemsError(e);
                 _mre.Set();
             });
@@ -413,18 +423,23 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             if (item.Type == "View")
             {
+                var query = MediaBrowserQueries.New
+                            .UserId(userId)
+                            .Recursive();
+
+               
                 switch (item.Id)
                 {
+                    case "genres":
+                        //Genres?SortBy=SortName&SortOrder=Ascending&IncludeItemTypes=Movie%2CTrailer&Recursive=true&Fields=ItemCounts%2CDateCreated%2CUserData&StartIndex=0&Limit=300&userId=78ee3c8192698ab53354b66650dc8201
                     case "movies":
-                        return MediaBrowserQueries.New
-                            .UserId(userId)
-                            .Movies()
-                            .Fields(ItemFields.Overview,ItemFields.People,ItemFields.Genres, ItemFields.MediaStreams);
+                        return query
+                                .Movies()
+                                .Fields(ItemFields.Overview,ItemFields.People,ItemFields.Genres, ItemFields.MediaStreams);
                     case "tvshows":
-                        return MediaBrowserQueries.New
-                            .UserId(userId)
-                            .TVShows()
-                            .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams);
+                        return query
+                                .TVShows()
+                                .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams);
                 }
             }
 
