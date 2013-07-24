@@ -486,13 +486,14 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 return;
             }
 
-            int result = GUIUtils.ShowMenuDialog("Login", items);
+            int result = GUIUtils.ShowMenuDialog(MediaBrowserPlugin.UI.Resource.UserProfileLogin, items);
             if (result > -1)
             {
                 var item = items[result];
                 UserDto user = item.TVTag as UserDto;
 
-                string password = user.HasPassword ? GUIUtils.ShowKeyboard("Please provide the password for this user.", true) : string.Empty;
+                string password = user.HasPassword ? GUIUtils.ShowKeyboard(string.Empty, true) : string.Empty;
+
                 GUIContext.Instance.Client.AuthenticateUser(user.Id, password, (success) =>
                 {
                     if (success)
@@ -503,7 +504,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     }
                     else
                     {
-                        // todo: report failure!
+                        GUIUtils.ShowOKDialog(MediaBrowserPlugin.UI.Resource.UserProfileLogin, MediaBrowserPlugin.UI.Resource.UserProfileLoginFailed);
                         ShowUserProfilesDialog(items);
                     }
                 });
