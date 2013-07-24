@@ -220,14 +220,94 @@ namespace MediaPortal.GUI.Library
                 return (string)GUIGraphicsContext.form.Invoke(d, heading, password);
             }
 
-            StandardKeyboard keyboard = (StandardKeyboard)GUIWindowManager.GetWindow((int)GUIWindow.Window.WINDOW_VIRTUAL_KEYBOARD);
+            VirtualKeyboard keyboard = (VirtualKeyboard)GUIWindowManager.GetWindow((int)GUIWindow.Window.WINDOW_VIRTUAL_KEYBOARD);
+            if (null == keyboard)
+            {
+                return null;
+            }
 
             keyboard.Reset();
-            keyboard.Label = heading;
+            keyboard.Text = heading;
             keyboard.Password = password;
             keyboard.DoModal(GUIWindowManager.ActiveWindow);
 
-            return keyboard.Text;
+            if (keyboard.IsConfirmed && keyboard.Text != heading)
+            {
+                return keyboard.Text;
+            }
+
+            return null;
+        }
+
+        private delegate void ShowTextDialogDelegate(string heading, string text);
+
+        /// <summary>
+        /// Displays a text dialog.
+        /// </summary>
+        public static void ShowTextDialog(string heading, List<string> text)
+        {
+            if (text == null || text.Count == 0) return;
+            ShowTextDialog(heading, string.Join("\n", text.ToArray()));
+        }
+
+        /// <summary>
+        /// Displays a text dialog.
+        /// </summary>
+        public static void ShowTextDialog(string heading, string text)
+        {
+            if (GUIGraphicsContext.form.InvokeRequired)
+            {
+                ShowTextDialogDelegate d = ShowTextDialog;
+                GUIGraphicsContext.form.Invoke(d, heading, text);
+                return;
+            }
+
+            GUIDialogText dlgText = (GUIDialogText)GUIWindowManager.GetWindow((int)GUIWindow.Window.WINDOW_DIALOG_TEXT);
+
+            dlgText.Reset();
+            dlgText.SetHeading(heading);
+            dlgText.SetText(text);
+
+            dlgText.DoModal(GUIWindowManager.ActiveWindow);
+        }
+
+        private delegate void ShowOKDialogDelegate(string heading, string lines);
+
+        /// <summary>
+        /// Displays a OK dialog with heading and up to 4 lines.
+        /// </summary>
+        public static void ShowOKDialog(string heading, string line1, string line2, string line3, string line4)
+        {
+            ShowOKDialog(heading, string.Concat(line1, line2, line3, line4));
+        }
+
+        /// <summary>
+        /// Displays a OK dialog with heading and up to 4 lines split by \n in lines string.
+        /// </summary>
+        public static void ShowOKDialog(string heading, string lines)
+        {
+            if (GUIGraphicsContext.form.InvokeRequired)
+            {
+                ShowOKDialogDelegate d = ShowOKDialog;
+                GUIGraphicsContext.form.Invoke(d, heading, lines);
+                return;
+            }
+
+            GUIDialogOK dlgOK = (GUIDialogOK)GUIWindowManager.GetWindow((int)GUIWindow.Window.WINDOW_DIALOG_OK);
+
+            dlgOK.Reset();
+            dlgOK.SetHeading(heading);
+
+            int lineid = 1;
+            foreach (string line in lines.Split(new string[] { "\\n", "\n" }, StringSplitOptions.None))
+            {
+                dlgOK.SetLine(lineid, line);
+                lineid++;
+            }
+            for (int i = lineid; i <= 4; i++)
+                dlgOK.SetLine(i, string.Empty);
+
+            dlgOK.DoModal(GUIWindowManager.ActiveWindow);
         }
 
         #endregion
