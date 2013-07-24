@@ -8,6 +8,7 @@ using MediaBrowser.ApiInteraction.net35;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
+   
     /// <summary>
     /// MediaBrowser Query Helper
     /// </summary>
@@ -102,8 +103,12 @@ namespace Pondman.MediaPortal.MediaBrowser
         {
             query.Fields = query.Fields.Concat(fields).ToArray();
             return query;
+        }
 
-
+        public static ItemQuery Recursive(this ItemQuery query, bool value = true)
+        {
+            query.Recursive = value;
+            return query;
         }
     }
 
