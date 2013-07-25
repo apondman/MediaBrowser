@@ -124,10 +124,21 @@ namespace Pondman.MediaPortal.MediaBrowser
         void OnBrowseCommand(object sender, BrowseRequestEventArgs args)
         {
             _logger.Info("Remote Browse Request: Type={0}, Id={1}, Name={2}", args.Request.ItemType, args.Request.ItemId, args.Request.ItemName);
-            
-            if (args.Request.ItemType == "Movie")
+
+            switch (args.Request.ItemType)
             {
-                GUICommon.Window(MediaBrowserWindow.Movie, MediaBrowserMedia.Browse(args.Request.ItemId));
+                case "Movie":
+                    GUICommon.Window(MediaBrowserWindow.Movie, MediaBrowserMedia.Browse(args.Request.ItemId));
+                    return;
+                default:
+                    GUICommon.Window(MediaBrowserWindow.Main,
+                        new MediaBrowserItem
+                        {
+                            Id = args.Request.ItemId,
+                            Type = args.Request.ItemType,
+                            Name = args.Request.ItemName
+                        });
+                    return;
             }
         }
 

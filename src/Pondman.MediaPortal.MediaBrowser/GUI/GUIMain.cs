@@ -83,6 +83,14 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 return;
             }
 
+            // browse to item
+            if (!String.IsNullOrEmpty(Parameters.Id))
+            {
+                // todo: check type? add loading indicator?
+                GUIContext.Instance.Client.GetItem(Parameters.Id, GUIContext.Instance.Client.CurrentUserId, LoadItem, ShowItemsError);
+                return;
+            }
+
             Reload();  
         }
 
@@ -175,6 +183,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             GUICommon.ItemImageDownloadAndAssign.BeginInvoke(item, GUICommon.ItemImageDownloadAndAssign.EndInvoke, null);
         }
 
+        /// <summary>
+        /// Handler for selected item
+        /// </summary>
+        /// <param name="item">The item.</param>
         protected void OnBaseItemSelected(GUIListItem item)
         {
             if (item != null)
@@ -185,14 +197,18 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
         }
 
+        /// <summary>
+        /// Handler for current item
+        /// </summary>
+        /// <param name="item">The item.</param>
         protected void OnPublishCurrent(GUIListItem item)
         {
             if (item != null)
             {
-                var dto = item.TVTag as BaseItemDto;
-                if (dto != null)
+                CurrentItem = item.TVTag as BaseItemDto;
+                if (CurrentItem != null)
                 {
-                    PublishItemDetails(dto, MediaBrowserPlugin.DefaultProperty + ".Current");
+                    PublishItemDetails(CurrentItem, MediaBrowserPlugin.DefaultProperty + ".Current");
                 }
             }
         }
@@ -243,7 +259,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <returns></returns>
         public GUIListItem GetUserListItem(UserDto user)
         {
-            // todo: cache list item
             var item = new GUIListItem(user.Name)
             {
                 Path = "User/" + user.Id,
@@ -272,17 +287,26 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         public string SelectedId { get; set; }
 
         /// <summary>
+        /// Gets or sets the current item.
+        /// </summary>
+        /// <value>
+        /// The current item.
+        /// </value>
+        public BaseItemDto CurrentItem { get; set; }
+
+        /// <summary>
         /// Resets the  navigation to the starting position
         /// </summary>
         public void Reset()
         {
             GUIContext.Instance.PublishUser();
 
+            CurrentItem = null;
             _history.Clear();
             SelectedId = null;
 
             // get root folder
-            GUIContext.Instance.Client.GetRootFolder(GUIContext.Instance.Client.CurrentUserId, LoadRoot, ShowItemsError);
+            GUIContext.Instance.Client.GetRootFolder(GUIContext.Instance.Client.CurrentUserId, LoadItem, ShowItemsError);
         }
 
         /// <summary>
@@ -331,7 +355,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// Loads the root folder into the navigation system.
         /// </summary>
         /// <param name="dto">The dto.</param>
-        protected void LoadRoot(BaseItemDto dto)
+        protected void LoadItem(BaseItemDto dto)
         {
             var listitem = GetBaseListItem(dto);
             Navigate(listitem);
@@ -345,15 +369,15 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         protected List<GUIListItem> LoadItems(GUITask task)
         {
             // check the current item
-            var currentItem = _history.Peek();
-            
+            var current = _history.Peek();
+
             // clear browser and set current
-            _browser.Current(currentItem);
+            _browser.Current(current);
 
             // we are using the manual reset event because the call on the client is async and we want this method to only complete when it's done.
             _mre.Reset();
-            GetItems(currentItem.TVTag as BaseItemDto);
-            _mre.WaitOne(); // todo: timeout?
+            GetItems(current.TVTag as BaseItemDto);
+            _mre.WaitOne();
 
             return null;
         }

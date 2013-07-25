@@ -23,6 +23,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         public virtual string Name { get; set; }
 
         public virtual string Id { get; set; }
+
     }
 
     /// <summary>
