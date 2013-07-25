@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MediaPortal.Services;
-using MediaPortal.GUI.Library;
-using MPGui = MediaPortal.GUI.Library;
+﻿using System.Linq;
 using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Querying;
-using System.Threading;
-using System.Net;
-using System.Drawing.Imaging;
-using System.Drawing;
+using MediaPortal.GUI.Library;
 using Pondman.MediaPortal.GUI;
-using System.Windows.Media.Animation;
-using MediaBrowser.Model.Entities;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using MPGui = MediaPortal.GUI.Library;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
 {
@@ -42,14 +35,12 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             // register commands
             RegisterCommand("CycleLayout", CycleLayoutCommand);
             RegisterCommand("ChangeUser", ChangeUserCommand);
-        }        
-
-        ~GUIMain() { }
+        }
 
         #region Controls
         
         [SkinControl(50)]
-        protected GUIFacadeControl facade = null;
+        protected GUIFacadeControl Facade = null;
 
         #endregion
 
@@ -57,9 +48,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         protected void CycleLayoutCommand(GUIControl control, MPGui.Action.ActionType actionType)
         {
-            facade.CycleLayout();
-            facade.Focus();
-            Log.Debug("Layout: {0}", facade.CurrentLayout);
+            Facade.CycleLayout();
+            Facade.Focus();
+            Log.Debug("Layout: {0}", Facade.CurrentLayout);
         }
 
         protected void ChangeUserCommand(GUIControl control, MPGui.Action.ActionType actionType)
@@ -75,7 +66,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             base.OnPageLoad();
 
-            _browser.Attach(facade);
+            _browser.Attach(Facade);
 
             if (!GUIContext.Instance.IsServerReady) 
             {
@@ -107,7 +98,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     switch (actionType)
                     {
                         case MPGui.Action.ActionType.ACTION_SELECT_ITEM:
-                            Navigate(facade.SelectedListItem);
+                            Navigate(Facade.SelectedListItem);
                             return;
                     }
                     break;
@@ -187,7 +178,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             if (item != null)
             {
                 // todo: check for specific dto
-                BaseItemDto dto = item.TVTag as BaseItemDto;
+                var dto = item.TVTag as BaseItemDto;
                 PublishItemDetails(dto, MediaBrowserPlugin.DefaultProperty + ".Selected");
             }
         }
@@ -196,7 +187,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             if (item != null)
             {
-                BaseItemDto dto = item.TVTag as BaseItemDto;
+                var dto = item.TVTag as BaseItemDto;
                 if (dto != null)
                 {
                     PublishItemDetails(dto, MediaBrowserPlugin.DefaultProperty + ".Current");
@@ -216,7 +207,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <returns></returns>
         public GUIListItem GetViewListItem(string id, string label)
         {
-            BaseItemDto view = new BaseItemDto();
+            var view = new BaseItemDto();
             view.Name = label; 
             view.Id = id; 
             view.Type = "View";
@@ -232,7 +223,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <returns></returns>
         public GUIListItem GetBaseListItem(BaseItemDto dto)
         {
-            GUIListItem item = new GUIListItem(dto.Name);
+            var item = new GUIListItem(dto.Name);
             item.Path = dto.Type + "/" + dto.Id;
             item.Year = dto.ProductionYear ?? 0;
             item.TVTag = dto;
@@ -303,12 +294,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     OnPreviousWindow();
                     return;
                 }
-                else
-                {
-                    current = _history.Pop();
-                }
+
+                current = _history.Pop();
             }
-            
+
             // otherwise reload the current state
             Navigate(current);
         }
@@ -351,7 +340,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         protected List<GUIListItem> LoadItems(GUITask task)
         {
             // check the current item
-            GUIListItem currentItem = _history.Peek();
+            var currentItem = _history.Peek();
             
             // clear browser and set current
             _browser.Current(currentItem);
@@ -417,7 +406,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         protected MediaBrowserItem GetMediaBrowserItemFromPath(string path)
         {
-            string[] tokens = path.Split('/');
+            var tokens = path.Split('/');
             return new MediaBrowserItem { Type = tokens[0], Id = tokens[1] };
         }
 
@@ -432,7 +421,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         protected ItemQuery GetItemQuery(MediaBrowserItem item)
         {
-            string userId = GUIContext.Instance.Client.CurrentUserId;
+            var userId = GUIContext.Instance.Client.CurrentUserId;
 
             if (item.Type == "View")
             {
@@ -474,7 +463,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <param name="item">The item.</param>
         protected void ShowDetails(GUIListItem item)
         {
-            BaseItemDto details = item.TVTag as BaseItemDto;
+            var details = item.TVTag as BaseItemDto;
             if (details != null) 
             {
                 var parameters = new MediaBrowserItem{ Id = details.Id };
@@ -523,15 +512,15 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 return;
             }
 
-            int result = GUIUtils.ShowMenuDialog(MediaBrowserPlugin.UI.Resource.UserProfileLogin, items);
+            var result = GUIUtils.ShowMenuDialog(MediaBrowserPlugin.UI.Resource.UserProfileLogin, items);
             if (result > -1)
             {
                 var item = items[result];
-                UserDto user = item.TVTag as UserDto;
+                var user = item.TVTag as UserDto;
 
-                string password = user.HasPassword ? GUIUtils.ShowKeyboard(string.Empty, true) : string.Empty;
+                var password = user != null && user.HasPassword ? GUIUtils.ShowKeyboard(string.Empty, true) : string.Empty;
 
-                GUIContext.Instance.Client.AuthenticateUser(user.Id, password, (success) =>
+                GUIContext.Instance.Client.AuthenticateUser(user.Id, password, success =>
                 {
                     if (success)
                     {
@@ -539,11 +528,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                         Reset();
                         return;
                     }
-                    else
-                    {
-                        GUIUtils.ShowOKDialog(MediaBrowserPlugin.UI.Resource.UserProfileLogin, MediaBrowserPlugin.UI.Resource.UserProfileLoginFailed);
-                        ShowUserProfilesDialog(items);
-                    }
+                    GUIUtils.ShowOKDialog(MediaBrowserPlugin.UI.Resource.UserProfileLogin, MediaBrowserPlugin.UI.Resource.UserProfileLoginFailed);
+                    ShowUserProfilesDialog(items);
                 });
             }
             else if (!GUIContext.Instance.Client.IsUserLoggedIn)
@@ -562,31 +548,20 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             task = task ?? GUITask.None;
             
             // we are using the manual reset event because the call on the client is async and we want this method to only complete when it's done.
-            ManualResetEvent mre = new ManualResetEvent(false);
-            List<GUIListItem> list = new List<GUIListItem>();
+            var mre = new ManualResetEvent(false);
+            var list = new List<GUIListItem>();
 
-            GUIContext.Instance.Client.GetUsers((users) =>
+            GUIContext.Instance.Client.GetUsers(users =>
             {
-                foreach (var user in users)
-                {
-                    if (task.IsCancelled)
-                    {
-                        break;
-                    }
-
-                    // get user list item and add it to the facade
-                    var item = GetUserListItem(user);
-                    list.Add(item);
-                }
+                list.AddRange(users.TakeWhile(user => !task.IsCancelled).Select(GetUserListItem));
 
                 mre.Set();
             }
-            , (e) =>
-            {
-                // todo: show error?
-                Log.Error(e);
-                mre.Set();
-            });
+                , e => {
+                    // todo: show error?
+                    Log.Error(e);
+                    mre.Set();
+                });
 
             mre.WaitOne(); // todo: timeout?
 
@@ -595,13 +570,13 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         protected override void PublishArtwork(BaseItemDto item)
         {
-            string cover = GetCoverUrl(item);
-            string backdrop = GetBackdropUrl(item);
+            var cover = GetCoverUrl(item);
+            var backdrop = GetBackdropUrl(item);
 
             // todo: need a better way to do this 
             // the methods above are blocking (downloading and creating cache worst case and once they return 
             // the selection could be changed so we quickly check whether the image is still relevant
-            if (facade != null && facade.SelectedListItem != null && facade.SelectedListItem.TVTag == item)
+            if (Facade != null && Facade.SelectedListItem != null && Facade.SelectedListItem.TVTag == item)
             {
                _cover.Filename = cover;
                _backdrop.Filename = backdrop;
