@@ -31,6 +31,16 @@ namespace Pondman.MediaPortal.MediaBrowser
         }
 
         /// <summary>
+        /// Include Box Sets in the current query
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <returns></returns>
+        public static ItemQuery BoxSets(this ItemQuery query)
+        {
+            return query.IncludeItemTypes("BoxSet");
+        }
+
+        /// <summary>
         /// Include TVShows in the current query
         /// </summary>
         /// <param name="query">The query.</param>
@@ -69,6 +79,18 @@ namespace Pondman.MediaPortal.MediaBrowser
         public static ItemQuery UserId(this ItemQuery query, string userId)
         {
             query.UserId = userId;
+            return query;
+        }
+
+        /// <summary>
+        /// Filter items by parent id
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="parentId">The parent id.</param>
+        /// <returns></returns>
+        public static ItemQuery ParentId(this ItemQuery query, string parentId)
+        {
+            query.ParentId = parentId;
             return query;
         }
 

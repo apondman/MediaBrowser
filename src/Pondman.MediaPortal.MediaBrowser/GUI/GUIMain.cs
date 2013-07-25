@@ -387,6 +387,13 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                         case "movies-studios":
                             GUIContext.Instance.Client.GetStudios(GetItemsByNameQueryForMovie(), PopulateBrowserAndContinue, ShowItemsErrorAndContinue);
                             return;
+                        case "movies-boxset":
+                            query = query
+                                        .BoxSets()
+                                        .Fields(ItemFields.ItemCounts)
+                                        .SortBy(ItemSortBy.SortName)
+                                        .Ascending();
+                            break;
                         case "movies-latest":
                             query = query
                                     .Movies()
@@ -415,6 +422,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 case "Studio":
                     query = query.Movies().Studios(item.Name).SortBy(ItemSortBy.SortName).Ascending();
                     break;
+                default:
+                    // get movies by parent id
+                    query = query.Movies().ParentId(item.Id).SortBy(ItemSortBy.SortName).Ascending();
+                    break;
             }
 
             // default is item query
@@ -425,9 +436,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             _browser.Add(GetViewListItem("movies-latest", MediaBrowserPlugin.UI.Resource.LatestUnwatchedMovies));
             _browser.Add(GetViewListItem("movies-all", MediaBrowserPlugin.UI.Resource.AllMovies));
+            _browser.Add(GetViewListItem("movies-boxset", MediaBrowserPlugin.UI.Resource.BoxSets));
             _browser.Add(GetViewListItem("movies-genres", MediaBrowserPlugin.UI.Resource.Genres));
             _browser.Add(GetViewListItem("movies-studios", MediaBrowserPlugin.UI.Resource.Studios));
-            _browser.TotalCount = 4;
+
+            _browser.TotalCount = 5;
             _mre.Set();
         }
 

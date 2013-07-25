@@ -11,6 +11,8 @@
         public string Actor = "Actor";
         public string Actors = "Actors";
 
+        public string BoxSets = "Box Sets";
+
         public string Client = "Client";
 
         public string Director = "Director";
