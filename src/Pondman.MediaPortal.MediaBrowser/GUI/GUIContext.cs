@@ -5,6 +5,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 {
     public sealed class GUIContext
     {
+        readonly UserDto _anonymousUser = new UserDto { Id = "user/anonymous", Name = MediaBrowserPlugin.UI.Resource.Anonymous };
+        
         #region Singleton
 
         static readonly GUIContext instance = new GUIContext();
@@ -31,13 +33,13 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             get
             {
-                return Client.CurrentUser ?? anonymousUser;
+                return Client.CurrentUser ?? _anonymousUser;
             }
             set
             {
                 Client.CurrentUser = value;
             }
-        } UserDto anonymousUser = new UserDto { Id = "user/anonymous", Name = "Anonymous" };
+        } 
 
         public IMediaBrowserService Service
         {

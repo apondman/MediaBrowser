@@ -5,6 +5,7 @@
     /// </summary>
     public class Translations
     {
+        public string Anonymous = "Anonymous";
         public string AllMovies = "All Movies";
 
         public string Actor = "Actor";
@@ -14,7 +15,10 @@
 
         public string Director = "Director";
         public string Directors = "Directors";
-        
+
+        public string Error = "Error";
+        public string ErrorMakingRequest = "An error occured while making the request";
+
         public string Genre = "Genre";
         public string Genres = "Genres";
 

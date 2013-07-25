@@ -15,14 +15,12 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
     public abstract class GUIDefault<TParameters> : GUIWindowX<TParameters>
         where TParameters : class, new()
     {
-        static Random _randomizer = new Random();
+        static readonly Random _randomizer = new Random();
 
         protected AsyncImageResource _cover = null;
         protected ImageSwapper _backdrop = null;
         protected Dictionary<string, Action<GUIControl, MPGUI.Action.ActionType>> _commands = null;
         protected string _commandPrefix = MediaBrowserPlugin.DefaultName + ".Command.";
-
-        GUITask _mainTask = null;
 
         [SkinControl(1)]
         protected GUIImage _backdropControl1 = null;
@@ -33,17 +31,22 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         public GUIDefault(MediaBrowserWindow window)
             : base(MediaBrowserPlugin.DefaultName + "." + window, (int)window)
         {
+            MainTask = null;
             _logger = MediaBrowserPlugin.Log;
             _commands = new Dictionary<string, Action<GUIControl, MPGUI.Action.ActionType>>();
 
             // create backdrop image swapper
-            _backdrop = new ImageSwapper();
-            _backdrop.PropertyOne = MediaBrowserPlugin.DefaultProperty + ".Backdrop.1";
-            _backdrop.PropertyTwo = MediaBrowserPlugin.DefaultProperty + ".Backdrop.2";
+            _backdrop = new ImageSwapper
+            {
+                PropertyOne = MediaBrowserPlugin.DefaultProperty + ".Backdrop.1",
+                PropertyTwo = MediaBrowserPlugin.DefaultProperty + ".Backdrop.2"
+            };
 
             // create cover image swapper
-            _cover = new AsyncImageResource(MediaBrowserPlugin.Log);
-            _cover.Property = MediaBrowserPlugin.DefaultProperty + ".Coverart";
+            _cover = new AsyncImageResource(MediaBrowserPlugin.Log)
+            {
+                Property = MediaBrowserPlugin.DefaultProperty + ".Coverart"
+            };
 
             // auto register commands by convention
             //var commands = this.GetType().GetMethods().Where(m => m.Name.EndsWith("Command"));
@@ -76,20 +79,19 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         protected override void OnClicked(int controlId, GUIControl control, MPGUI.Action.ActionType actionType)
         {
-            // check whether the control contains a command
-            if ((control.Description ?? string.Empty).StartsWith(_commandPrefix))
+             // check whether the control contains a command
+            if (control != null && (control.Description ?? string.Empty).StartsWith(_commandPrefix))
             {
                 // parse the command name and check if it's registered.
                 Action<GUIControl, MPGUI.Action.ActionType> action = null;
-                string command = control.Description.Replace(_commandPrefix, string.Empty);
-                if (_commands.TryGetValue(command, out action))
-                {
-                    Log.Debug("Command: {0}", command);
+                var command = control.Description.Replace(_commandPrefix, string.Empty);
+                if (!_commands.TryGetValue(command, out action)) return;
 
-                    // execute the command and return
-                    action(control, actionType);
-                    return;
-                }
+                Log.Debug("Command: {0}", command);
+
+                // execute the command and return
+                action(control, actionType);
+                return;
             }
 
             // fallback to base implementation
@@ -102,17 +104,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <value>
         /// The main task.
         /// </value>
-        public GUITask MainTask
-        {
-            get
-            {
-                return _mainTask;
-            }
-            set
-            {
-                _mainTask = value;
-            }
-        }
+        public GUITask MainTask { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether the main task is running.
@@ -130,6 +122,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         public virtual void ShowItemsError(Exception e)
         {
+            GUIUtils.ShowOKDialog(MediaBrowserPlugin.UI.Resource.Error, MediaBrowserPlugin.UI.Resource.ErrorMakingRequest);
             // todo: implement error dialog / try again
             Log.Error(e);
         }
@@ -231,7 +224,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
     public abstract class GUIDefault : GUIDefault<MediaBrowserItem>
     {
-        public GUIDefault(MediaBrowserWindow window)
+        protected GUIDefault(MediaBrowserWindow window)
             : base(window)
         {
             
