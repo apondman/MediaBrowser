@@ -360,9 +360,18 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             if (itemInfo.Type == "UserRootFolder")
             {
                 // Default views and queries
-                _browser.Add(GetViewListItem("movies", MediaBrowserPlugin.UI.Resource.Movies));
-                _browser.Add(GetViewListItem("tvshows", MediaBrowserPlugin.UI.Resource.TVShows));
-                _browser.TotalCount = 2;
+                //_browser.Add(GetViewListItem("movies", MediaBrowserPlugin.UI.Resource.Movies));
+                //_browser.Add(GetViewListItem("tvshows", MediaBrowserPlugin.UI.Resource.TVShows));
+                //_browser.TotalCount = 2;
+                //return null;
+            //}
+            //else if (itemInfo.Type == "View" && itemInfo.Id == "movies")
+            //{
+                _browser.Add(GetViewListItem("movies-latest", MediaBrowserPlugin.UI.Resource.LatestUnwatchedMovies));
+                _browser.Add(GetViewListItem("movies-all", MediaBrowserPlugin.UI.Resource.AllMovies));
+                _browser.Add(GetViewListItem("movies-genres", MediaBrowserPlugin.UI.Resource.Genres));
+                _browser.Add(GetViewListItem("movies-studios", MediaBrowserPlugin.UI.Resource.Studios));
+                _browser.TotalCount = 4;
                 return null;
             }
 
@@ -371,30 +380,34 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             // get the query
             var query = GetItemQuery(itemInfo);
-            GUIContext.Instance.Client.GetItems(query, (result) =>
-            {
-                _browser.TotalCount = result.TotalRecordCount;
-                foreach (var item in result.Items)
-                {
-                    if (task.IsCancelled)
-                    {
-                        break;
-                    }
-
-                    var listitem = GetBaseListItem(item);
-                    _browser.Add(listitem);
-                }
-                _mre.Set();
-            }
-            , (e) =>
-            {
-                ShowItemsError(e);
-                _mre.Set();
-            });
+            GUIContext.Instance.Client.GetItems(query, PopulateBrowser, ShowItemsErrorAndRelease);
 
             _mre.WaitOne(); // todo: timeout?
 
             return null;
+        }
+
+        protected void PopulateBrowser(ItemsResult result)
+        {
+            _browser.TotalCount = result.TotalRecordCount;
+            foreach (var item in result.Items)
+            {
+                if (MainTask.IsCancelled)
+                {
+                    break;
+                }
+
+                var listitem = GetBaseListItem(item);
+                _browser.Add(listitem);
+            }
+
+            _mre.Set();
+        }
+
+        protected void ShowItemsErrorAndRelease(Exception e)
+        {
+            ShowItemsError(e);
+            _mre.Set();
         }
 
         protected MediaBrowserItem GetMediaBrowserItemFromPath(GUIListItem item)
@@ -425,20 +438,30 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             {
                 var query = MediaBrowserQueries.New
                             .UserId(userId)
-                            .Recursive();
+                            .Recursive()
+                            .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams);
 
                 switch (item.Id)
                 {
-                    case "genres":
-                        //Genres?SortBy=SortName&SortOrder=Ascending&IncludeItemTypes=Movie%2CTrailer&Recursive=true&Fields=ItemCounts%2CDateCreated%2CUserData&StartIndex=0&Limit=300&userId=78ee3c8192698ab53354b66650dc8201
-                    case "movies":
+                    case "movies-latest":
                         return query
                                 .Movies()
-                                .Fields(ItemFields.Overview,ItemFields.People,ItemFields.Genres, ItemFields.MediaStreams);
+                                .SortBy(ItemSortBy.DateCreated)
+                                .Filters(ItemFilter.IsUnplayed)
+                                .Descending()
+                                .Limit(100);
+                        //Genres?SortBy=SortName&SortOrder=Ascending&IncludeItemTypes=Movie%2CTrailer&Recursive=true&Fields=ItemCounts%2CDateCreated%2CUserData&StartIndex=0&Limit=300&userId=78ee3c8192698ab53354b66650dc8201
+                    case "movies-all":
+                        return query
+                                .Movies()
+                                .SortBy(ItemSortBy.SortName)
+                                .Ascending();
+                                
                     case "tvshows":
                         return query
                                 .TVShows()
-                                .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams);
+                                .SortBy(ItemSortBy.SortName)
+                                .Ascending();
                 }
             }
 

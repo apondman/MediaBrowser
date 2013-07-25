@@ -170,19 +170,17 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             // Streams
             string streamPrefix = prefix + ".MediaStreams";
+            GUIUtils.Unpublish(streamPrefix);
             if (movie.MediaStreams != null && movie.MediaStreams.Count > 0)
             {
                 movie.MediaStreams.GroupBy(p => p.Type)
                     .ToDictionary(x => x.Key)
                     .Publish(streamPrefix);
             }
-            else
-            {
-                GUIUtils.Unpublish(streamPrefix);
-            }
 
             // People
             string peoplePrefix = prefix + ".People";
+            GUIUtils.Unpublish(peoplePrefix);
             if (movie.People != null && movie.People.Length > 0)
             {
                 movie.People.GroupBy(p => p.Type)
@@ -193,10 +191,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 movie.People.GroupBy(p => p.Type)
                     .ToDictionary(x => x.Key + ".List", x => x.ToDelimited(s => s.Name))
                     .Publish(peoplePrefix);
-            }
-            else
-            {
-                GUIUtils.Unpublish(peoplePrefix);
             }
 
             // Lists

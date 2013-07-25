@@ -19,14 +19,14 @@
             </FileItem>
             <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
               <Param1 />
-              <UpdateOption>OverwriteIfOlder</UpdateOption>
+              <UpdateOption>AlwaysOverwrite</UpdateOption>
               <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\MediaBrowser.ApiInteraction.net35.dll</LocalFileName>
               <ZipFileName>Installer{CopyFile}\{6c51bd74-92dd-4f69-be0b-d8520cadd6e7}-MediaBrowser.ApiInteraction.net35.dll</ZipFileName>
               <DestinationFilename>%Base%\MediaBrowser.ApiInteraction.net35.dll</DestinationFilename>
             </FileItem>
             <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
               <Param1 />
-              <UpdateOption>OverwriteIfOlder</UpdateOption>
+              <UpdateOption>AlwaysOverwrite</UpdateOption>
               <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\MediaBrowser.Model.net35.dll</LocalFileName>
               <ZipFileName>Installer{CopyFile}\{4a6ec321-be3e-4377-b0af-1481b7c42a10}-MediaBrowser.Model.net35.dll</ZipFileName>
               <DestinationFilename>%Base%\MediaBrowser.Model.net35.dll</DestinationFilename>
@@ -47,7 +47,7 @@
             </FileItem>
             <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
               <Param1 />
-              <UpdateOption>OverwriteIfOlder</UpdateOption>
+              <UpdateOption>AlwaysOverwrite</UpdateOption>
               <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Pondman.MediaPortal.dll</LocalFileName>
               <ZipFileName>Installer{CopyFile}\{7cc5a198-7811-4dac-8276-fc696c37d95e}-Pondman.MediaPortal.dll</ZipFileName>
               <DestinationFilename>%Base%\Pondman.MediaPortal.dll</DestinationFilename>
@@ -294,8 +294,8 @@ Click Next to continue or Cancel to exit Setup.</Value>
     <Version>
       <Major>0</Major>
       <Minor>5</Minor>
-      <Build>4952</Build>
-      <Revision>40807</Revision>
+      <Build>4954</Build>
+      <Revision>4879</Revision>
     </Version>
     <ExtensionDescription>MediaPortal client for MediaBrowser3 server (http://www.mediabrowser3.com). </ExtensionDescription>
     <VersionDescription>Initial beta release</VersionDescription>
@@ -347,14 +347,14 @@ Click Next to continue or Cancel to exit Setup.</Value>
       </FileItem>
       <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
         <Param1 />
-        <UpdateOption>OverwriteIfOlder</UpdateOption>
+        <UpdateOption>AlwaysOverwrite</UpdateOption>
         <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\MediaBrowser.ApiInteraction.net35.dll</LocalFileName>
         <ZipFileName>Installer{CopyFile}\{6c51bd74-92dd-4f69-be0b-d8520cadd6e7}-MediaBrowser.ApiInteraction.net35.dll</ZipFileName>
         <DestinationFilename>%Base%\MediaBrowser.ApiInteraction.net35.dll</DestinationFilename>
       </FileItem>
       <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
         <Param1 />
-        <UpdateOption>OverwriteIfOlder</UpdateOption>
+        <UpdateOption>AlwaysOverwrite</UpdateOption>
         <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\MediaBrowser.Model.net35.dll</LocalFileName>
         <ZipFileName>Installer{CopyFile}\{4a6ec321-be3e-4377-b0af-1481b7c42a10}-MediaBrowser.Model.net35.dll</ZipFileName>
         <DestinationFilename>%Base%\MediaBrowser.Model.net35.dll</DestinationFilename>
@@ -375,7 +375,7 @@ Click Next to continue or Cancel to exit Setup.</Value>
       </FileItem>
       <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
         <Param1 />
-        <UpdateOption>OverwriteIfOlder</UpdateOption>
+        <UpdateOption>AlwaysOverwrite</UpdateOption>
         <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Pondman.MediaPortal.dll</LocalFileName>
         <ZipFileName>Installer{CopyFile}\{7cc5a198-7811-4dac-8276-fc696c37d95e}-Pondman.MediaPortal.dll</ZipFileName>
         <DestinationFilename>%Base%\Pondman.MediaPortal.dll</DestinationFilename>

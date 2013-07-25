@@ -5,6 +5,8 @@
     /// </summary>
     public class Translations
     {
+        public string AllMovies = "All Movies";
+
         public string Actor = "Actor";
         public string Actors = "Actors";
 
@@ -22,6 +24,8 @@
         public string Movies = "Movies";
 
         public string Server = "Server";
+        public string Studio = "Studio";
+        public string Studios = "Studios";
 
         public string TVShow = "TV Show";
         public string TVShows = "TV Shows";
