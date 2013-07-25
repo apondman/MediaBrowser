@@ -11,19 +11,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
     public enum MediaBrowserWindow
     {
         Main = 20130603,
-        TVSeries = 201306031,
+        TvShow = 201306031,
         Movie = 201306032,
         Episode = 201306033
-    }
-
-    public class MediaBrowserItem
-    {
-        public virtual string Type { get; set; }
-
-        public virtual string Name { get; set; }
-
-        public virtual string Id { get; set; }
-
     }
 
     /// <summary>
@@ -37,8 +27,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         public static readonly Action<MPGui.GUIListItem> ItemImageDownloadAndAssign =
             (item) =>
             {
-                BaseItemDto dto = item.TVTag as BaseItemDto;
-                if (dto.HasPrimaryImage)
+                var dto = item.TVTag as BaseItemDto;
+                if (dto != null && dto.HasPrimaryImage)
                 {
                     // todo: setup image options
                     string imageUrl = GUIContext.Instance.Client.GetLocalImageUrl(dto, new ImageOptions { Width = 200, Height = 300 });
@@ -87,7 +77,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <param name="parameters">The parameters.</param>
         public static void Window(MediaBrowserWindow window, string parameters = null)
         {
-            MPGui.GUIWindowManager.ActivateWindow((int)window, parameters);
+            GUIWindowManager.ActivateWindow((int)window, parameters);
         }
 
         /// <summary>
@@ -98,7 +88,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <param name="parameters">Parameter settings object</param>
         public static void Window<TParameters>(MediaBrowserWindow window, TParameters parameters)
         {
-            MPGui.GUIWindowManager.ActivateWindow((int)window, Newtonsoft.Json.JsonConvert.SerializeObject(parameters));
+            GUIWindowManager.ActivateWindow((int)window, Newtonsoft.Json.JsonConvert.SerializeObject(parameters));
         }
 
     }

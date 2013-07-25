@@ -11,6 +11,7 @@ using Pondman.MediaPortal.MediaBrowser;
 using Pondman.MediaPortal.MediaBrowser.GUI;
 using MediaBrowser.ApiInteraction.WebSocket;
 using MediaBrowser.Model.System;
+using Pondman.MediaPortal.MediaBrowser.Models;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {

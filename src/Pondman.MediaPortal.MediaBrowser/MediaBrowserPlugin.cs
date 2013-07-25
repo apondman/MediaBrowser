@@ -28,16 +28,16 @@ namespace Pondman.MediaPortal.MediaBrowser
             bool isServiceRegistered = GlobalServiceProvider.IsRegistered<IMediaBrowserService>();
             if (!isServiceRegistered)
             {
-                MediaBrowserPlugin.Log.Debug("Registering MediaBrowserService.");
+                Log.Debug("Registering MediaBrowserService.");
 
                 // if not register it with the global service provider
                 IMediaBrowserService service = new MediaBrowserService(this, MediaBrowserPlugin.Log);
 
-                // trigger discovery so client gets loaded.
-                service.Discover();
-
                 // add service to the global service provider
                 GlobalServiceProvider.Add<IMediaBrowserService>(service);
+
+                // trigger discovery so client gets loaded.
+                service.Discover();
             }
 
             // setup property management

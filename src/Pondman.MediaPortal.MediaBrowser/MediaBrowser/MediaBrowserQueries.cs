@@ -22,7 +22,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <value>
         /// The new query instance.
         /// </value>
-        public static ItemQuery New
+        public static ItemQuery Item
         {
             get 
             {

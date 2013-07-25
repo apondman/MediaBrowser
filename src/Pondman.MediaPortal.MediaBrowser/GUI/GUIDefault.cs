@@ -1,13 +1,10 @@
-﻿using System;
+﻿using MediaBrowser.Model.Dto;
+using MediaBrowser.Model.Entities;
+using MediaPortal.GUI.Library;
+using Pondman.MediaPortal.MediaBrowser.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using MediaPortal.GUI.Library;
-using System.Collections;
-using System.Reflection;
-using System.Globalization;
-using MediaBrowser.Model.Dto;
-using MediaBrowser.Model.Entities;
 using MPGUI = MediaPortal.GUI.Library;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI

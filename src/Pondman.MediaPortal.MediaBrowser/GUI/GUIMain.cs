@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using MPGui = MediaPortal.GUI.Library;
+using Pondman.MediaPortal.MediaBrowser.Models;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
 {
@@ -391,7 +392,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             // todo: this is a mess, rethink
             
             var userId = GUIContext.Instance.Client.CurrentUserId;
-            var query = MediaBrowserQueries.New
+            var query = MediaBrowserQueries.Item
                                         .UserId(userId)
                                         .Recursive()
                                         .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams);
