@@ -1,5 +1,7 @@
 ﻿using System.Linq;
+using System.Windows.Controls;
 using MediaBrowser.Model.Dto;
+using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Querying;
 using MediaPortal.GUI.Library;
 using Pondman.MediaPortal.GUI;
@@ -207,11 +209,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <returns></returns>
         public GUIListItem GetViewListItem(string id, string label)
         {
-            var view = new BaseItemDto();
-            view.Name = label; 
-            view.Id = id; 
-            view.Type = "View";
-            view.IsFolder = true;
+            var view = new BaseItemDto {Name = label, Id = id, Type = "View", IsFolder = true};
 
             return GetBaseListItem(view);
         }
@@ -223,14 +221,16 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <returns></returns>
         public GUIListItem GetBaseListItem(BaseItemDto dto)
         {
-            var item = new GUIListItem(dto.Name);
-            item.Path = dto.Type + "/" + dto.Id;
-            item.Year = dto.ProductionYear ?? 0;
-            item.TVTag = dto;
-            item.IsFolder = dto.IsFolder;
-            item.IconImage = "defaultVideo.png";
-            item.IconImageBig = "defaultVideoBig.png";
-            item.RetrieveArt = true;
+            var item = new GUIListItem(dto.Name)
+            {
+                Path = dto.Type + "/" + dto.Id,
+                Year = dto.ProductionYear ?? 0,
+                TVTag = dto,
+                IsFolder = dto.IsFolder,
+                IconImage = "defaultVideo.png",
+                IconImageBig = "defaultVideoBig.png",
+                RetrieveArt = true
+            };
             item.OnRetrieveArt += GetItemImage;
 
             return item;
@@ -244,13 +244,18 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         public GUIListItem GetUserListItem(UserDto user)
         {
             // todo: cache list item
-            var item = new GUIListItem(user.Name);
-            item.Path = "User/" + user.Id;
-            item.Label2 = user.LastLoginDate.HasValue ? "Last seen: " + user.LastLoginDate.Value.ToShortDateString() : string.Empty; // todo: translate
-            item.TVTag = user;
-            item.IconImage = "defaultPicture.png";
-            item.IconImageBig = "defaultPictureBig.png";
-            item.RetrieveArt = true;
+            var item = new GUIListItem(user.Name)
+            {
+                Path = "User/" + user.Id,
+                Label2 =
+                    user.LastLoginDate.HasValue
+                        ? "Last seen: " + user.LastLoginDate.Value.ToShortDateString()
+                        : string.Empty,
+                TVTag = user,
+                IconImage = "defaultPicture.png",
+                IconImageBig = "defaultPictureBig.png",
+                RetrieveArt = true
+            };
             item.OnRetrieveArt += GetUserImage;
 
             return item;
@@ -312,7 +317,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             _history.Push(item);
 
             // start
-            if (item == null || item.IsFolder)
+            if (item == null || !item.Path.StartsWith("Movie"))
             {
                 MainTask = GUITask.Run(LoadItems, Publish, ShowItemsError);
             }
@@ -345,38 +350,103 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             // clear browser and set current
             _browser.Current(currentItem);
 
-            var itemInfo = GetMediaBrowserItemFromPath(currentItem);
-            if (itemInfo.Type == "UserRootFolder")
-            {
-                // Default views and queries
-                //_browser.Add(GetViewListItem("movies", MediaBrowserPlugin.UI.Resource.Movies));
-                //_browser.Add(GetViewListItem("tvshows", MediaBrowserPlugin.UI.Resource.TVShows));
-                //_browser.TotalCount = 2;
-                //return null;
-            //}
-            //else if (itemInfo.Type == "View" && itemInfo.Id == "movies")
-            //{
-                _browser.Add(GetViewListItem("movies-latest", MediaBrowserPlugin.UI.Resource.LatestUnwatchedMovies));
-                _browser.Add(GetViewListItem("movies-all", MediaBrowserPlugin.UI.Resource.AllMovies));
-                _browser.Add(GetViewListItem("movies-genres", MediaBrowserPlugin.UI.Resource.Genres));
-                _browser.Add(GetViewListItem("movies-studios", MediaBrowserPlugin.UI.Resource.Studios));
-                _browser.TotalCount = 4;
-                return null;
-            }
-
             // we are using the manual reset event because the call on the client is async and we want this method to only complete when it's done.
             _mre.Reset();
-
-            // get the query
-            var query = GetItemQuery(itemInfo);
-            GUIContext.Instance.Client.GetItems(query, PopulateBrowser, ShowItemsErrorAndRelease);
-
+            GetItems(currentItem.TVTag as BaseItemDto);
             _mre.WaitOne(); // todo: timeout?
 
             return null;
         }
 
-        protected void PopulateBrowser(ItemsResult result)
+        /// <summary>
+        /// Gets the items. 
+        /// </summary>
+        /// <param name="item">The item.</param>
+        protected void GetItems(BaseItemDto item)
+        {
+            // todo: this is a mess, rethink
+            
+            var userId = GUIContext.Instance.Client.CurrentUserId;
+            var query = MediaBrowserQueries.New
+                                        .UserId(userId)
+                                        .Recursive()
+                                        .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams);
+            Log.Debug("GetItems: Type={0}, Id={1}", item.Type, item.Id);
+
+            switch (item.Type)
+            {
+                case "UserRootFolder":
+                    LoadViewsAndContinue();
+                    return;
+                case "View": 
+                    switch (item.Id)
+                    {
+                        case "movies-genres":
+                            GUIContext.Instance.Client.GetGenres(GetItemsByNameQueryForMovie(), PopulateBrowserAndContinue, ShowItemsErrorAndContinue);
+                            return;
+                        case "movies-studios":
+                            GUIContext.Instance.Client.GetStudios(GetItemsByNameQueryForMovie(), PopulateBrowserAndContinue, ShowItemsErrorAndContinue);
+                            return;
+                        case "movies-latest":
+                            query = query
+                                    .Movies()
+                                    .SortBy(ItemSortBy.DateCreated)
+                                    .Filters(ItemFilter.IsUnplayed)
+                                    .Descending()
+                                    .Limit(100);
+                            break;
+                        case "movies-all":
+                            query = query
+                                    .Movies()
+                                    .SortBy(ItemSortBy.SortName)
+                                    .Ascending();
+                            break;
+                        case "tvshows":
+                            query = query
+                                    .TVShows()
+                                    .SortBy(ItemSortBy.SortName)
+                                    .Ascending();
+                            break;
+                    }
+                    break;
+                case "Genre":
+                    query = query.Movies().Genres(item.Name).SortBy(ItemSortBy.SortName).Ascending();
+                    break;
+                case "Studio":
+                    query = query.Movies().Studios(item.Name).SortBy(ItemSortBy.SortName).Ascending();
+                    break;
+            }
+
+            // default is item query
+            GUIContext.Instance.Client.GetItems(query, PopulateBrowserAndContinue, ShowItemsErrorAndContinue);
+        }
+
+        protected void LoadViewsAndContinue()
+        {
+            _browser.Add(GetViewListItem("movies-latest", MediaBrowserPlugin.UI.Resource.LatestUnwatchedMovies));
+            _browser.Add(GetViewListItem("movies-all", MediaBrowserPlugin.UI.Resource.AllMovies));
+            _browser.Add(GetViewListItem("movies-genres", MediaBrowserPlugin.UI.Resource.Genres));
+            _browser.Add(GetViewListItem("movies-studios", MediaBrowserPlugin.UI.Resource.Studios));
+            _browser.TotalCount = 4;
+            _mre.Set();
+        }
+
+        protected ItemsByNameQuery GetItemsByNameQueryForMovie()
+        {
+            var query = new ItemsByNameQuery
+                            {
+                                SortBy = new string[] { ItemSortBy.SortName },
+                                SortOrder=SortOrder.Ascending,
+                                IncludeItemTypes = new string[] {"Movie"},
+                                Recursive = true,
+                                Fields = new ItemFields[] {ItemFields.ItemCounts, ItemFields.DateCreated},
+                                UserId = GUIContext.Instance.Client.CurrentUserId
+                            };
+
+            return query;
+        }
+
+        protected void PopulateBrowserAndContinue(ItemsResult result)
         {
             _browser.TotalCount = result.TotalRecordCount;
             foreach (var item in result.Items)
@@ -393,68 +463,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             _mre.Set();
         }
 
-        protected void ShowItemsErrorAndRelease(Exception e)
+        protected void ShowItemsErrorAndContinue(Exception e)
         {
             ShowItemsError(e);
             _mre.Set();
-        }
-
-        protected MediaBrowserItem GetMediaBrowserItemFromPath(GUIListItem item)
-        {
-            return GetMediaBrowserItemFromPath(item.Path);
-        }
-
-        protected MediaBrowserItem GetMediaBrowserItemFromPath(string path)
-        {
-            var tokens = path.Split('/');
-            return new MediaBrowserItem { Type = tokens[0], Id = tokens[1] };
-        }
-
-        protected ItemQuery GetItemQuery(GUIListItem item)
-        {
-            return GetItemQuery(item.Path);
-        }
-
-        protected ItemQuery GetItemQuery(string path) {
-            return GetItemQuery(GetMediaBrowserItemFromPath(path));
-        }
-
-        protected ItemQuery GetItemQuery(MediaBrowserItem item)
-        {
-            var userId = GUIContext.Instance.Client.CurrentUserId;
-
-            if (item.Type == "View")
-            {
-                var query = MediaBrowserQueries.New
-                            .UserId(userId)
-                            .Recursive()
-                            .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams);
-
-                switch (item.Id)
-                {
-                    case "movies-latest":
-                        return query
-                                .Movies()
-                                .SortBy(ItemSortBy.DateCreated)
-                                .Filters(ItemFilter.IsUnplayed)
-                                .Descending()
-                                .Limit(100);
-                        //Genres?SortBy=SortName&SortOrder=Ascending&IncludeItemTypes=Movie%2CTrailer&Recursive=true&Fields=ItemCounts%2CDateCreated%2CUserData&StartIndex=0&Limit=300&userId=78ee3c8192698ab53354b66650dc8201
-                    case "movies-all":
-                        return query
-                                .Movies()
-                                .SortBy(ItemSortBy.SortName)
-                                .Ascending();
-                                
-                    case "tvshows":
-                        return query
-                                .TVShows()
-                                .SortBy(ItemSortBy.SortName)
-                                .Ascending();
-                }
-            }
-
-            return null;
         }
 
         /// <summary>
@@ -548,22 +560,22 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             task = task ?? GUITask.None;
             
             // we are using the manual reset event because the call on the client is async and we want this method to only complete when it's done.
-            var mre = new ManualResetEvent(false);
+            _mre.Reset();
             var list = new List<GUIListItem>();
 
             GUIContext.Instance.Client.GetUsers(users =>
             {
                 list.AddRange(users.TakeWhile(user => !task.IsCancelled).Select(GetUserListItem));
 
-                mre.Set();
+                _mre.Set();
             }
                 , e => {
                     // todo: show error?
                     Log.Error(e);
-                    mre.Set();
+                    _mre.Set();
                 });
 
-            mre.WaitOne(); // todo: timeout?
+            _mre.WaitOne(); // todo: timeout?
 
             return list;
         }

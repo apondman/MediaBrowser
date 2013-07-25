@@ -170,6 +170,18 @@ namespace Pondman.MediaPortal.MediaBrowser
             return query;
         }
 
+        public static ItemQuery Genres(this ItemQuery query, params string[] genres)
+        {
+            query.Genres = query.Genres.Concat(genres).ToArray();
+            return query;
+        }
+
+        public static ItemQuery Studios(this ItemQuery query, params string[] studios)
+        {
+            query.Studios = query.Studios.Concat(studios).ToArray();
+            return query;
+        }
+
         private static string GetParameterName(Expression reference)
         {
             var lambda = reference as LambdaExpression;
