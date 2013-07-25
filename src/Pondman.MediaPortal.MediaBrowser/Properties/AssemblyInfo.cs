@@ -37,8 +37,8 @@ using MediaPortal.Common.Utils;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.5.*")]
-[assembly: AssemblyInformationalVersion("0.5 Beta")]
+[assembly: AssemblyVersion("0.6.*")]
+[assembly: AssemblyInformationalVersion("0.6 Beta")]
 
 // mediaportal compatible version
 [assembly: CompatibleVersion("1.2.100.0", "1.1.6.27644")]

@@ -98,9 +98,9 @@
     <!--            :: Count ::            -->
 
     <control>
-      <description>Moviecount</description>
+      <description>Item Count</description>
       <type>label</type>
-      <label>#MediaBrowser.Translation.Movies.Label: #MediaBrowser.Browser.Items.Current</label>
+      <label>#MediaBrowser.Translation.Items.Label: #MediaBrowser.Browser.Items.Current</label>
       <id>0</id>
       <posX>96</posX>
       <posY>998</posY>

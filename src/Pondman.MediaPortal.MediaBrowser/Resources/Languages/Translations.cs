@@ -22,6 +22,8 @@
         public string Genre = "Genre";
         public string Genres = "Genres";
 
+        public string Items = "Items";
+
         public string LatestUnwatchedMovies = "Latest Unwatched Movies";
 
         public string Movie = "Movie";
