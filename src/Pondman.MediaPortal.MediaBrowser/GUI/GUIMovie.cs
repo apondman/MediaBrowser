@@ -126,6 +126,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             info.Plot = _movie.Overview;
             info.Genre = _movie.Genres.FirstOrDefault();
             info.Thumb = _cover.Filename;
+
+            // report playback
         }
     }
 }

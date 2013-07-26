@@ -77,7 +77,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// </summary>
         /// <param name="query">The query.</param>
         /// <returns></returns>
-        public static ItemQuery TVShows(this ItemQuery query)
+        public static ItemQuery TvShows(this ItemQuery query)
         {
             return query.IncludeItemTypes("Series");
         }

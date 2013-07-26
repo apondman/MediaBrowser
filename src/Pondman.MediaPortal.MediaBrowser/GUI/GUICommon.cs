@@ -60,8 +60,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         public static readonly Action<MPGui.GUIListItem> UserImageDownloadAndAssign =
             (item) =>
             {
-                UserDto user = item.TVTag as UserDto;
-                if (user.HasPrimaryImage)
+                var user = item.TVTag as UserDto;
+                if (user != null && user.HasPrimaryImage)
                 {
                     // todo: setup image options
                     string imageUrl = GUIContext.Instance.Client.GetLocalUserImageUrl(user, new ImageOptions());
@@ -106,7 +106,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 GUIContext.Instance.Client.GetItems(
                     MediaBrowserQueries.RandomMovie(GUIContext.Instance.ActiveUser.Id).Watched(false),
                     result => Window(MediaBrowserWindow.Movie, MediaBrowserMedia.Browse(result.Items.First().Id))
-                    , ShowItemsError);
+                    , ShowRequestErrorDialog);
             }
         }
 
@@ -114,7 +114,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// Shows an error dialog and logs and error.
         /// </summary>
         /// <param name="e">The exception</param>
-        public static void ShowItemsError(Exception e)
+        public static void ShowRequestErrorDialog(Exception e)
         {
             GUIUtils.ShowOKDialog(MediaBrowserPlugin.UI.Resource.Error, MediaBrowserPlugin.UI.Resource.ErrorMakingRequest);
             MediaBrowserPlugin.Log.Error(e);

@@ -269,9 +269,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             var item = new GUIListItem(user.Name)
             {
                 Path = "User/" + user.Id,
-                Label2 =
+                Label2 = 
                     user.LastLoginDate.HasValue
-                        ? "Last seen: " + user.LastLoginDate.Value.ToShortDateString()
+                        ? String.Format("{0}: {1}", MediaBrowserPlugin.UI.Resource.LastSeen, user.LastLoginDate.Value.ToShortDateString())
                         : string.Empty,
                 TVTag = user,
                 IconImage = "defaultPicture.png",
@@ -441,7 +441,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                             break;
                         case "tvshows":
                             query = query
-                                    .TVShows()
+                                    .TvShows()
                                     .SortBy(ItemSortBy.SortName)
                                     .Ascending();
                             break;
