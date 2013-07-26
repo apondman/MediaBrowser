@@ -17,7 +17,7 @@ namespace System
         public static bool IsNull<TObject>(this TObject obj)
             where TObject : class
         {
-            return (obj != null);
+            return (obj == null);
         }
 
         /// <summary>
