@@ -29,6 +29,20 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         #endregion
 
+        /// <summary>
+        /// Gets a value indicating whether there is an active user.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance has active user; otherwise, <c>false</c>.
+        /// </value>
+        public bool HasActiveUser
+        {
+            get
+            {
+                return (ActiveUser != _anonymousUser);
+            }
+        }
+        
         public UserDto ActiveUser
         {
             get

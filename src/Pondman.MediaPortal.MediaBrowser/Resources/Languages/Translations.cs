@@ -14,6 +14,7 @@
         public string BoxSets = "Box Sets";
 
         public string Client = "Client";
+        public string CycleLayout = "Cycle Layout";
 
         public string Director = "Director";
         public string Directors = "Directors";
@@ -30,6 +31,8 @@
 
         public string Movie = "Movie";
         public string Movies = "Movies";
+
+        public string RandomMovie = "Random Movie";
 
         public string Server = "Server";
         public string Studio = "Studio";

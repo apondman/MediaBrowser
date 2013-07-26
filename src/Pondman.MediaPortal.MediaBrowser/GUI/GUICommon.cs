@@ -1,6 +1,9 @@
-﻿using MediaBrowser.Model.Dto;
+﻿using System.Linq;
+using MediaBrowser.Model.Dto;
+using MediaPortal.Dialogs;
 using MediaPortal.GUI.Library;
 using System;
+using Pondman.MediaPortal.MediaBrowser.Models;
 using MPGui = MediaPortal.GUI.Library;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
@@ -89,6 +92,32 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         public static void Window<TParameters>(MediaBrowserWindow window, TParameters parameters)
         {
             GUIWindowManager.ActivateWindow((int)window, Newtonsoft.Json.JsonConvert.SerializeObject(parameters));
+        }
+
+        /// <summary>
+        /// Go to a random movie for the active user.
+        /// </summary>
+        /// <param name="control">The control.</param>
+        /// <param name="actionType">Type of the action.</param>
+        public static void RandomMovieCommand(GUIControl control, MPGui.Action.ActionType actionType)
+        {
+            if (GUIContext.Instance.HasActiveUser)
+            {
+                GUIContext.Instance.Client.GetItems(
+                    MediaBrowserQueries.RandomMovie(GUIContext.Instance.ActiveUser.Id).Watched(false),
+                    result => Window(MediaBrowserWindow.Movie, MediaBrowserMedia.Browse(result.Items.First().Id))
+                    , ShowItemsError);
+            }
+        }
+
+        /// <summary>
+        /// Shows an error dialog and logs and error.
+        /// </summary>
+        /// <param name="e">The exception</param>
+        public static void ShowItemsError(Exception e)
+        {
+            GUIUtils.ShowOKDialog(MediaBrowserPlugin.UI.Resource.Error, MediaBrowserPlugin.UI.Resource.ErrorMakingRequest);
+            MediaBrowserPlugin.Log.Error(e);
         }
 
     }

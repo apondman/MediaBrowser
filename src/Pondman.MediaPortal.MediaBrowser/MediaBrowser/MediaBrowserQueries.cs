@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ConsoleApplication2.com.amazon.webservices;
 using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Querying;
 using MediaBrowser.ApiInteraction.net35;
@@ -15,6 +16,15 @@ namespace Pondman.MediaPortal.MediaBrowser
     /// </summary>
     public static class MediaBrowserQueries
     {
+        public static ItemQuery Random()
+        {
+            return MediaBrowserQueries.Item.Recursive().Limit(1).SortBy(ItemSortBy.Random);
+        }
+
+        public static ItemQuery RandomMovie(string userId)
+        {
+            return Random().Movies().UserId(userId);
+        }
 
         /// <summary>
         /// Create a new item query
@@ -28,6 +38,20 @@ namespace Pondman.MediaPortal.MediaBrowser
             {
                 return new ItemQuery();
             }            
+        }
+
+        /// <summary>
+        /// Gets the name of the item by.
+        /// </summary>
+        /// <value>
+        /// The name of the item by.
+        /// </value>
+        public static ItemsByNameQuery ItemByName
+        {
+           get 
+            {
+                return new ItemsByNameQuery();
+            }  
         }
 
         /// <summary>
@@ -95,6 +119,18 @@ namespace Pondman.MediaPortal.MediaBrowser
         }
 
         /// <summary>
+        /// Indexes the by.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="indexBy">The index by.</param>
+        /// <returns></returns>
+        public static ItemQuery IndexBy(this ItemQuery query, string indexBy)
+        {
+            query.IndexBy = indexBy;
+            return query; 
+        }
+
+        /// <summary>
         /// Shorthand to includes the item types this query should return.
         /// </summary>
         /// <param name="query">The query.</param>
@@ -105,6 +141,13 @@ namespace Pondman.MediaPortal.MediaBrowser
             return query;
         }
 
+        /// <summary>
+        /// Sort the query using the specified property
+        /// </summary>
+        /// <typeparam name="TProperty">The type of the property.</typeparam>
+        /// <param name="query">The query.</param>
+        /// <param name="property">The property.</param>
+        /// <returns></returns>
         public static ItemQuery SortBy<TProperty>(this ItemQuery query, Expression<Func<BaseItemDto, TProperty>> property)
         {
             return query.SortBy(GetParameterName(property));
@@ -192,15 +235,39 @@ namespace Pondman.MediaPortal.MediaBrowser
             return query;
         }
 
+        /// <summary>
+        /// Filters the query by genre.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="genres">The genres.</param>
+        /// <returns></returns>
         public static ItemQuery Genres(this ItemQuery query, params string[] genres)
         {
             query.Genres = query.Genres.Concat(genres).ToArray();
             return query;
         }
 
+        /// <summary>
+        /// Filters the query by studio.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="studios">The studios.</param>
+        /// <returns></returns>
         public static ItemQuery Studios(this ItemQuery query, params string[] studios)
         {
             query.Studios = query.Studios.Concat(studios).ToArray();
+            return query;
+        }
+
+        /// <summary>
+        /// Filters the query by watched items.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="isWatched">if set to <c>true</c> [is watched].</param>
+        /// <returns></returns>
+        public static ItemQuery Watched(this ItemQuery query, bool isWatched = true)
+        {
+            query.Filters(isWatched ? ItemFilter.IsPlayed : ItemFilter.IsUnplayed);
             return query;
         }
 

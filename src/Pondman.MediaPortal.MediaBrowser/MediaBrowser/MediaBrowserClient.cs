@@ -5,10 +5,12 @@ using MediaBrowser.Model.Querying;
 using System;
 using System.IO;
 using System.Net;
-using System.Text;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
+    /// <summary>
+    /// MediaBrowser API Client for MediaPortal
+    /// </summary>
     public class MediaBrowserClient : ApiClient
     {
         const string CLIENT_NAME = "MediaPortal";
@@ -18,6 +20,14 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// </summary>
         public event Action<UserDto> CurrentUserChanged;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MediaBrowserClient"/> class.
+        /// </summary>
+        /// <param name="serverHostName">Name of the server host.</param>
+        /// <param name="serverApiPort">The server API port.</param>
+        /// <param name="deviceName">Name of the device.</param>
+        /// <param name="deviceId">The device id.</param>
+        /// <param name="version">The version.</param>
         public MediaBrowserClient(string serverHostName, int serverApiPort, string deviceName, string deviceId, string version)
             : base(serverHostName, serverApiPort, CLIENT_NAME, deviceName, deviceId, version)
         {
@@ -44,10 +54,10 @@ namespace Pondman.MediaPortal.MediaBrowser
         } UserDto _currentUser;
 
         /// <summary>
-        /// Gets a value indicating whether a user is currently logged in.
+        /// Gets a value indicating whether this instance is user logged in.
         /// </summary>
         /// <value>
-        /// <c>true</c> if a user logged in; otherwise, <c>false</c>.
+        /// <c>true</c> if this instance is user logged in; otherwise, <c>false</c>.
         /// </value>
         public virtual bool IsUserLoggedIn
         {
@@ -58,7 +68,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         }
 
         /// <summary>
-        /// Gets the cached image URL for this item.
+        /// Gets the local image URL.
         /// </summary>
         /// <param name="item">The item.</param>
         /// <param name="options">The options.</param>
@@ -70,7 +80,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         }
 
         /// <summary>
-        /// Gets the cached image URL for this user.
+        /// Gets the local user image URL.
         /// </summary>
         /// <param name="user">The user.</param>
         /// <param name="options">The options.</param>
@@ -85,9 +95,9 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <summary>
         /// Gets the cached image URL.
         /// </summary>
-        /// <param name="folder">The folder.</param>
-        /// <param name="filename">The filename.</param>
-        /// <param name="func">Delegate to retrieve the image.</param>
+        /// <param name="subtype">The subtype.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="func">The func.</param>
         /// <returns></returns>
         protected string GetCachedImageUrl(string subtype, ImageOptions options, Func<string> func)
         {
@@ -173,6 +183,5 @@ namespace Pondman.MediaPortal.MediaBrowser
 
             return item.ImageTags[options.ImageType];
         }
-
     }
 }

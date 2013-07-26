@@ -52,6 +52,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             //    string name = command.Name.Substring(0, command.Name.Length-7);
             //    RegisterCommand(name, ???);
             //}
+
+            RegisterCommand("RandomMovie", GUICommon.RandomMovieCommand);
         }
 
         protected override void OnPageLoad()

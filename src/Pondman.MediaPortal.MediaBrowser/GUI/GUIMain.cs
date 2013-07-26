@@ -30,14 +30,15 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             
             _browser = new GUIBrowser<string>(GetIdentifier);
             _browser.Settings.Prefix = MediaBrowserPlugin.DefaultProperty;
-            _browser.PublishSelected += OnBaseItemSelected;
-            _browser.PublishCurrent += OnPublishCurrent;
+            _browser.ItemSelected += OnBaseItemSelected;
+            _browser.CurrentItemChanged += OnCurrentItemChanged;
 
             _mre = new ManualResetEvent(false);
 
             // register commands
             RegisterCommand("CycleLayout", CycleLayoutCommand);
             RegisterCommand("ChangeUser", ChangeUserCommand);
+            RegisterCommand("Sort", SortCommand);
         }
 
         #region Controls
@@ -59,6 +60,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         protected void ChangeUserCommand(GUIControl control, MPGui.Action.ActionType actionType)
         {
             ShowUserProfilesDialog();
+        }
+
+        protected void SortCommand(GUIControl control, MPGui.Action.ActionType actionType)
+        {
+            // show sort dialog and set sort
         }
 
         #endregion 
@@ -202,7 +208,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// Handler for current item
         /// </summary>
         /// <param name="item">The item.</param>
-        protected void OnPublishCurrent(GUIListItem item)
+        protected void OnCurrentItemChanged(GUIListItem item)
         {
             if (item != null)
             {
@@ -401,7 +407,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             switch (item.Type)
             {
                 case "UserRootFolder":
-                    LoadViewsAndContinue();
+                    LoadMovieViewsAndContinue();
                     return;
                 case "View": 
                     switch (item.Id)
@@ -457,7 +463,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             GUIContext.Instance.Client.GetItems(query, PopulateBrowserAndContinue, ShowItemsErrorAndContinue);
         }
 
-        protected void LoadViewsAndContinue()
+        /// <summary>
+        /// Loads the movie views and continues the main task.
+        /// </summary>
+        protected void LoadMovieViewsAndContinue()
         {
             _browser.Add(GetViewListItem("movies-latest", MediaBrowserPlugin.UI.Resource.LatestUnwatchedMovies));
             _browser.Add(GetViewListItem("movies-all", MediaBrowserPlugin.UI.Resource.AllMovies));
@@ -618,6 +627,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             return list;
         }
 
+        /// <summary>
+        /// Publishes the artwork.
+        /// </summary>
+        /// <param name="item">The item.</param>
         protected override void PublishArtwork(BaseItemDto item)
         {
             var cover = GetCoverUrl(item);

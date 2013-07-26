@@ -23,7 +23,7 @@ namespace Pondman.MediaPortal.GUI
     public class GUIBrowser : GUIBrowser<int>
     {
         public GUIBrowser(ILogger logger = null)
-            : base((x) => { return x.ItemId; }, logger)
+            : base(x => x.ItemId, logger)
         {
         
         }
@@ -53,15 +53,16 @@ namespace Pondman.MediaPortal.GUI
             _resolver = resolver;            
         }
 
-        /// <summary>
-        /// Occurs when an item needs to be published to the skin engine.
-        /// </summary>
-        public event Action<GUIListItem> PublishSelected;
 
         /// <summary>
-        /// Occurs when the current item needs to be published to the skin.
+        /// Occurs when a browser item is selected.
         /// </summary>
-        public event Action<GUIListItem> PublishCurrent;
+        public event Action<GUIListItem> ItemSelected;
+
+        /// <summary>
+        /// Occurs when the current browser item changes.
+        /// </summary>
+        public event Action<GUIListItem> CurrentItemChanged;
 
         /// <summary>
         /// Returns the active logger for this window.
@@ -135,6 +136,7 @@ namespace Pondman.MediaPortal.GUI
         public virtual void Clear()
         {
             _list.Clear();
+            TotalCount = 0;
         }
 
         void item_OnItemSelected(GUIListItem item, GUIControl parent)
@@ -158,14 +160,20 @@ namespace Pondman.MediaPortal.GUI
                 Publish(_control as GUIFacadeControl, selected);
             }
 
-            // Publish current item
-            if (PublishCurrent != null) 
+            // Update Total Count if it was not done manually
+            if (TotalCount == 0)
             {
-                PublishCurrent(_current);
+                TotalCount = _list.Count;
             }
 
-            GUIUtils.Publish(_list.Count, _settings.Prefix + ".Browser.Items.Current");
-            GUIUtils.Publish(this.TotalCount, _settings.Prefix + ".Browser.Items.Total");
+            // Publish current item
+            if (CurrentItemChanged != null) 
+            {
+                CurrentItemChanged(_current);
+            }
+
+            _list.Count.Publish(_settings.Prefix + ".Browser.Items.Current");
+            TotalCount.Publish(_settings.Prefix + ".Browser.Items.Total");
             // todo: add filtered count
 
             _control.Focus();
@@ -209,14 +217,14 @@ namespace Pondman.MediaPortal.GUI
             if (_settings.Delay < (int)(tickCount - lastPublished))
             {
                 lastPublished = tickCount;
-                PublishSelected.BeginInvoke(item, PublishSelected.EndInvoke, null);
+                ItemSelected.BeginInvoke(item, ItemSelected.EndInvoke, null);
                 return;
             }
 
             lastPublished = tickCount;
             if (publishTimer == null)
             {
-                publishTimer = new Timer((x) => PublishSelected(((GUIFacadeControl)_control).SelectedListItem), null, _settings.Delay, Timeout.Infinite);
+                publishTimer = new Timer(x => ItemSelected(((GUIFacadeControl)_control).SelectedListItem), null, _settings.Delay, Timeout.Infinite);
             }
             else
             {
