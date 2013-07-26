@@ -115,7 +115,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     switch (actionType)
                     {
                         case MPGui.Action.ActionType.ACTION_SELECT_ITEM:
-                            Navigate(Facade.SelectedListItem);
+                            // todo: rewrite
+                            if (!_browser.OnClicked(Facade.SelectedListItem))
+                            {
+                                Navigate(Facade.SelectedListItem);
+                            }
                             return;
                     }
                     break;
@@ -523,11 +527,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         protected void ShowDetails(GUIListItem item)
         {
             var details = item.TVTag as BaseItemDto;
-            if (details != null) 
-            {
-                var parameters = new MediaBrowserItem{ Id = details.Id };
-                GUICommon.Window(MediaBrowserWindow.Movie, parameters);
-            }
+            details.IfNotNull(GUICommon.ViewMovieDetails);
         }
 
         /// <summary>

@@ -102,7 +102,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         protected string GetCachedImageUrl(string subtype, ImageOptions options, Func<string> func)
         {
             string url = func();
-            string filename = url.ToMD5Hash();
+            string filename = url.ToMd5Hash();
             string folder = MediaBrowserPlugin.Settings.MediaCacheFolder + "\\" + subtype + "\\" + options.ImageType.ToString();
             string cachedPath = folder + "\\" + filename + ".jpg";
 

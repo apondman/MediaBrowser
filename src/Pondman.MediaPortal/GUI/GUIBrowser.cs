@@ -53,7 +53,6 @@ namespace Pondman.MediaPortal.GUI
             _resolver = resolver;            
         }
 
-
         /// <summary>
         /// Occurs when a browser item is selected.
         /// </summary>
@@ -63,6 +62,16 @@ namespace Pondman.MediaPortal.GUI
         /// Occurs when the current browser item changes.
         /// </summary>
         public event Action<GUIListItem> CurrentItemChanged;
+
+        /// <summary>
+        /// Occurs when the next page is requested.
+        /// </summary>
+        public event EventHandler NextPage;
+
+        /// <summary>
+        /// Occurs when the previous page is requested.
+        /// </summary>
+        public event EventHandler PreviousPage;
 
         /// <summary>
         /// Returns the active logger for this window.
@@ -103,6 +112,22 @@ namespace Pondman.MediaPortal.GUI
         }
 
         /// <summary>
+        /// Gets or sets the offset.
+        /// </summary>
+        /// <value>
+        /// The offset.
+        /// </value>
+        public virtual int Offset { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the limit.
+        /// </summary>
+        /// <value>
+        /// The limit.
+        /// </value>
+        public virtual int Limit { get; set; }
+
+        /// <summary>
         /// Gets or sets the total count for the current list.
         /// </summary>
         /// <value>
@@ -136,17 +161,42 @@ namespace Pondman.MediaPortal.GUI
         public virtual void Clear()
         {
             _list.Clear();
+            Offset = 0;
+            Limit = 0;
             TotalCount = 0;
+        }
+
+        /// <summary>
+        /// Returns true when the browser has handled the click event.
+        /// </summary>
+        /// <param name="item">The item.</param>
+        /// <returns></returns>
+        public virtual bool OnClicked(GUIListItem item)
+        {
+            switch (item.ItemId)
+            {
+                case 10000:
+                    NextPage.FireEvent(this, EventArgs.Empty);
+                    return true;
+                case 10001:
+                    PreviousPage.FireEvent(this, EventArgs.Empty);
+                    return true;
+                default:
+                    return false;
+            }
         }
 
         void item_OnItemSelected(GUIListItem item, GUIControl parent)
         {
             var facade = _control as GUIFacadeControl;
 
-            if (!facade.IsRelated(parent) || facade.SelectedListItem != item)
+            if (!facade.IsRelated(parent) || facade != null & facade.SelectedListItem != item)
                 return;
 
-            GUIListItemPublisher(item);
+            if (item.ItemId == 10000 || item.ItemId == 10001)
+                return;
+
+            DelayedItemHandler(item);
         }
 
         /// <summary>
@@ -186,6 +236,7 @@ namespace Pondman.MediaPortal.GUI
             // set the layout just to make sure properties are being set.
             facade.CurrentLayout = facade.CurrentLayout;
             facade.ClearAll();
+            
             for(int i=0;i<_list.Count;i++)
             {
                 var item = _list[i];
@@ -209,7 +260,7 @@ namespace Pondman.MediaPortal.GUI
             return _resolver(item);
         }
 
-        protected void GUIListItemPublisher(GUIListItem item)
+        protected void DelayedItemHandler(GUIListItem item)
         {
             double tickCount = AnimationTimer.TickCount;
 
@@ -230,6 +281,21 @@ namespace Pondman.MediaPortal.GUI
             {
                 publishTimer.Change(_settings.Delay, Timeout.Infinite);
             }
+        }
+
+        protected virtual GUIListItem NextPageItem(string label)
+        {
+            return SpecialItem(label, 10000);
+        }
+
+        protected virtual GUIListItem PreviousPageItem(string label)
+        {
+            return SpecialItem(label, 10001);
+        }
+
+        protected virtual GUIListItem SpecialItem(string label, int id)
+        {
+            return new GUIListItem {Label = label, IsFolder = true, ItemId = id};
         }
     }
 }

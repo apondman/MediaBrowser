@@ -71,7 +71,7 @@
     <Compile Include="Extensions\GUIControl.cs" />
     <Compile Include="Extensions\GUIWindow.cs" />
     <Compile Include="Extensions\Stream.cs" />
-    <Compile Include="Extensions\String.cs" />
+    <Compile Include="Extensions\System.cs" />
     <Compile Include="GUI\GUIBrowser.cs" />
     <Compile Include="GUI\GUIWindowX.cs" />
     <Compile Include="Extensions\GUIFacadeControl.cs" />
