@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ConsoleApplication2.com.amazon.webservices;
+﻿using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Querying;
-using MediaBrowser.ApiInteraction.net35;
-using MediaBrowser.Model.Dto;
+using System;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace Pondman.MediaPortal.MediaBrowser
@@ -16,14 +12,26 @@ namespace Pondman.MediaPortal.MediaBrowser
     /// </summary>
     public static class MediaBrowserQueries
     {
-        public static ItemQuery Random()
+        /// <summary>
+        /// Returns a randomized item query
+        /// </summary>
+        /// <returns></returns>
+        public static ItemQuery Random
         {
-            return MediaBrowserQueries.Item.Recursive().Limit(1).SortBy(ItemSortBy.Random);
+            get
+            {
+                return MediaBrowserQueries.Item.Recursive().Limit(1).SortBy(ItemSortBy.Random);
+            }
         }
 
+        /// <summary>
+        /// Returns a randomized movie query
+        /// </summary>
+        /// <param name="userId">The user id.</param>
+        /// <returns></returns>
         public static ItemQuery RandomMovie(string userId)
         {
-            return Random().Movies().UserId(userId);
+            return Random.Movies().UserId(userId);
         }
 
         /// <summary>
