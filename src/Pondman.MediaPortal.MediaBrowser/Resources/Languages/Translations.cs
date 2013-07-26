@@ -29,6 +29,8 @@
 
         public string LatestUnwatchedMovies = "Latest Unwatched Movies";
 
+        public string LastSeen = "Last seen";
+
         public string Movie = "Movie";
         public string Movies = "Movies";
 
