@@ -60,6 +60,24 @@
       <animation effect="fade" time="250">WindowClose</animation>
     </control>
 
+    <control Style="textBox">
+      <description>Summary (list)</description>
+      <type>textboxscrollup</type>
+      <id>0</id>
+      <posX>565</posX>
+      <posY>387</posY>
+      <height>388</height>
+      <label>#MediaBrowser.Selected.Overview</label>
+      <seperator>---------------------------------------------------------------------------------------------------------</seperator>
+      <onleft>1026</onleft>
+      <onright>1026</onright>
+      <onup>1026</onup>
+      <ondown>1026</ondown>
+      <visible>facadeview.list+string.equals(#MediaBrowser.Selected.Type,BoxSet)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+    
     <control Style="InfoLabel">
       <description>Release Date Label (and visibility control)</description>
       <type>label</type>
@@ -247,7 +265,7 @@
     <control>
       <description>Item Title value (and visibility control for facade small/large)</description>
       <type>fadelabel</type>
-      <id>5</id>
+      <id>0</id>
       <posX>1040</posX>
       <posY>332</posY>
       <width>700</width>
@@ -262,14 +280,35 @@
       <animation effect="fade" time="250">WindowClose</animation>
     </control>
 
+    <control>
+      <description>Summary (list)</description>
+      <type>textboxscrollup</type>
+      <id>1025</id>
+      <posX>1040</posX>
+      <posY>635</posY>
+      <width>790</width>
+      <height>205</height>
+      <label>#MediaBrowser.Selected.Overview</label>
+      <seperator>---------------------------------------------------------------------------------------------------------</seperator>
+      <onleft>1026</onleft>
+      <onright>1026</onright>
+      <onup>1026</onup>
+      <ondown>1026</ondown>
+      <lineSpacing>0.92</lineSpacing>
+      <visible>[facadeview.smallicons | facadeview.largeicons]+string.equals(#MediaBrowser.Selected.Type,BoxSet)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+
     <control Style="InfoLabel">
       <description>Release Date Label</description>
       <type>label</type>
-      <id>0</id>
+      <id>5</id>
       <posX>1038</posX>
       <posY>445</posY>
       <label>#(string.rtrim(L(172),' :'))</label>
-      <visible>Control.IsVisible(5)</visible>
+      <visible>[facadeview.smallicons | facadeview.largeicons]+string.equals(#MediaBrowser.Selected.Type,Movie)</visible>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
     </control>
