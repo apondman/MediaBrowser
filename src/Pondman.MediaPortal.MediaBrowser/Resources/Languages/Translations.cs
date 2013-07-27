@@ -35,6 +35,8 @@
         public string Movies = "Movies";
 
         public string RandomMovie = "Random Movie";
+        public string ResumeFrom = "Resume from:";
+        public string ResumeFromLast = "Resume last session?";
 
         public string Server = "Server";
         public string Studio = "Studio";
