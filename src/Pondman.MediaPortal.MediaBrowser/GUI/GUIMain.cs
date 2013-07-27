@@ -116,9 +116,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     {
                         case MPGui.Action.ActionType.ACTION_SELECT_ITEM:
                             // todo: rewrite
-                            if (!_browser.OnClicked(Facade.SelectedListItem))
+                            GUIListItem item = Facade.SelectedListItem;
+                            if (!_browser.OnClicked(item))
                             {
-                                Navigate(Facade.SelectedListItem);
+                                Navigate(item);
                             }
                             return;
                     }

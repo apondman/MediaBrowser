@@ -12,9 +12,9 @@ namespace Pondman.MediaPortal
 
     public class MediaPlayerInfo
     {
-        public MediaPlayerInfo(string path)
+        public MediaPlayerInfo()
         {
-            Path = path;
+            MediaFiles = new List<string>();
         }
 
         public string Title { get; set; }
@@ -27,7 +27,9 @@ namespace Pondman.MediaPortal
 
         public string Genre { get; set; }
 
-        public string Path { get; internal set; }
+        public int ResumePlaybackPosition { get; set; }
+
+        public IList<string> MediaFiles { get; internal set; }
 
     }
 

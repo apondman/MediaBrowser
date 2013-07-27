@@ -310,6 +310,86 @@ namespace MediaPortal.GUI.Library
             dlgOK.DoModal(GUIWindowManager.ActiveWindow);
         }
 
+        private delegate bool ShowCustomYesNoDialogDelegate(string heading, string lines, string yesLabel, string noLabel, bool defaultYes);
+
+        /// <summary>
+        /// Displays a yes/no dialog.
+        /// </summary>
+        /// <returns>True if yes was clicked, False if no was clicked</returns>
+        public static bool ShowYesNoDialog(string heading, string lines)
+        {
+            return ShowCustomYesNoDialog(heading, lines, null, null, false);
+        }
+
+        /// <summary>
+        /// Displays a yes/no dialog.
+        /// </summary>
+        /// <returns>True if yes was clicked, False if no was clicked</returns>
+        public static bool ShowYesNoDialog(string heading, string lines, bool defaultYes)
+        {
+            return ShowCustomYesNoDialog(heading, lines, null, null, defaultYes);
+        }
+
+        /// <summary>
+        /// Displays a yes/no dialog with custom labels for the buttons.
+        /// This method may become obsolete in the future if media portal adds more dialogs.
+        /// </summary>
+        /// <returns>True if yes was clicked, False if no was clicked</returns>
+        public static bool ShowCustomYesNoDialog(string heading, string lines, string yesLabel, string noLabel)
+        {
+            return ShowCustomYesNoDialog(heading, lines, yesLabel, noLabel, false);
+        }
+
+        /// <summary>
+        /// Displays a yes/no dialog with custom labels for the buttons.
+        /// This method may become obsolete in the future if media portal adds more dialogs.
+        /// </summary>
+        /// <returns>True if yes was clicked, False if no was clicked</returns>
+        public static bool ShowCustomYesNoDialog(string heading, string lines, string yesLabel, string noLabel, bool defaultYes)
+        {
+            if (GUIGraphicsContext.form.InvokeRequired)
+            {
+                ShowCustomYesNoDialogDelegate d = ShowCustomYesNoDialog;
+                return (bool)GUIGraphicsContext.form.Invoke(d, heading, lines, yesLabel, noLabel, defaultYes);
+            }
+
+            GUIDialogYesNo dlgYesNo = (GUIDialogYesNo)GUIWindowManager.GetWindow((int)GUIWindow.Window.WINDOW_DIALOG_YES_NO);
+
+            try
+            {
+                dlgYesNo.Reset();
+                dlgYesNo.SetHeading(heading);
+                string[] linesArray = lines.Split(new string[] { "\\n", "\n" }, StringSplitOptions.None);
+                if (linesArray.Length > 0) dlgYesNo.SetLine(1, linesArray[0]);
+                if (linesArray.Length > 1) dlgYesNo.SetLine(2, linesArray[1]);
+                if (linesArray.Length > 2) dlgYesNo.SetLine(3, linesArray[2]);
+                if (linesArray.Length > 3) dlgYesNo.SetLine(4, linesArray[3]);
+                dlgYesNo.SetDefaultToYes(defaultYes);
+
+                foreach (GUIControl item in dlgYesNo.Children)
+                {
+                    if (item is GUIButtonControl)
+                    {
+                        GUIButtonControl btn = (GUIButtonControl)item;
+                        if (btn.GetID == 11 && !string.IsNullOrEmpty(yesLabel)) // Yes button
+                            btn.Label = yesLabel;
+                        else if (btn.GetID == 10 && !string.IsNullOrEmpty(noLabel)) // No button
+                            btn.Label = noLabel;
+                    }
+                }
+                dlgYesNo.DoModal(GUIWindowManager.ActiveWindow);
+                return dlgYesNo.IsConfirmed;
+            }
+            finally
+            {
+                // set the standard yes/no dialog back to it's original state (yes/no buttons)
+                if (dlgYesNo != null)
+                {
+                    dlgYesNo.ClearAll();
+                }
+            }
+        }
+
         #endregion
 
     }

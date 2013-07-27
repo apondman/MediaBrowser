@@ -24,6 +24,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             _player = new MediaPlayer(this, this._logger);
             _player.PlayerStarted += OnPlaybackStarted;
+            _player.PlayerStopped += OnPlaybackStopped;
+            _player.PlayerEnded += OnPlaybackEnded;
 
             RegisterCommand("Play", PlayCommand);
         }
@@ -71,14 +73,36 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         protected void PlayCommand(GUIControl control, MPGui.Action.ActionType actionType)
         {
+            if (_movie.CanResume)
+            {
+                // show a resume dialog if move is resumable
+                TimeSpan timespan = TimeSpan.FromTicks(_movie.ResumePositionTicks);
+                string sbody = _movie.Name + "\n" + MediaBrowserPlugin.UI.Resource.ResumeFrom + " " + timespan.ToString();
+                if (GUIUtils.ShowYesNoDialog(MediaBrowserPlugin.UI.Resource.ResumeFromLast, sbody, true))
+                {
+                    Play((int) timespan.TotalSeconds);
+                }
+            }
+
             Play();
         }
 
         #endregion       
 
-        protected void Play(int resumeTime = 0) 
+        protected void Play(int resumeTime = 0)
         {
-            _player.Play(_movie.Path, resumeTime);
+            var info = new MediaPlayerInfo
+            {
+                Title = _movie.Name,
+                Year = _movie.ProductionYear.ToString(),
+                Plot = _movie.Overview,
+                Genre = _movie.Genres.FirstOrDefault(),
+                Thumb = _cover.Filename,
+                ResumePlaybackPosition = resumeTime
+            };
+
+            info.MediaFiles.Add(_movie.Path);
+            _player.Play(info);
         }
 
         protected BaseItemDto LoadMovieDetails(GUITask task)
@@ -121,13 +145,25 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         protected void OnPlaybackStarted(MediaPlayerInfo info)
         {
-            info.Title = _movie.Name;
-            info.Year = _movie.ProductionYear.ToString();
-            info.Plot = _movie.Overview;
-            info.Genre = _movie.Genres.FirstOrDefault();
-            info.Thumb = _cover.Filename;
+            GUIContext.Instance.Client.ReportPlaybackStart(_movie.Id, GUIContext.Instance.ActiveUser.Id, PlaybackReported);
+        }
 
-            // report playback
+        protected void OnPlaybackStopped(MediaPlayerInfo media, int progress)
+        {
+            GUIContext.Instance.Client.ReportPlaybackStopped(_movie.Id, GUIContext.Instance.ActiveUser.Id,
+                TimeSpan.FromSeconds(progress).Ticks, PlaybackReported);
+        }
+
+        protected void OnPlaybackEnded(MediaPlayerInfo media)
+        {
+            // todo: doesn't account for multiparts!
+            GUIContext.Instance.Client.ReportPlaybackStopped(_movie.Id, GUIContext.Instance.ActiveUser.Id,
+                _movie.RunTimeTicks, PlaybackReported);
+        }
+
+        protected void PlaybackReported(bool response)
+        {
+            Log.Debug("Reporting playback state to MediaBrowser. {0}", response);
         }
     }
 }

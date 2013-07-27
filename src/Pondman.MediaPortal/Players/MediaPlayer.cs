@@ -20,10 +20,14 @@ namespace Pondman.MediaPortal
         protected ILogger _logger;
         protected MediaPlayerState _state;
         protected int _resumeTime = 0;
+        protected int _mediaIndex = 0;
+        protected MediaPlayerInfo _media;
 
         #endregion
 
         public event Action<MediaPlayerInfo> PlayerStarted;
+        public event Action<MediaPlayerInfo, int> PlayerStopped;
+        public event Action<MediaPlayerInfo> PlayerEnded;
 
         #region Ctor
 
@@ -32,6 +36,7 @@ namespace Pondman.MediaPortal
             Guard.NotNull(() => window, window);
             _logger = logger ?? NullLogger.Instance;
             _state = MediaPlayerState.Idle;
+            _media = null;
             
             // hookup internal playback handlers
             g_Player.PlayBackStarted += new g_Player.StartedHandler(OnPlaybackStarted);
@@ -72,34 +77,40 @@ namespace Pondman.MediaPortal
 
             g_Player.ShowFullScreenWindow();
             _state = MediaPlayerState.Playing;
-            
-            if (_resumeTime > 0) 
-            {
-                SeekPosition(_resumeTime);
-            }
 
-            MediaPlayerInfo info = new MediaPlayerInfo(filename);
-            if (PlayerStarted != null)
+            if (_mediaIndex == 0)
             {
-                PlayerStarted(info);
-                UpdateOSD(info);
+                if (_media.ResumePlaybackPosition > 0)
+                {
+                    SeekPosition(_media.ResumePlaybackPosition);
+                }
+                if (PlayerStarted.IsNull()) return;
+                PlayerStarted(_media);
             }
+            
+            UpdateOSD(_media);
         }
 
         protected void OnPlayBackStoppedOrChanged(g_Player.MediaType type, int timeMovieStopped, string filename)
         {
-            if (IsPlaying)
-            {
-                Reset();
-            }
+            // todo: fix multi-parts
+            if (!IsPlaying) return;
+            PlayerStopped.IfNotNull(x => x(_media,timeMovieStopped));
+            Reset();
         }
 
         protected void OnPlayBackEnded(g_Player.MediaType type, string filename)
         {
-            if (IsPlaying)
+            if (!IsPlaying) return;
+
+            if (_media.MediaFiles.Count > _mediaIndex+1)
             {
-                Reset();
+                StartPlayback(_mediaIndex++);
+                return;
             }
+
+            PlayerEnded.IfNotNull(x => x(_media));
+            Reset();
         }
 
         #endregion
@@ -109,22 +120,26 @@ namespace Pondman.MediaPortal
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="resumeTimeInSeconds">The resume time in seconds.</param>
-        public virtual void Play(string path, int resumeTimeInSeconds = 0)
+        public virtual void Play(MediaPlayerInfo media)
         {
             _state = MediaPlayerState.Processing;
-            _resumeTime = resumeTimeInSeconds;
-            
+            _media = media;
+            _mediaIndex = 0;
+
+            StartPlayback(_mediaIndex);
+        }
+
+        protected void StartPlayback(int index)
+        {
+            string path = _media.MediaFiles[index];
+
             // Play the file using the mediaportal player
-            _logger.Debug("Play: Path={0}, ResumeFrom={1}", path, resumeTimeInSeconds);           
-            
-            bool success = g_Player.Play(path.Trim(), g_Player.MediaType.Video);
+            _logger.Debug("Play: Path={0}", path);           
 
             // if the playback started and we are still playing go full screen (internal player)
-            if (!success)
-            {
-                _logger.Error("Playback failed: Media={0}", path);
-                Reset();
-            }
+            if (g_Player.Play(path.Trim(), g_Player.MediaType.Video)) return;
+            _logger.Error("Playback failed: Media={0}", path);
+            Reset();
         }
 
         public virtual void Stop()
@@ -154,17 +169,19 @@ namespace Pondman.MediaPortal
         protected void Reset() 
         {
             _state = MediaPlayerState.Idle;
+            _media = null;
+            _mediaIndex = 0;
         }
 
         protected void UpdateOSD(MediaPlayerInfo info)
         {
             // todo: listen to property set event?
-            Timer delayed = new Timer((x) => info.Publish("#Play.Current"), null, 2000, -1);
+            var delayed = new Timer((x) => info.Publish("#Play.Current"), null, 2000, -1);
         }
 
         static void SeekPosition(int resumePositionInSeconds)
         {
-            GUIMessage msg = new GUIMessage(GUIMessage.MessageType.GUI_MSG_SEEK_POSITION, 0, 0, 0, 0, 0, null);
+            var msg = new GUIMessage(GUIMessage.MessageType.GUI_MSG_SEEK_POSITION, 0, 0, 0, 0, 0, null);
             msg.Param1 = resumePositionInSeconds;
             GUIGraphicsContext.SendMessage(msg);
         }
