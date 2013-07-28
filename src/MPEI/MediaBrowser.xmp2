@@ -293,13 +293,19 @@ Click Next to continue or Cancel to exit Setup.</Value>
     <UpdateUrl />
     <Version>
       <Major>0</Major>
-      <Minor>6</Minor>
-      <Build>4954</Build>
-      <Revision>26073</Revision>
+      <Minor>7</Minor>
+      <Build>4957</Build>
+      <Revision>4473</Revision>
     </Version>
     <ExtensionDescription>MediaPortal client for MediaBrowser3 server (http://www.mediabrowser3.com). </ExtensionDescription>
-    <VersionDescription>- Removed TV Shows view (will return later)
-- Added more movie views</VersionDescription>
+    <VersionDescription>- Added Box Sets view
+- Added Resumable Movies view
+- Added Random Movie command
+- Added support for resumable media
+- Added resume dialog for movies with resume data
+- Improved remote browse/play handling
+- Improved default Titan skin (still needs alot of work)
+</VersionDescription>
     <DevelopmentStatus>Beta</DevelopmentStatus>
     <OnlineLocation />
     <ReleaseDate>2013-07-23T23:40:16.6657028+02:00</ReleaseDate>
@@ -448,7 +454,7 @@ Click Next to continue or Cancel to exit Setup.</Value>
         <Param1 />
         <UpdateOption>OverwriteIfOlder</UpdateOption>
         <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\Resources\Images\mblogoicon.png</LocalFileName>
-        <ZipFileName>Installer{CopyFile}\{6afed8bb-ab09-4dd7-9df4-006f09c8767d}-mblogoicon.png</ZipFileName>
+        <ZipFileName>Installer{CopyFile}\{ca2d50c2-c909-4159-9605-f91c94b82891}-mblogoicon.png</ZipFileName>
         <DestinationFilename />
       </FileItem>
     </Items>
