@@ -438,6 +438,14 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                     .Descending()
                                     .Limit(100);
                             break;
+                        case "movies-resume":
+                            query = query
+                                    .Movies()
+                                    .SortBy(ItemSortBy.DatePlayed)
+                                    .Filters(ItemFilter.IsResumable)
+                                    .Descending()
+                                    .Limit(50);
+                            break;
                         case "movies-all":
                             query = query
                                     .Movies()
@@ -474,6 +482,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         protected void LoadMovieViewsAndContinue()
         {
             _browser.Add(GetViewListItem("movies-latest", MediaBrowserPlugin.UI.Resource.LatestUnwatchedMovies));
+            _browser.Add(GetViewListItem("movies-resume", MediaBrowserPlugin.UI.Resource.ResumableMovies));
             _browser.Add(GetViewListItem("movies-all", MediaBrowserPlugin.UI.Resource.AllMovies));
             _browser.Add(GetViewListItem("movies-boxset", MediaBrowserPlugin.UI.Resource.BoxSets));
             _browser.Add(GetViewListItem("movies-genres", MediaBrowserPlugin.UI.Resource.Genres));
