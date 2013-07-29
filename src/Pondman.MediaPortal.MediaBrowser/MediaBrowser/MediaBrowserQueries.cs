@@ -4,6 +4,7 @@ using MediaBrowser.Model.Querying;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using Pondman.MediaPortal.MediaBrowser.Models;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
@@ -174,6 +175,18 @@ namespace Pondman.MediaPortal.MediaBrowser
         }
 
         /// <summary>
+        /// Sorts the by.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="fields">The fields.</param>
+        /// <returns></returns>
+        public static ItemsByNameQuery SortBy(this ItemsByNameQuery query, params string[] fields)
+        {
+            query.SortBy = query.SortBy.Concat(fields).ToArray();
+            return query;
+        }
+
+        /// <summary>
         /// Add filters to the query
         /// </summary>
         /// <param name="query">The query.</param>
@@ -202,6 +215,28 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <param name="query">The query.</param>
         /// <returns></returns>
         public static ItemQuery Descending(this ItemQuery query)
+        {
+            query.SortOrder = SortOrder.Descending;
+            return query;
+        }
+
+        /// <summary>
+        /// Sort ascending.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <returns></returns>
+        public static ItemsByNameQuery Ascending(this ItemsByNameQuery query)
+        {
+            query.SortOrder = SortOrder.Ascending;
+            return query;
+        }
+
+        /// <summary>
+        /// Sort descending.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <returns></returns>
+        public static ItemsByNameQuery Descending(this ItemsByNameQuery query)
         {
             query.SortOrder = SortOrder.Descending;
             return query;
@@ -276,6 +311,48 @@ namespace Pondman.MediaPortal.MediaBrowser
         public static ItemQuery Watched(this ItemQuery query, bool isWatched = true)
         {
             query.Filters(isWatched ? ItemFilter.IsPlayed : ItemFilter.IsUnplayed);
+            return query;
+        }
+
+        public static ItemQuery Apply(this ItemQuery query, SortableQuery options)
+        {
+            query.StartIndex = options.Offset;
+            query.Limit = options.Limit;
+            if (options.SortBy != null)
+            {
+                query.SortBy(options.SortBy);
+            }
+            if (options.Descending.HasValue)
+            {
+                query.SortOrder = options.Descending.Value ? SortOrder.Descending : SortOrder.Ascending;
+            }
+
+            if (query.SortBy == null || query.SortBy.Length == 0)
+            {
+                query.SortBy(ItemSortBy.SortName).Ascending();
+            }
+
+            return query;
+        }
+
+        public static ItemsByNameQuery Apply(this ItemsByNameQuery query, SortableQuery options)
+        {
+            query.StartIndex = options.Offset;
+            query.Limit = options.Limit;
+            if (options.SortBy != null)
+            {
+                query.SortBy(options.SortBy);
+            }
+            if (options.Descending.HasValue)
+            {
+                query.SortOrder = options.Descending.Value ? SortOrder.Descending : SortOrder.Ascending;
+            }
+
+            if (query.SortBy == null || query.SortBy.Length == 0)
+            {
+                query.SortBy(ItemSortBy.SortName).Ascending();
+            }
+
             return query;
         }
 

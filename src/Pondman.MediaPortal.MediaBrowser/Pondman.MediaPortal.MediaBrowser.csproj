@@ -88,6 +88,7 @@
     <Compile Include="MediaBrowserPlugin.cs" />
     <Compile Include="Models\MediaBrowserItem.cs" />
     <Compile Include="Models\MediaBrowserMedia.cs" />
+    <Compile Include="Models\SortableQuery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GUI\GUIMain.cs" />
     <Compile Include="Resources\Languages\Translations.cs" />

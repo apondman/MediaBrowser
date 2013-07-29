@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Windows.Controls;
+using ConsoleApplication2.com.amazon.webservices;
 using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Querying;
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 using System.Threading;
 using MPGui = MediaPortal.GUI.Library;
 using Pondman.MediaPortal.MediaBrowser.Models;
+using MediaPortal.Dialogs;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
 {
@@ -22,6 +24,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         readonly Stack<GUIListItem> _history;
         readonly GUIBrowser<string> _browser;
         readonly ManualResetEvent _mre;
+        private SortableQuery _sortableQuery;
 
         public GUIMain()
             : base(MediaBrowserWindow.Main)
@@ -118,6 +121,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     switch (actionType)
                     {
                         case MPGui.Action.ActionType.ACTION_SELECT_ITEM:
+                            
+                            // reset sortable query
+                            // todo: bad place
+                            _sortableQuery = new SortableQuery();
+
                             Navigate(Facade.SelectedListItem);
                             return;
                     }
@@ -132,6 +140,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             switch (action.wID) 
             {
                 case MPGui.Action.ActionType.ACTION_PARENT_DIR:
+                    // reset sortable query
+                    // todo: bad place
+                    _sortableQuery = new SortableQuery();
+
                     OnPreviousWindow();
                     break;
                 default:
@@ -144,7 +156,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             // show the profile selection dialog for now
             // todo: add contextual options
-            ShowUserProfilesDialog();
+            // ShowUserProfilesDialog();
+            ShowSortMenuDialog();
         }
 
         /// <summary>
@@ -213,13 +226,12 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <param name="item">The item.</param>
         protected void OnCurrentItemChanged(GUIListItem item)
         {
-            if (item != null)
+            if (item == null) return;
+            CurrentItem = item.TVTag as BaseItemDto;
+
+            if (CurrentItem != null)
             {
-                CurrentItem = item.TVTag as BaseItemDto;
-                if (CurrentItem != null)
-                {
-                    PublishItemDetails(CurrentItem, MediaBrowserPlugin.DefaultProperty + ".Current");
-                }
+                PublishItemDetails(CurrentItem, MediaBrowserPlugin.DefaultProperty + ".Current");
             }
         }
 
@@ -314,6 +326,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             CurrentItem = null;
             _history.Clear();
             SelectedId = null;
+            _sortableQuery = new SortableQuery();
 
             // get root folder
             GUIContext.Instance.Client.GetRootFolder(GUIContext.Instance.Client.CurrentUserId, LoadItem, ShowItemsError);
@@ -365,6 +378,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             if (IsMainTaskRunning) return;
             _browser.IsPreloading = true; // todo: find another way
+            _sortableQuery.Offset = _browser.Count;
+
             MainTask = GUITask.Run(ContinueItems, Continue, ShowItemsError);   
         }
 
@@ -431,14 +446,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                         .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams);
             if (_browser.Limit > 0)
             {
-                query.Limit(50);
+                _sortableQuery.Limit = 50;
             }
-
-            if (_browser.Count > 0)
-            {
-                query.StartIndex = _browser.Count;
-            }
-
 
             Log.Debug("GetItems: Type={0}, Id={1}", item.Type, item.Id);
 
@@ -458,10 +467,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                             return;
                         case "movies-boxset":
                             query = query
-                                        .BoxSets()
-                                        .Fields(ItemFields.ItemCounts)
-                                        .SortBy(ItemSortBy.SortName)
-                                        .Ascending();
+                                .BoxSets()
+                                .Fields(ItemFields.ItemCounts);
                             break;
                         case "movies-latest":
                             query = query
@@ -479,32 +486,28 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                             break;
                         case "movies-all":
                             query = query
-                                    .Movies()
-                                    .SortBy(ItemSortBy.SortName)
-                                    .Ascending();
+                                .Movies();
                             break;
                         case "tvshows":
                             query = query
-                                    .TvShows()
-                                    .SortBy(ItemSortBy.SortName)
-                                    .Ascending();
+                                .TvShows();
                             break;
                     }
                     break;
                 case "Genre":
-                    query = query.Movies().Genres(item.Name).SortBy(ItemSortBy.SortName).Ascending();
+                    query = query.Movies().Genres(item.Name);
                     break;
                 case "Studio":
-                    query = query.Movies().Studios(item.Name).SortBy(ItemSortBy.SortName).Ascending();
+                    query = query.Movies().Studios(item.Name);
                     break;
                 default:
                     // get movies by parent id
-                    query = query.Movies().ParentId(item.Id).SortBy(ItemSortBy.SortName).Ascending();
+                    query = query.Movies().ParentId(item.Id);
                     break;
             }
 
             // default is item query
-            GUIContext.Instance.Client.GetItems(query, PopulateBrowserAndContinue, ShowItemsErrorAndContinue);
+            GUIContext.Instance.Client.GetItems(query.Apply(_sortableQuery), PopulateBrowserAndContinue, ShowItemsErrorAndContinue);
         }
 
         /// <summary>
@@ -535,17 +538,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 UserId = GUIContext.Instance.Client.CurrentUserId
                             };
 
-            if (_browser.Limit > 0)
-            {
-                query.Limit = 50;
-            }
-
-            if (_browser.Count > 0)
-            {
-                query.StartIndex = _browser.Count;
-            }
-
-            return query;
+            return query.Apply(_sortableQuery);
         }
 
         protected void PopulateBrowserAndContinue(ItemsResult result)
@@ -697,6 +690,43 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                _cover.Filename = cover;
                _backdrop.Filename = backdrop;
             }            
+        }
+
+        protected void ShowSortMenuDialog()
+        {
+            var items = new List<GUIListItem>
+            {
+                GetSortItem(ItemSortBy.SortName, ItemSortBy.SortName),
+                GetSortItem(ItemSortBy.PremiereDate, ItemSortBy.PremiereDate),
+                GetSortItem(ItemSortBy.DateCreated, ItemSortBy.DateCreated),
+                GetSortItem(ItemSortBy.Runtime, ItemSortBy.Runtime)
+            };
+
+            var result = GUIUtils.ShowMenuDialog("Sort options", items, items.FindIndex(x => x.Path == _sortableQuery.SortBy));
+            if (result == -1) return;
+            
+            var field = items[result].Path;
+            if (_sortableQuery.SortBy == field)
+            {
+                _sortableQuery.Descending = !_sortableQuery.Descending;
+            }
+            else
+            {
+                _sortableQuery.Descending = false;
+            }
+
+            _sortableQuery.SortBy = field;
+            _sortableQuery.Offset = 0;
+
+            _sortableQuery.Publish(MediaBrowserPlugin.DefaultProperty + ".Sortable");
+            CurrentItem = null;
+            Reload();
+        }
+
+        static GUIListItem GetSortItem(string label, string field)
+        {
+            var item = new GUIListItem(label) {Path = field};
+            return item;
         }
     }
 }

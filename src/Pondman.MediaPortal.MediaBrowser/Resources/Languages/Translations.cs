@@ -39,6 +39,7 @@
         public string ResumeFrom = "Resume from:";
         public string ResumeFromLast = "Resume last session?";
 
+        public string ServerNotFoundOnTheNetwork = "Media Browser server could not be found.";
         public string Server = "Server";
         public string Studio = "Studio";
         public string Studios = "Studios";
