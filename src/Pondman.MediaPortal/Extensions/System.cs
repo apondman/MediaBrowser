@@ -44,6 +44,21 @@ namespace System
             return str.IsNull() || String.IsNullOrEmpty(str.Trim());
         }
 
+        public static void SafeInvoke<T1>(this Action<T1> obj, T1 arg)
+        {
+            obj.IfNotNull(handler => handler(arg));
+        }
+
+        public static void SafeInvoke<T1,T2>(this Action<T1,T2> obj, T1 p1, T2 p2)
+        {
+            obj.IfNotNull(handler => handler(p1,p2));
+        }
+
+        public static void SafeInvoke<T1, T2, T3>(this Action<T1, T2, T3> obj, T1 p1, T2 p2, T3 p3)
+        {
+            obj.IfNotNull(handler => handler(p1, p2, p3));
+        }
+
         /// <summary>
         /// Formats the specified string with the given arguments.
         /// </summary>
@@ -86,8 +101,8 @@ namespace System
         /// <returns>hash</returns> 
         public static string ToMd5Hash(this string input)
         {
-            System.Security.Cryptography.MD5 _md5Hasher = System.Security.Cryptography.MD5.Create();
-            byte[] data = _md5Hasher.ComputeHash(Encoding.Default.GetBytes(input));
+            Security.Cryptography.MD5 hasher = Security.Cryptography.MD5.Create();
+            byte[] data = hasher.ComputeHash(Encoding.Default.GetBytes(input));
             return BitConverter.ToString(data).Replace("-", "").ToLowerInvariant();
         }
 
@@ -100,16 +115,14 @@ namespace System
         /// <param name="onError">The on error.</param>
         public static void FireEvent(this EventHandler handler, object sender, EventArgs args, Action<Exception> onError = null)
         {
-            if (handler != null)
+            if (handler == null) return;
+            try
             {
-                try
-                {
-                    handler(sender, args);
-                }
-                catch (Exception ex)
-                {
-                    if (onError != null) onError(ex);
-                }
+                handler(sender, args);
+            }
+            catch (Exception ex)
+            {
+                onError.SafeInvoke(ex);
             }
         }
 
@@ -132,7 +145,7 @@ namespace System
                 }
                 catch (Exception ex)
                 {
-                    if (onError != null) onError(ex);
+                    onError.SafeInvoke(ex);
                 }
             }
         }

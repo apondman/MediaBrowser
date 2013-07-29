@@ -19,9 +19,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
     /// </summary>
     public class GUIMain : GUIDefault
     {
-        Stack<GUIListItem> _history;
-        GUIBrowser<string> _browser;
-        ManualResetEvent _mre;
+        readonly Stack<GUIListItem> _history;
+        readonly GUIBrowser<string> _browser;
+        readonly ManualResetEvent _mre;
 
         public GUIMain()
             : base(MediaBrowserWindow.Main)
@@ -32,6 +32,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             _browser.Settings.Prefix = MediaBrowserPlugin.DefaultProperty;
             _browser.ItemSelected += OnBaseItemSelected;
             _browser.CurrentItemChanged += OnCurrentItemChanged;
+            _browser.PreloadRequested += OnBrowserPreloadRequested;
 
             _mre = new ManualResetEvent(false);
 
@@ -75,6 +76,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             base.OnPageLoad();
 
+            // update browser settings
+            _browser.Limit = MediaBrowserPlugin.Settings.DefaultItemLimit;
             _browser.Attach(Facade);
 
             if (!GUIContext.Instance.IsServerReady) 
@@ -115,12 +118,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     switch (actionType)
                     {
                         case MPGui.Action.ActionType.ACTION_SELECT_ITEM:
-                            // todo: rewrite
-                            GUIListItem item = Facade.SelectedListItem;
-                            if (!_browser.OnClicked(item))
-                            {
-                                Navigate(item);
-                            }
+                            Navigate(Facade.SelectedListItem);
                             return;
                     }
                     break;
@@ -363,6 +361,13 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
         }
 
+        protected void OnBrowserPreloadRequested(object sender, EventArgs e)
+        {
+            if (IsMainTaskRunning) return;
+            _browser.IsPreloading = true; // todo: find another way
+            MainTask = GUITask.Run(ContinueItems, Continue, ShowItemsError);   
+        }
+
         /// <summary>
         /// Loads the root folder into the navigation system.
         /// </summary>
@@ -383,12 +388,29 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             // check the current item
             var current = _history.Peek();
 
+            // do nothing if the data is already in the browser
+            if (CurrentItem == (current.TVTag as BaseItemDto))
+            {
+                return null;
+            }
+
             // clear browser and set current
             _browser.Current(current);
 
             // we are using the manual reset event because the call on the client is async and we want this method to only complete when it's done.
             _mre.Reset();
             GetItems(current.TVTag as BaseItemDto);
+            _mre.WaitOne();
+
+            return null;
+        }
+
+        protected List<GUIListItem> ContinueItems(GUITask task)
+        {
+            Log.Debug("Continue item request.");
+            // we are using the manual reset event because the call on the client is async and we want this method to only complete when it's done.
+            _mre.Reset();
+            GetItems(CurrentItem);
             _mre.WaitOne();
 
             return null;
@@ -407,6 +429,17 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                         .UserId(userId)
                                         .Recursive()
                                         .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams);
+            if (_browser.Limit > 0)
+            {
+                query.Limit(50);
+            }
+
+            if (_browser.Count > 0)
+            {
+                query.StartIndex = _browser.Count;
+            }
+
+
             Log.Debug("GetItems: Type={0}, Id={1}", item.Type, item.Id);
 
             switch (item.Type)
@@ -432,19 +465,17 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                             break;
                         case "movies-latest":
                             query = query
-                                    .Movies()
-                                    .SortBy(ItemSortBy.DateCreated)
-                                    .Filters(ItemFilter.IsUnplayed)
-                                    .Descending()
-                                    .Limit(100);
+                                .Movies()
+                                .SortBy(ItemSortBy.DateCreated)
+                                .Filters(ItemFilter.IsUnplayed)
+                                .Descending();
                             break;
                         case "movies-resume":
                             query = query
-                                    .Movies()
-                                    .SortBy(ItemSortBy.DatePlayed)
-                                    .Filters(ItemFilter.IsResumable)
-                                    .Descending()
-                                    .Limit(50);
+                                .Movies()
+                                .SortBy(ItemSortBy.DatePlayed)
+                                .Filters(ItemFilter.IsResumable)
+                                .Descending();
                             break;
                         case "movies-all":
                             query = query
@@ -492,17 +523,27 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             _mre.Set();
         }
 
-        protected ItemsByNameQuery GetItemsByNameQueryForMovie()
+        protected ItemsByNameQuery GetItemsByNameQueryForMovie(int startIndex = 0)
         {
             var query = new ItemsByNameQuery
                             {
-                                SortBy = new string[] { ItemSortBy.SortName },
+                                SortBy = new [] { ItemSortBy.SortName },
                                 SortOrder=SortOrder.Ascending,
-                                IncludeItemTypes = new string[] {"Movie"},
+                                IncludeItemTypes = new [] {"Movie"},
                                 Recursive = true,
-                                Fields = new ItemFields[] {ItemFields.ItemCounts, ItemFields.DateCreated},
+                                Fields = new [] {ItemFields.ItemCounts, ItemFields.DateCreated},
                                 UserId = GUIContext.Instance.Client.CurrentUserId
                             };
+
+            if (_browser.Limit > 0)
+            {
+                query.Limit = 50;
+            }
+
+            if (_browser.Count > 0)
+            {
+                query.StartIndex = _browser.Count;
+            }
 
             return query;
         }
@@ -510,6 +551,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         protected void PopulateBrowserAndContinue(ItemsResult result)
         {
             _browser.TotalCount = result.TotalRecordCount;
+            
             foreach (var item in result.Items)
             {
                 if (MainTask.IsCancelled)
@@ -526,8 +568,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         protected void ShowItemsErrorAndContinue(Exception e)
         {
-            ShowItemsError(e);
+            _browser.IsPreloading = false;
             _mre.Set();
+            ShowItemsError(e);
         }
 
         /// <summary>
@@ -547,12 +590,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <returns></returns>
         protected string GetIdentifier(GUIListItem item)
         {
-            if (item == null)
-            {
-                return string.Empty;
-            }
-            
-            return item.Path;
+            return item == null ? string.Empty : item.Path;
         }
 
         /// <summary>
@@ -562,6 +600,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         protected void Publish(List<GUIListItem> items)
         {
             _browser.Publish(SelectedId);
+        }
+
+        protected void Continue(List<GUIListItem> items)
+        {
+            _browser.Continue();
         }
 
         /// <summary>

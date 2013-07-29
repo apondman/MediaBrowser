@@ -26,13 +26,6 @@
             </FileItem>
             <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
               <Param1 />
-              <UpdateOption>AlwaysOverwrite</UpdateOption>
-              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\MediaBrowser.Model.net35.dll</LocalFileName>
-              <ZipFileName>Installer{CopyFile}\{4a6ec321-be3e-4377-b0af-1481b7c42a10}-MediaBrowser.Model.net35.dll</ZipFileName>
-              <DestinationFilename>%Base%\MediaBrowser.Model.net35.dll</DestinationFilename>
-            </FileItem>
-            <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
-              <Param1 />
               <UpdateOption>OverwriteIfOlder</UpdateOption>
               <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Newtonsoft.Json.dll</LocalFileName>
               <ZipFileName>Installer{CopyFile}\{71a80c58-bb55-4980-906f-df48f54178ab}-Newtonsoft.Json.dll</ZipFileName>
@@ -361,13 +354,6 @@ Click Next to continue or Cancel to exit Setup.</Value>
       </FileItem>
       <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
         <Param1 />
-        <UpdateOption>AlwaysOverwrite</UpdateOption>
-        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\MediaBrowser.Model.net35.dll</LocalFileName>
-        <ZipFileName>Installer{CopyFile}\{4a6ec321-be3e-4377-b0af-1481b7c42a10}-MediaBrowser.Model.net35.dll</ZipFileName>
-        <DestinationFilename>%Base%\MediaBrowser.Model.net35.dll</DestinationFilename>
-      </FileItem>
-      <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
-        <Param1 />
         <UpdateOption>OverwriteIfOlder</UpdateOption>
         <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Newtonsoft.Json.dll</LocalFileName>
         <ZipFileName>Installer{CopyFile}\{71a80c58-bb55-4980-906f-df48f54178ab}-Newtonsoft.Json.dll</ZipFileName>
@@ -461,7 +447,7 @@ Click Next to continue or Cancel to exit Setup.</Value>
   </UniqueFileList>
   <ProjectSettings>
     <FolderGroups />
-    <ProjectFilename>MediaBrowser.xmp2</ProjectFilename>
+    <ProjectFilename>mediabrowser.xmp2</ProjectFilename>
     <UpdatePath1 />
     <UpdatePath2 />
     <UpdatePath3 />

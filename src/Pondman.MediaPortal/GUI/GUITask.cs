@@ -70,7 +70,7 @@ namespace MediaPortal.GUI.Library
             GUIWaitCursor.Init();
             GUIWaitCursor.Show();
 
-            GUITask task = new GUITask();
+            var task = new GUITask();
             task.Result = process.BeginInvoke(task,
                 iar =>
                 {

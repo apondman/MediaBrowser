@@ -122,7 +122,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         public virtual void ShowItemsError(Exception e)
         {
             GUIUtils.ShowOKDialog(MediaBrowserPlugin.UI.Resource.Error, MediaBrowserPlugin.UI.Resource.ErrorMakingRequest);
-            // todo: implement error dialog / try again
             Log.Error(e);
         }
 

@@ -1,4 +1,5 @@
-﻿using MediaPortal.GUI.Library;
+﻿using System.Net.Configuration;
+using MediaPortal.GUI.Library;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,8 +43,8 @@ namespace Pondman.MediaPortal.GUI
         protected Func<GUIListItem, TIdentifier> _resolver;
         protected List<GUIListItem> _list;
 
-        double lastPublished = 0;
-        Timer publishTimer;
+        double _lastPublished = 0;
+        Timer _publishTimer;
 
         public GUIBrowser(Func<GUIListItem, TIdentifier> resolver, ILogger logger = null)
         {
@@ -63,15 +64,7 @@ namespace Pondman.MediaPortal.GUI
         /// </summary>
         public event Action<GUIListItem> CurrentItemChanged;
 
-        /// <summary>
-        /// Occurs when the next page is requested.
-        /// </summary>
-        public event EventHandler NextPage;
-
-        /// <summary>
-        /// Occurs when the previous page is requested.
-        /// </summary>
-        public event EventHandler PreviousPage;
+        public event EventHandler PreloadRequested;
 
         /// <summary>
         /// Returns the active logger for this window.
@@ -110,15 +103,9 @@ namespace Pondman.MediaPortal.GUI
                 return _settings;
             }
         }
-
-        /// <summary>
-        /// Gets or sets the offset.
-        /// </summary>
-        /// <value>
-        /// The offset.
-        /// </value>
-        public virtual int Offset { get; set; }
         
+        public virtual bool IsPreloading { get; set; }
+
         /// <summary>
         /// Gets or sets the limit.
         /// </summary>
@@ -136,17 +123,31 @@ namespace Pondman.MediaPortal.GUI
         public virtual int TotalCount { get; set;}
 
         /// <summary>
+        /// Gets the count.
+        /// </summary>
+        /// <value>
+        /// The count.
+        /// </value>
+        public virtual int Count
+        {
+            get
+            {
+                return _list.Count;
+            }
+        }
+
+        /// <summary>
         /// Adds the specified item to the browser list.
         /// </summary>
         /// <param name="item">The item.</param>
         public virtual void Add(GUIListItem item)
         {
-            item.OnItemSelected += item_OnItemSelected; 
+            item.OnItemSelected += OnItemSelected; 
             _list.Add(item);
         }
 
         /// <summary>
-        /// Set current "owner" of the list items
+        /// Set current "owner" of the list items and clears the list
         /// </summary>
         /// <param name="item">The item.</param>
         public virtual void Current(GUIListItem item)
@@ -161,40 +162,18 @@ namespace Pondman.MediaPortal.GUI
         public virtual void Clear()
         {
             _list.Clear();
-            Offset = 0;
-            Limit = 0;
             TotalCount = 0;
         }
 
-        /// <summary>
-        /// Returns true when the browser has handled the click event.
-        /// </summary>
-        /// <param name="item">The item.</param>
-        /// <returns></returns>
-        public virtual bool OnClicked(GUIListItem item)
-        {
-            switch (item.ItemId)
-            {
-                case 10000:
-                    NextPage.FireEvent(this, EventArgs.Empty);
-                    return true;
-                case 10001:
-                    PreviousPage.FireEvent(this, EventArgs.Empty);
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        void item_OnItemSelected(GUIListItem item, GUIControl parent)
+        protected void OnItemSelected(GUIListItem item, GUIControl parent)
         {
             var facade = _control as GUIFacadeControl;
 
-            if (!facade.IsRelated(parent) || facade != null & facade.SelectedListItem != item)
+            if (!facade.IsRelated(parent) || facade != null && facade.SelectedListItem != item)
                 return;
 
-            if (item.ItemId == 10000 || item.ItemId == 10001)
-                return;
+            if (Limit > 0 && !IsPreloading && facade.SelectedListItemIndex > facade.Count - (int)(Limit / 2) && facade.Count < TotalCount)
+                PreloadRequested.FireEvent(this, EventArgs.Empty);
 
             DelayedItemHandler(item);
         }
@@ -210,49 +189,59 @@ namespace Pondman.MediaPortal.GUI
                 Publish(_control as GUIFacadeControl, selected);
             }
 
-            // Update Total Count if it was not done manually
-            if (TotalCount == 0)
-            {
-                TotalCount = _list.Count;
-            }
-
             // Publish current item
             if (CurrentItemChanged != null) 
             {
                 CurrentItemChanged(_current);
             }
 
-            _list.Count.Publish(_settings.Prefix + ".Browser.Items.Current");
-            TotalCount.Publish(_settings.Prefix + ".Browser.Items.Total");
-            // todo: add filtered count
-
             _control.Focus();
+        }
+
+        public virtual void Continue()
+        {
+            if (!(_control is GUIFacadeControl)) return;
+            var facade = _control as GUIFacadeControl;
+            Append(facade, default(TIdentifier), false);
         }
 
         protected virtual void Publish(GUIFacadeControl facade, TIdentifier selected) 
         {
-            bool first = true;
-
             // set the layout just to make sure properties are being set.
             facade.CurrentLayout = facade.CurrentLayout;
             facade.ClearAll();
             
-            for(int i=0;i<_list.Count;i++)
+            Append(facade, selected);
+        }
+
+        protected virtual void Append(GUIFacadeControl facade, TIdentifier selected, bool reselect = true)
+        {
+            IsPreloading = false;
+            for (var i = facade.Count; i < _list.Count; i++)
             {
                 var item = _list[i];
                 facade.Add(item);
-                if (selected != null && GetKeyForItem(item).Equals(selected))
-                {
-                    first = false;
-                    facade.SelectIndex(i);
-                }
+
+                if (!reselect || !GetKeyForItem(item).Equals(selected)) continue;
+                facade.SelectIndex(i);
+                reselect = false;
             }
 
-            if (first)
+            if (reselect)
             {
                 // select the first item to trigger labels
                 facade.SelectIndex(0);
             }
+
+            // Update Total Count if it was not done manually
+            if (TotalCount == 0)
+            {
+                TotalCount = _list.Count;
+            }
+
+            _list.Count.Publish(_settings.Prefix + ".Browser.Items.Current");
+            TotalCount.Publish(_settings.Prefix + ".Browser.Items.Total");
+            // todo: add filtered count
         }
 
         protected TIdentifier GetKeyForItem(GUIListItem item)
@@ -265,37 +254,23 @@ namespace Pondman.MediaPortal.GUI
             double tickCount = AnimationTimer.TickCount;
 
             // Publish instantly when previous request has passed the required delay
-            if (_settings.Delay < (int)(tickCount - lastPublished))
+            if (_settings.Delay < (int)(tickCount - _lastPublished))
             {
-                lastPublished = tickCount;
+                _lastPublished = tickCount;
                 ItemSelected.BeginInvoke(item, ItemSelected.EndInvoke, null);
                 return;
             }
 
-            lastPublished = tickCount;
-            if (publishTimer == null)
+            _lastPublished = tickCount;
+            if (_publishTimer == null)
             {
-                publishTimer = new Timer(x => ItemSelected(((GUIFacadeControl)_control).SelectedListItem), null, _settings.Delay, Timeout.Infinite);
+                _publishTimer = new Timer(x => ItemSelected(((GUIFacadeControl)_control).SelectedListItem), null, _settings.Delay, Timeout.Infinite);
             }
             else
             {
-                publishTimer.Change(_settings.Delay, Timeout.Infinite);
+                _publishTimer.Change(_settings.Delay, Timeout.Infinite);
             }
         }
 
-        protected virtual GUIListItem NextPageItem(string label)
-        {
-            return SpecialItem(label, 10000);
-        }
-
-        protected virtual GUIListItem PreviousPageItem(string label)
-        {
-            return SpecialItem(label, 10001);
-        }
-
-        protected virtual GUIListItem SpecialItem(string label, int id)
-        {
-            return new GUIListItem {Label = label, IsFolder = true, ItemId = id};
-        }
     }
 }

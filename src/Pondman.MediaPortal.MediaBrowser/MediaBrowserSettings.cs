@@ -22,6 +22,7 @@ namespace Pondman.MediaPortal.MediaBrowser
             ShowRandomBackdrop = true;
             LogProperties = true; // todo: change to false on release
             DisplayName = MediaBrowserPlugin.DefaultName;
+            DefaultItemLimit = 50;
         }
 
 
@@ -56,5 +57,13 @@ namespace Pondman.MediaPortal.MediaBrowser
         ///   <c>true</c> if properties should be logged otherwise, <c>false</c>.
         /// </value>
         public bool LogProperties { get; set; }
+
+        /// <summary>
+        /// Gets or sets the default item limit.
+        /// </summary>
+        /// <value>
+        /// The default item limit.
+        /// </value>
+        public int DefaultItemLimit { get; set; }
     }
 }
