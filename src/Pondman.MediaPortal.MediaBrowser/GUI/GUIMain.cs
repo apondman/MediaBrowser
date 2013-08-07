@@ -21,7 +21,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
     /// </summary>
     public class GUIMain : GUIDefault
     {
-        readonly Stack<GUIListItem> _history;
         readonly GUIBrowser<string> _browser;
         readonly ManualResetEvent _mre;
         private SortableQuery _sortableQuery;
@@ -29,13 +28,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         public GUIMain()
             : base(MediaBrowserWindow.Main)
         {
-            _history = new Stack<GUIListItem>();
-            
-            _browser = new GUIBrowser<string>(GetIdentifier);
+            _browser = new GUIBrowser<string>(GetIdentifier, MediaBrowserPlugin.Log);
             _browser.Settings.Prefix = MediaBrowserPlugin.DefaultProperty;
             _browser.ItemSelected += OnBaseItemSelected;
-            _browser.CurrentItemChanged += OnCurrentItemChanged;
-            _browser.PreloadRequested += OnBrowserPreloadRequested;
+            _browser.ItemChanged += OnItemChanged;
+            _browser.ItemsRequested += OnItemsRequested;
 
             _mre = new ManualResetEvent(false);
 
@@ -43,6 +40,104 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             RegisterCommand("CycleLayout", CycleLayoutCommand);
             RegisterCommand("ChangeUser", ChangeUserCommand);
             RegisterCommand("Sort", SortCommand);
+        }
+
+        void OnItemsRequested(object sender, ItemRequestEventArgs e)
+        {
+            Log.Debug("ItemsRequested()");
+            
+            // we are using the manual reset event because the call on the client is async and we want this method to only complete when it's done.
+            _mre.Reset();
+
+            var item = e.Parent.TVTag as BaseItemDto;
+
+            // todo: this is a mess, rethink
+            var userId = GUIContext.Instance.Client.CurrentUserId;
+            var query = MediaBrowserQueries.Item
+                                        .UserId(userId)
+                                        .Recursive()
+                                        .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams);
+            
+            if (_browser.Settings.Limit > 0)
+            {
+                _sortableQuery.Limit = _browser.Settings.Limit;
+                _sortableQuery.Offset = e.Offset;
+            }
+
+            Log.Debug("GetItems: Type={0}, Id={1}", item.Type, item.Id);
+
+            switch (item.Type)
+            {
+                case "UserRootFolder":
+                    LoadMovieViewsAndContinue(e);
+                    return;
+                case "View": 
+                    switch (item.Id)
+                    {
+                        case "movies-genres":
+                            GUIContext.Instance.Client.GetGenres(GetItemsByNameQueryForMovie(), result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
+                            return;
+                        case "movies-studios":
+                            GUIContext.Instance.Client.GetStudios(GetItemsByNameQueryForMovie(), result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
+                            return;
+                        case "movies-boxset":
+                            query = query
+                                .BoxSets()
+                                .Fields(ItemFields.ItemCounts);
+                            break;
+                        case "movies-latest":
+                            query = query
+                                .Movies()
+                                .SortBy(ItemSortBy.DateCreated)
+                                .Filters(ItemFilter.IsUnplayed)
+                                .Descending();
+                            break;
+                        case "movies-resume":
+                            query = query
+                                .Movies()
+                                .SortBy(ItemSortBy.DatePlayed)
+                                .Filters(ItemFilter.IsResumable)
+                                .Descending();
+                            break;
+                        case "movies-all":
+                            query = query
+                                .Movies();
+                            break;
+                        case "tvshows":
+                            query = query
+                                .TvShows();
+                            break;
+                    }
+                    break;
+                case "Genre":
+                    query = query.Movies().Genres(item.Name);
+                    break;
+                case "Studio":
+                    query = query.Movies().Studios(item.Name);
+                    break;
+                default:
+                    // get movies by parent id
+                    query = query.Movies().ParentId(item.Id);
+                    break;
+            }
+
+            // default is item query
+            GUIContext.Instance.Client.GetItems(query.Apply(_sortableQuery), result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
+            
+            _mre.WaitOne();
+        }
+
+        void LoadItemsAndContinue(ItemsResult result, ItemRequestEventArgs e)
+        {
+            foreach (var dto in result.Items)
+            {
+                var listitem = GetBaseListItem(dto);
+                e.List.Add(listitem);
+            }
+
+            e.TotalItems = result.TotalRecordCount;
+
+            _mre.Set();
         }
 
         #region Controls
@@ -80,7 +175,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             base.OnPageLoad();
 
             // update browser settings
-            _browser.Limit = MediaBrowserPlugin.Settings.DefaultItemLimit;
+            _browser.Settings.Limit = MediaBrowserPlugin.Settings.DefaultItemLimit;
             _browser.Attach(Facade);
 
             if (!GUIContext.Instance.IsServerReady) 
@@ -104,12 +199,12 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 return;
             }
 
-            Reload();  
+            _browser.Reload();  
         }
 
         protected override void OnClicked(int controlId, GUIControl control, MPGui.Action.ActionType actionType)
         {
-            if (IsMainTaskRunning)
+            if (_browser.IsBusy)
             {
                 return;
             }
@@ -165,23 +260,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// </summary>
         protected override void OnPreviousWindow()
         {
-            if (IsMainTaskRunning)
-            {
-                return;
-            }
-
             // if we are in the root go to the previous window
-            if (_history.Count == 1)
+            if (!_browser.Back())
             {
                 base.OnPreviousWindow();
-                return;
             }
-
-            // set the current item as the selected item
-            SelectedId = GetIdentifier(_history.Pop());
-
-            // navigate to the previous item
-            Navigate(_history.Pop());
         }
 
         #endregion
@@ -224,7 +307,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// Handler for current item
         /// </summary>
         /// <param name="item">The item.</param>
-        protected void OnCurrentItemChanged(GUIListItem item)
+        protected void OnItemChanged(GUIListItem item)
         {
             if (item == null) return;
             CurrentItem = item.TVTag as BaseItemDto;
@@ -301,14 +384,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         #endregion
 
         /// <summary>
-        /// Gets or sets the stored selection.
-        /// </summary>
-        /// <value>
-        /// The selected id.
-        /// </value>
-        public string SelectedId { get; set; }
-
-        /// <summary>
         /// Gets or sets the current item.
         /// </summary>
         /// <value>
@@ -323,9 +398,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             GUIContext.Instance.PublishUser();
 
+            _browser.Reset();
             CurrentItem = null;
-            _history.Clear();
-            SelectedId = null;
             _sortableQuery = new SortableQuery();
 
             // get root folder
@@ -333,54 +407,20 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         }
 
         /// <summary>
-        /// Reloads the current browser state
-        /// </summary>
-        public void Reload()
-        {
-            var current = (_history.Count > 0 ? _history.Peek() : null);
-            if (current != null)
-            {
-                if (!current.IsFolder)
-                {
-                    // if the item is not a folder act like we are going back a screen.
-                    OnPreviousWindow();
-                    return;
-                }
-
-                current = _history.Pop();
-            }
-
-            // otherwise reload the current state
-            Navigate(current);
-        }
-
-        /// <summary>
         /// Navigates the specified item.
         /// </summary>
         /// <param name="item">The item.</param>
-        public void Navigate(GUIListItem item = null)
+        private void Navigate(GUIListItem item = null)
         {
-            // push item into history
-            _history.Push(item);
-
             // start
             if (item == null || !item.Path.StartsWith("Movie"))
             {
-                MainTask = GUITask.Run(LoadItems, Publish, ShowItemsError);
+                _browser.Browse(item, null);
             }
             else
             {
                 ShowDetails(item);
             }
-        }
-
-        protected void OnBrowserPreloadRequested(object sender, EventArgs e)
-        {
-            if (IsMainTaskRunning) return;
-            _browser.IsPreloading = true; // todo: find another way
-            _sortableQuery.Offset = _browser.Count;
-
-            MainTask = GUITask.Run(ContinueItems, Continue, ShowItemsError);   
         }
 
         /// <summary>
@@ -394,135 +434,18 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         }
 
         /// <summary>
-        /// Loads en creates GUIListItems using the current item
-        /// </summary>
-        /// <param name="task">The task.</param>
-        /// <returns></returns>
-        protected List<GUIListItem> LoadItems(GUITask task)
-        {
-            // check the current item
-            var current = _history.Peek();
-
-            // do nothing if the data is already in the browser
-            if (CurrentItem == (current.TVTag as BaseItemDto))
-            {
-                return null;
-            }
-
-            // clear browser and set current
-            _browser.Current(current);
-
-            // we are using the manual reset event because the call on the client is async and we want this method to only complete when it's done.
-            _mre.Reset();
-            GetItems(current.TVTag as BaseItemDto);
-            _mre.WaitOne();
-
-            return null;
-        }
-
-        protected List<GUIListItem> ContinueItems(GUITask task)
-        {
-            Log.Debug("Continue item request.");
-            // we are using the manual reset event because the call on the client is async and we want this method to only complete when it's done.
-            _mre.Reset();
-            GetItems(CurrentItem);
-            _mre.WaitOne();
-
-            return null;
-        }
-
-        /// <summary>
-        /// Gets the items. 
-        /// </summary>
-        /// <param name="item">The item.</param>
-        protected void GetItems(BaseItemDto item)
-        {
-            // todo: this is a mess, rethink
-            
-            var userId = GUIContext.Instance.Client.CurrentUserId;
-            var query = MediaBrowserQueries.Item
-                                        .UserId(userId)
-                                        .Recursive()
-                                        .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams);
-            if (_browser.Limit > 0)
-            {
-                _sortableQuery.Limit = 50;
-            }
-
-            Log.Debug("GetItems: Type={0}, Id={1}", item.Type, item.Id);
-
-            switch (item.Type)
-            {
-                case "UserRootFolder":
-                    LoadMovieViewsAndContinue();
-                    return;
-                case "View": 
-                    switch (item.Id)
-                    {
-                        case "movies-genres":
-                            GUIContext.Instance.Client.GetGenres(GetItemsByNameQueryForMovie(), PopulateBrowserAndContinue, ShowItemsErrorAndContinue);
-                            return;
-                        case "movies-studios":
-                            GUIContext.Instance.Client.GetStudios(GetItemsByNameQueryForMovie(), PopulateBrowserAndContinue, ShowItemsErrorAndContinue);
-                            return;
-                        case "movies-boxset":
-                            query = query
-                                .BoxSets()
-                                .Fields(ItemFields.ItemCounts);
-                            break;
-                        case "movies-latest":
-                            query = query
-                                .Movies()
-                                .SortBy(ItemSortBy.DateCreated)
-                                .Filters(ItemFilter.IsUnplayed)
-                                .Descending();
-                            break;
-                        case "movies-resume":
-                            query = query
-                                .Movies()
-                                .SortBy(ItemSortBy.DatePlayed)
-                                .Filters(ItemFilter.IsResumable)
-                                .Descending();
-                            break;
-                        case "movies-all":
-                            query = query
-                                .Movies();
-                            break;
-                        case "tvshows":
-                            query = query
-                                .TvShows();
-                            break;
-                    }
-                    break;
-                case "Genre":
-                    query = query.Movies().Genres(item.Name);
-                    break;
-                case "Studio":
-                    query = query.Movies().Studios(item.Name);
-                    break;
-                default:
-                    // get movies by parent id
-                    query = query.Movies().ParentId(item.Id);
-                    break;
-            }
-
-            // default is item query
-            GUIContext.Instance.Client.GetItems(query.Apply(_sortableQuery), PopulateBrowserAndContinue, ShowItemsErrorAndContinue);
-        }
-
-        /// <summary>
         /// Loads the movie views and continues the main task.
         /// </summary>
-        protected void LoadMovieViewsAndContinue()
+        protected void LoadMovieViewsAndContinue(ItemRequestEventArgs request)
         {
-            _browser.Add(GetViewListItem("movies-latest", MediaBrowserPlugin.UI.Resource.LatestUnwatchedMovies));
-            _browser.Add(GetViewListItem("movies-resume", MediaBrowserPlugin.UI.Resource.ResumableMovies));
-            _browser.Add(GetViewListItem("movies-all", MediaBrowserPlugin.UI.Resource.AllMovies));
-            _browser.Add(GetViewListItem("movies-boxset", MediaBrowserPlugin.UI.Resource.BoxSets));
-            _browser.Add(GetViewListItem("movies-genres", MediaBrowserPlugin.UI.Resource.Genres));
-            _browser.Add(GetViewListItem("movies-studios", MediaBrowserPlugin.UI.Resource.Studios));
+            request.List.Add(GetViewListItem("movies-latest", MediaBrowserPlugin.UI.Resource.LatestUnwatchedMovies));
+            request.List.Add(GetViewListItem("movies-resume", MediaBrowserPlugin.UI.Resource.ResumableMovies));
+            request.List.Add(GetViewListItem("movies-all", MediaBrowserPlugin.UI.Resource.AllMovies));
+            request.List.Add(GetViewListItem("movies-boxset", MediaBrowserPlugin.UI.Resource.BoxSets));
+            request.List.Add(GetViewListItem("movies-genres", MediaBrowserPlugin.UI.Resource.Genres));
+            request.List.Add(GetViewListItem("movies-studios", MediaBrowserPlugin.UI.Resource.Studios));
+            request.TotalItems = 5;
 
-            _browser.TotalCount = 5;
             _mre.Set();
         }
 
@@ -541,27 +464,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             return query.Apply(_sortableQuery);
         }
 
-        protected void PopulateBrowserAndContinue(ItemsResult result)
-        {
-            _browser.TotalCount = result.TotalRecordCount;
-            
-            foreach (var item in result.Items)
-            {
-                if (MainTask.IsCancelled)
-                {
-                    break;
-                }
-
-                var listitem = GetBaseListItem(item);
-                _browser.Add(listitem);
-            }
-
-            _mre.Set();
-        }
-
         protected void ShowItemsErrorAndContinue(Exception e)
         {
-            _browser.IsPreloading = false;
             _mre.Set();
             ShowItemsError(e);
         }
@@ -592,12 +496,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <param name="items">The items.</param>
         protected void Publish(List<GUIListItem> items)
         {
-            _browser.Publish(SelectedId);
-        }
-
-        protected void Continue(List<GUIListItem> items)
-        {
-            _browser.Continue();
+            _browser.Publish();
         }
 
         /// <summary>
@@ -720,7 +619,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             _sortableQuery.Publish(MediaBrowserPlugin.DefaultProperty + ".Sortable");
             CurrentItem = null;
-            Reload();
+
+            _browser.Reload(true);
         }
 
         static GUIListItem GetSortItem(string label, string field)

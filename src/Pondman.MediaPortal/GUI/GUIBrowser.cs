@@ -1,10 +1,13 @@
 ﻿using System.Net.Configuration;
+using System.Windows.Forms;
 using MediaPortal.GUI.Library;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Windows.Media.Animation;
+using Timer = System.Threading.Timer;
+using System.ComponentModel;
 
 namespace Pondman.MediaPortal.GUI
 {
@@ -19,8 +22,44 @@ namespace Pondman.MediaPortal.GUI
         public virtual string Prefix { get; set; }
         
         public virtual int Delay { get; set; }
+
+        public virtual int Limit { get; set; }
     }
-    
+
+    public class BrowserView<TIdentifier>
+    {
+        public BrowserView()
+        {
+            List = new List<GUIListItem>();
+        } 
+        
+        public GUIListItem Parent { get; set; }
+
+        public List<GUIListItem> List { get; set; }
+
+        public int Total { get; set; }
+
+        public TIdentifier Selected { get; set; }
+    }
+
+    public class ItemRequestEventArgs : EventArgs
+    {
+        public ItemRequestEventArgs(GUIListItem parent, int offset)
+        {
+            Parent = parent;
+            List = new List<GUIListItem>();
+            Offset = offset;
+        }
+
+        public GUIListItem Parent { get; private set; }
+
+        public List<GUIListItem> List { get; private set; }
+
+        public int Offset { get; private set; }
+
+        public int TotalItems { get; set; }
+    }
+
     public class GUIBrowser : GUIBrowser<int>
     {
         public GUIBrowser(ILogger logger = null)
@@ -36,22 +75,21 @@ namespace Pondman.MediaPortal.GUI
     /// <typeparam name="TIdentifier">The type of the identifier.</typeparam>
     public class GUIBrowser<TIdentifier>
     {
-        protected BrowserPublishSettings _settings;
-        protected ILogger _logger;
-        protected GUIControl _control;
-        protected GUIListItem _current;
-        protected Func<GUIListItem, TIdentifier> _resolver;
-        protected List<GUIListItem> _list;
+        readonly Stack<BrowserView<TIdentifier>> _history;
+        BrowserPublishSettings _settings;
+        ILogger _logger;
+        Func<GUIListItem, TIdentifier> _resolver;
 
         double _lastPublished = 0;
         Timer _publishTimer;
+        BackgroundWorker _worker;
 
         public GUIBrowser(Func<GUIListItem, TIdentifier> resolver, ILogger logger = null)
         {
             _logger = logger ?? NullLogger.Instance;
-            _list = new List<GUIListItem>();
             _settings = new BrowserPublishSettings();
-            _resolver = resolver;            
+            _resolver = resolver;
+            _history = new Stack<BrowserView<TIdentifier>>();
         }
 
         /// <summary>
@@ -62,10 +100,13 @@ namespace Pondman.MediaPortal.GUI
         /// <summary>
         /// Occurs when the current browser item changes.
         /// </summary>
-        public event Action<GUIListItem> CurrentItemChanged;
+        public event Action<GUIListItem> ItemChanged;
 
-        public event EventHandler PreloadRequested;
-
+        /// <summary>
+        /// Occurs when the browser is requesting new items.
+        /// </summary>
+        public event EventHandler<ItemRequestEventArgs> ItemsRequested;
+        
         /// <summary>
         /// Returns the active logger for this window.
         /// </summary>
@@ -84,10 +125,14 @@ namespace Pondman.MediaPortal.GUI
         /// Attaches GUIControl to this browser
         /// </summary>
         /// <param name="control">The control.</param>
-        public virtual void Attach(GUIControl control)
+        public virtual void Attach(GUIFacadeControl control)
         {
-            // todo: attach logic (which control)
-            _control = control;
+            Facade = control;
+        }
+
+        protected GUIFacadeControl Facade
+        {
+            get; set;
         }
 
         /// <summary>
@@ -103,144 +148,200 @@ namespace Pondman.MediaPortal.GUI
                 return _settings;
             }
         }
-        
-        public virtual bool IsPreloading { get; set; }
 
-        /// <summary>
-        /// Gets or sets the limit.
-        /// </summary>
-        /// <value>
-        /// The limit.
-        /// </value>
-        public virtual int Limit { get; set; }
-
-        /// <summary>
-        /// Gets or sets the total count for the current list.
-        /// </summary>
-        /// <value>
-        /// The total count.
-        /// </value>
-        public virtual int TotalCount { get; set;}
-
-        /// <summary>
-        /// Gets the count.
-        /// </summary>
-        /// <value>
-        /// The count.
-        /// </value>
-        public virtual int Count
+        public bool IsBusy
         {
             get
             {
-                return _list.Count;
+                return (_worker != null && _worker.IsBusy);
+            }
+        }
+        
+        public virtual void Browse(GUIListItem item, TIdentifier selected)
+        {
+            var view = new BrowserView<TIdentifier>{ Parent = item, Selected = selected };
+            Browse(view);
+        }
+
+        public virtual void Browse(BrowserView<TIdentifier> view)
+        {
+            _worker = new BackgroundWorker();
+            _worker.WorkerSupportsCancellation = true;
+            _worker.DoWork += Load;
+            _worker.RunWorkerCompleted += Publish;
+            _worker.RunWorkerAsync(view);
+            Log.Debug("Browser: Browse()");
+        }
+
+        protected virtual void Continue(BrowserView<TIdentifier> view)
+        {
+            _worker = new BackgroundWorker();
+            _worker.WorkerSupportsCancellation = true;
+            _worker.DoWork += Load;
+            _worker.RunWorkerCompleted += PublishMore;
+            _worker.RunWorkerAsync(view);
+            Log.Debug("Browser: Continue()");
+        }
+
+        public virtual void Reset()
+        {
+            _history.Clear();
+        }
+
+        public virtual void Reload(bool refresh = false)
+        {
+            var view = _history.Pop();
+
+            if (refresh)
+            {
+                view.List.Clear();
+                Browse(view);
+            }
+            else
+            {
+                Publish(view);
             }
         }
 
-        /// <summary>
-        /// Adds the specified item to the browser list.
-        /// </summary>
-        /// <param name="item">The item.</param>
-        public virtual void Add(GUIListItem item)
+        public virtual bool Back(bool refresh = false)
         {
-            item.OnItemSelected += OnItemSelected; 
-            _list.Add(item);
+            if (_history.Count < 2) return false;
+            
+            // remove current
+            _history.Pop();
+
+            // "reload" previous
+            Reload(refresh);
+
+            return true;
         }
 
-        /// <summary>
-        /// Set current "owner" of the list items and clears the list
-        /// </summary>
-        /// <param name="item">The item.</param>
-        public virtual void Current(GUIListItem item)
+        public virtual bool Cancel()
         {
-            Clear();
-            _current = item;
+            if (IsBusy || (_worker != null && _worker.CancellationPending)) return false;
+
+            _worker.CancelAsync();
+            return true;
         }
 
-        /// <summary>
-        /// Clears the browser list.
-        /// </summary>
-        public virtual void Clear()
+        protected virtual void Load(object sender, DoWorkEventArgs e)
         {
-            _list.Clear();
-            TotalCount = 0;
+            GUIWaitCursor.Init();
+            GUIWaitCursor.Show();
+
+            var worker = sender as BackgroundWorker;
+            var view = e.Argument as BrowserView<TIdentifier>;
+            var data = new ItemRequestEventArgs(view.Parent, view.List.Count);
+
+            Log.Debug("Browser: Requesting Data");
+            ItemsRequested.FireEvent(this, data);
+
+            foreach (var item in data.List)
+            {
+                if (worker.CancellationPending)
+                {
+                    e.Cancel = true;
+                    break;
+                }
+                
+                item.OnItemSelected += OnItemSelected; 
+                view.List.Add(item);
+            }
+
+            view.Total = data.TotalItems;
+            e.Result = view;
+
+            GUIWaitCursor.Hide();
+        }
+
+        protected virtual BrowserView<TIdentifier> Current
+        {
+            get
+            {
+                return _history.Peek();
+            }
+        }
+
+        protected virtual void Publish(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Cancelled) return;
+
+            var view = e.Result as BrowserView<TIdentifier>;
+
+            Publish(view);
+        }
+
+        protected virtual void Publish(BrowserView<TIdentifier> view)
+        {
+            // put view in history
+            _history.Push(view);
+
+            // new publish, set the layout just to make sure properties are being set.
+            Facade.CurrentLayout = Facade.CurrentLayout;
+            Facade.ClearAll();
+
+            Populate(true);
+
+            // Publish current item
+            if (ItemChanged != null)
+            {
+                ItemChanged(view.Parent);
+            }
+
+            Facade.Focus();
+        }
+
+        protected virtual void PublishMore(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Cancelled) return;
+
+            Populate(false);
+        }
+
+        protected virtual void BrowseError(Exception e)
+        {
+            // show report error?
         }
 
         protected void OnItemSelected(GUIListItem item, GUIControl parent)
         {
-            var facade = _control as GUIFacadeControl;
-
-            if (!facade.IsRelated(parent) || facade != null && facade.SelectedListItem != item)
+            if (!Facade.IsRelated(parent) || Facade != null && Facade.SelectedListItem != item)
                 return;
 
-            if (Limit > 0 && !IsPreloading && facade.SelectedListItemIndex > facade.Count - (int)(Limit / 2) && facade.Count < TotalCount)
-                PreloadRequested.FireEvent(this, EventArgs.Empty);
+            if (_settings.Limit > 0 && !IsBusy && Facade.SelectedListItemIndex > Facade.Count - (int) (_settings.Limit/2) && Facade.Count < Current.Total)
+                Continue(Current);
 
+            Current.Selected = GetKeyForItem(item);
             DelayedItemHandler(item);
         }
 
-        /// <summary>
-        /// Publishes all the items to the attached control.
-        /// </summary>
-        /// <param name="selected">identifier for the item that needs to be selected</param>
-        public virtual void Publish(TIdentifier selected)
+        protected virtual void Populate(bool reselect = true)
         {
-            if (_control is GUIFacadeControl)
+            var list = Current.List;
+            for (var i = Facade.Count; i < list.Count; i++)
             {
-                Publish(_control as GUIFacadeControl, selected);
-            }
+                var item = list[i];
+                Facade.Add(item);
 
-            // Publish current item
-            if (CurrentItemChanged != null) 
-            {
-                CurrentItemChanged(_current);
-            }
-
-            _control.Focus();
-        }
-
-        public virtual void Continue()
-        {
-            if (!(_control is GUIFacadeControl)) return;
-            var facade = _control as GUIFacadeControl;
-            Append(facade, default(TIdentifier), false);
-        }
-
-        protected virtual void Publish(GUIFacadeControl facade, TIdentifier selected) 
-        {
-            // set the layout just to make sure properties are being set.
-            facade.CurrentLayout = facade.CurrentLayout;
-            facade.ClearAll();
-            
-            Append(facade, selected);
-        }
-
-        protected virtual void Append(GUIFacadeControl facade, TIdentifier selected, bool reselect = true)
-        {
-            IsPreloading = false;
-            for (var i = facade.Count; i < _list.Count; i++)
-            {
-                var item = _list[i];
-                facade.Add(item);
-
-                if (!reselect || !GetKeyForItem(item).Equals(selected)) continue;
-                facade.SelectIndex(i);
+                if (!reselect || !GetKeyForItem(item).Equals(Current.Selected)) continue;
+                Facade.SelectIndex(i);
                 reselect = false;
             }
 
             if (reselect)
             {
                 // select the first item to trigger labels
-                facade.SelectIndex(0);
+                Facade.SelectIndex(0);
             }
 
             // Update Total Count if it was not done manually
-            if (TotalCount == 0)
+            if (Current.Total == 0)
             {
-                TotalCount = _list.Count;
+                Current.Total = list.Count;
             }
 
-            _list.Count.Publish(_settings.Prefix + ".Browser.Items.Current");
-            TotalCount.Publish(_settings.Prefix + ".Browser.Items.Total");
+            list.Count.Publish(_settings.Prefix + ".Browser.Items.Current");
+            Current.Total.Publish(_settings.Prefix + ".Browser.Items.Total");
             // todo: add filtered count
         }
 
@@ -264,7 +365,7 @@ namespace Pondman.MediaPortal.GUI
             _lastPublished = tickCount;
             if (_publishTimer == null)
             {
-                _publishTimer = new Timer(x => ItemSelected(((GUIFacadeControl)_control).SelectedListItem), null, _settings.Delay, Timeout.Infinite);
+                _publishTimer = new Timer(x => ItemSelected(Facade.SelectedListItem), null, _settings.Delay, Timeout.Infinite);
             }
             else
             {
