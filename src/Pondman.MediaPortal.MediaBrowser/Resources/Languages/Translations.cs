@@ -15,6 +15,7 @@
 
         public string Client = "Client";
         public string CycleLayout = "Cycle Layout";
+        public string ChangeUser = "Change User";
 
         public string Director = "Director";
         public string Directors = "Directors";
