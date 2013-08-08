@@ -32,6 +32,8 @@
 
         public string LastSeen = "Last seen";
 
+        public string LoadingMoreItems = "More items are being loaded ...";
+
         public string Movie = "Movie";
         public string Movies = "Movies";
 

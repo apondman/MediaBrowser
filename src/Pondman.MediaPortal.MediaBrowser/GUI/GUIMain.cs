@@ -30,6 +30,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             _browser = new GUIBrowser<string>(GetIdentifier, MediaBrowserPlugin.Log);
             _browser.Settings.Prefix = MediaBrowserPlugin.DefaultProperty;
+            _browser.Settings.LoadingPlaceholderLabel = MediaBrowserPlugin.UI.Resource.LoadingMoreItems;
             _browser.ItemSelected += OnBaseItemSelected;
             _browser.ItemChanged += OnItemChanged;
             _browser.ItemsRequested += OnItemsRequested;
@@ -238,7 +239,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     // reset sortable query
                     // todo: bad place
                     _sortableQuery = new SortableQuery();
-
                     OnPreviousWindow();
                     break;
                 default:
@@ -299,6 +299,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             {
                 // todo: check for specific dto
                 var dto = item.TVTag as BaseItemDto;
+
                 PublishItemDetails(dto, MediaBrowserPlugin.DefaultProperty + ".Selected");
             }
         }
@@ -345,7 +346,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             var item = new GUIListItem(dto.Name)
             {
                 Path = dto.Type + "/" + dto.Id,
-                Year = dto.ProductionYear ?? 0,
+                Year = dto.ProductionYear.GetValueOrDefault(),
                 TVTag = dto,
                 IsFolder = dto.IsFolder,
                 IconImage = "defaultVideo.png",

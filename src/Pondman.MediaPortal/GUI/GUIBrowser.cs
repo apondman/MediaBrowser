@@ -17,13 +17,17 @@ namespace Pondman.MediaPortal.GUI
         {
             Prefix = "#";
             Delay = 250;
+            LoadingPlaceholderLabel = "Loading ...";
         }
         
-        public virtual string Prefix { get; set; }
+        public string Prefix { get; set; }
         
-        public virtual int Delay { get; set; }
+        public int Delay { get; set; }
 
-        public virtual int Limit { get; set; }
+        public int Limit { get; set; }
+
+        public string LoadingPlaceholderLabel { get; set; }
+
     }
 
     public class BrowserView<TIdentifier>
@@ -37,9 +41,19 @@ namespace Pondman.MediaPortal.GUI
 
         public List<GUIListItem> List { get; set; }
 
+        public int Offset { get; set; }
+
         public int Total { get; set; }
 
         public TIdentifier Selected { get; set; }
+
+        public bool HasMore
+        {
+            get
+            {
+                return (List.Count < Total);
+            }
+        }
     }
 
     public class ItemRequestEventArgs : EventArgs
@@ -205,6 +219,9 @@ namespace Pondman.MediaPortal.GUI
 
         public virtual bool Back(bool refresh = false)
         {
+            // Cancel browser action
+            if (Cancel()) return true;
+
             if (_history.Count < 2) return false;
             
             // remove current
@@ -218,7 +235,7 @@ namespace Pondman.MediaPortal.GUI
 
         public virtual bool Cancel()
         {
-            if (IsBusy || (_worker != null && _worker.CancellationPending)) return false;
+            if (!IsBusy || _worker.CancellationPending) return false;
 
             _worker.CancelAsync();
             return true;
@@ -231,7 +248,8 @@ namespace Pondman.MediaPortal.GUI
 
             var worker = sender as BackgroundWorker;
             var view = e.Argument as BrowserView<TIdentifier>;
-            var data = new ItemRequestEventArgs(view.Parent, view.List.Count);
+            var offset = view.List.Count;
+            var data = new ItemRequestEventArgs(view.Parent, offset);
 
             Log.Debug("Browser: Requesting Data");
             ItemsRequested.FireEvent(this, data);
@@ -248,6 +266,7 @@ namespace Pondman.MediaPortal.GUI
                 view.List.Add(item);
             }
 
+            view.Offset = offset;
             view.Total = data.TotalItems;
             e.Result = view;
 
@@ -308,7 +327,8 @@ namespace Pondman.MediaPortal.GUI
             if (!Facade.IsRelated(parent) || Facade != null && Facade.SelectedListItem != item)
                 return;
 
-            if (_settings.Limit > 0 && !IsBusy && Facade.SelectedListItemIndex > Facade.Count - (int) (_settings.Limit/2) && Facade.Count < Current.Total)
+            // todo: calculation will be incorrect if placeholder items are present
+            if (_settings.Limit > 0 && !IsBusy && Current.HasMore && Facade.SelectedListItemIndex > Current.List.Count - (int)(_settings.Limit / 2))
                 Continue(Current);
 
             Current.Selected = GetKeyForItem(item);
@@ -318,7 +338,16 @@ namespace Pondman.MediaPortal.GUI
         protected virtual void Populate(bool reselect = true)
         {
             var list = Current.List;
-            for (var i = Facade.Count; i < list.Count; i++)
+
+            if (Facade.Count > 0 && Current.Offset > 0)
+            {
+                // disable the selection lock
+                var placeholder = Facade[Facade.Count - 1];
+                placeholder.Label = "-----";
+                placeholder.OnItemSelected -= OnPlaceholderSelected;
+            }
+
+            for (var i = Current.Offset; i < list.Count; i++)
             {
                 var item = list[i];
                 Facade.Add(item);
@@ -332,6 +361,15 @@ namespace Pondman.MediaPortal.GUI
             {
                 // select the first item to trigger labels
                 Facade.SelectIndex(0);
+            }
+
+            // add loading placeholder, should be last item
+            if (Current.HasMore)
+            {
+                var placeholder = new GUIListItem(Settings.LoadingPlaceholderLabel);
+                placeholder.OnItemSelected += OnPlaceholderSelected;
+
+                Facade.Add(placeholder);
             }
 
             // Update Total Count if it was not done manually
@@ -365,12 +403,21 @@ namespace Pondman.MediaPortal.GUI
             _lastPublished = tickCount;
             if (_publishTimer == null)
             {
-                _publishTimer = new Timer(x => ItemSelected(Facade.SelectedListItem), null, _settings.Delay, Timeout.Infinite);
+                _publishTimer = new Timer(x =>
+                {
+                    if (Facade.SelectedListItem.Label != Settings.LoadingPlaceholderLabel)
+                        ItemSelected(Facade.SelectedListItem);
+                }, null, _settings.Delay, Timeout.Infinite);
             }
             else
             {
                 _publishTimer.Change(_settings.Delay, Timeout.Infinite);
             }
+        }
+
+        protected void OnPlaceholderSelected(GUIListItem item, GUIControl control)
+        {
+            Facade.SelectIndex(Facade.SelectedListItemIndex - 1);
         }
 
     }
