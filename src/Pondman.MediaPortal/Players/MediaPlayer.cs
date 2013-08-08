@@ -28,6 +28,7 @@ namespace Pondman.MediaPortal
         public event Action<MediaPlayerInfo> PlayerStarted;
         public event Action<MediaPlayerInfo, int> PlayerStopped;
         public event Action<MediaPlayerInfo> PlayerEnded;
+        public event Action<TimeSpan> PlayerProgress;
 
         #region Ctor
 
@@ -43,6 +44,28 @@ namespace Pondman.MediaPortal
             g_Player.PlayBackEnded += new g_Player.EndedHandler(OnPlayBackEnded);
             g_Player.PlayBackStopped += new g_Player.StoppedHandler(OnPlayBackStoppedOrChanged);
             g_Player.PlayBackChanged += new g_Player.ChangedHandler(OnPlayBackStoppedOrChanged);
+
+            // hook up to the property manager
+            GUIPropertyManager.OnPropertyChanged += GUIPropertyManager_OnPropertyChanged;
+        }
+
+        void GUIPropertyManager_OnPropertyChanged(string tag, string tagValue)
+        {
+            if (!IsPlaying) return;
+
+            switch (tag)
+            {
+                case "#currentplaytime":
+                    // we listen to the update for this tag so we won't have to use a timer to report progress
+                    PlayerProgress.SafeInvoke(TimeSpan.FromSeconds(g_Player.CurrentPosition));
+                    break;
+                case "#Play.Current.Title":
+                    // the default video plugin will update this tag when a video is started
+                    // we listen to the update and when it changes we overwrite the data with
+                    // our own metadata. To prevent a double update we make sure the value is not the same
+                    if (tagValue != _media.Title) _media.Publish("#Play.Current");
+                    break;
+            }
         }
 
         ~MediaPlayer()
@@ -52,6 +75,7 @@ namespace Pondman.MediaPortal
             g_Player.PlayBackEnded -= new g_Player.EndedHandler(OnPlayBackEnded);
             g_Player.PlayBackStopped -= new g_Player.StoppedHandler(OnPlayBackStoppedOrChanged);
             g_Player.PlayBackChanged -= new g_Player.ChangedHandler(OnPlayBackStoppedOrChanged);
+            GUIPropertyManager.OnPropertyChanged -= GUIPropertyManager_OnPropertyChanged;
         }
 
         #endregion
@@ -87,8 +111,6 @@ namespace Pondman.MediaPortal
                 if (PlayerStarted.IsNull()) return;
                 PlayerStarted(_media);
             }
-            
-            UpdateOSD(_media);
         }
 
         protected void OnPlayBackStoppedOrChanged(g_Player.MediaType type, int timeMovieStopped, string filename)
@@ -171,12 +193,6 @@ namespace Pondman.MediaPortal
             _state = MediaPlayerState.Idle;
             _media = null;
             _mediaIndex = 0;
-        }
-
-        protected void UpdateOSD(MediaPlayerInfo info)
-        {
-            // todo: listen to property set event?
-            var delayed = new Timer((x) => info.Publish("#Play.Current"), null, 2000, -1);
         }
 
         static void SeekPosition(int resumePositionInSeconds)

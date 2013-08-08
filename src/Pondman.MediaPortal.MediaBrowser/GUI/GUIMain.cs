@@ -607,7 +607,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             var field = items[result].Path;
             if (_sortableQuery.SortBy == field)
             {
-                _sortableQuery.Descending = !_sortableQuery.Descending;
+                _sortableQuery.Descending = !_sortableQuery.Descending.GetValueOrDefault();
             }
             else
             {

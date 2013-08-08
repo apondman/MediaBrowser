@@ -26,8 +26,15 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             _player.PlayerStarted += OnPlaybackStarted;
             _player.PlayerStopped += OnPlaybackStopped;
             _player.PlayerEnded += OnPlaybackEnded;
+            _player.PlayerProgress += OnPlayerProgress;
 
             RegisterCommand("Play", PlayCommand);
+        }
+
+        void OnPlayerProgress(TimeSpan timeSpan)
+        {
+            GUIContext.Instance.Client.ReportPlaybackProgress(_movie.Id, GUIContext.Instance.ActiveUser.Id, 
+                timeSpan.Ticks, false, x => Log.Debug("PlayerProgress: {0}", timeSpan.TotalSeconds));
         }
 
         ~GUIMovie() 

@@ -1,11 +1,4 @@
-﻿using MediaPortal.GUI.Library;
-using MediaPortal.Player;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Windows.Dispatcher;
+﻿using System.Collections.Generic;
 
 namespace Pondman.MediaPortal
 {
