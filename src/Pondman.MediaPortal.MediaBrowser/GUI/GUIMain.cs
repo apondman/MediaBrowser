@@ -151,6 +151,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         #region Commands
 
+        /// <summary>
+        /// Cycles layout modes for the facade.
+        /// </summary>
+        /// <param name="control">The control.</param>
+        /// <param name="actionType">Type of the action.</param>
         protected void CycleLayoutCommand(GUIControl control, MPGui.Action.ActionType actionType)
         {
             Facade.CycleLayout();
@@ -158,11 +163,21 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             Log.Debug("Layout: {0}", Facade.CurrentLayout);
         }
 
+        /// <summary>
+        /// Switch User
+        /// </summary>
+        /// <param name="control">The control.</param>
+        /// <param name="actionType">Type of the action.</param>
         protected void ChangeUserCommand(GUIControl control, MPGui.Action.ActionType actionType)
         {
             ShowUserProfilesDialog();
         }
 
+        /// <summary>
+        /// Sort the current view
+        /// </summary>
+        /// <param name="control">The control.</param>
+        /// <param name="actionType">Type of the action.</param>
         protected void SortCommand(GUIControl control, MPGui.Action.ActionType actionType)
         {
             ShowSortMenuDialog();
@@ -580,8 +595,13 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             {
                 GetSortItem(ItemSortBy.SortName, ItemSortBy.SortName),
                 GetSortItem(ItemSortBy.PremiereDate, ItemSortBy.PremiereDate),
+                GetSortItem(ItemSortBy.ProductionYear, ItemSortBy.ProductionYear),
                 GetSortItem(ItemSortBy.DateCreated, ItemSortBy.DateCreated),
-                GetSortItem(ItemSortBy.Runtime, ItemSortBy.Runtime)
+                GetSortItem(ItemSortBy.Runtime, ItemSortBy.Runtime),
+                GetSortItem(ItemSortBy.CommunityRating, ItemSortBy.CommunityRating),
+                GetSortItem(ItemSortBy.CriticRating, ItemSortBy.CriticRating),
+                GetSortItem(ItemSortBy.Budget, ItemSortBy.Budget),
+                GetSortItem(ItemSortBy.Revenue, ItemSortBy.Revenue)
             };
 
             var result = GUIUtils.ShowMenuDialog(T.SortOptions, items, items.FindIndex(x => x.Path == _sortableQuery.SortBy));
@@ -598,9 +618,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
 
             _sortableQuery.SortBy = field;
-            _sortableQuery.Offset = 0;
-
             _sortableQuery.Publish(MediaBrowserPlugin.DefaultProperty + ".Sortable");
+
             CurrentItem = null;
 
             _browser.Reload(true);
