@@ -38,11 +38,14 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 PropertyOne = MediaBrowserPlugin.DefaultProperty + ".Backdrop.1",
                 PropertyTwo = MediaBrowserPlugin.DefaultProperty + ".Backdrop.2"
             };
+            
+            _backdrop.ImageResource.Delay = 0;
 
             // create cover image swapper
             _cover = new AsyncImageResource(MediaBrowserPlugin.Log)
             {
-                Property = MediaBrowserPlugin.DefaultProperty + ".Coverart"
+                Property = MediaBrowserPlugin.DefaultProperty + ".Coverart",
+                Delay = 0
             };
 
             // auto register commands by convention

@@ -403,11 +403,7 @@ namespace Pondman.MediaPortal.GUI
             _lastPublished = tickCount;
             if (_publishTimer == null)
             {
-                _publishTimer = new Timer(x =>
-                {
-                    if (Facade.SelectedListItem.Label != Settings.LoadingPlaceholderLabel)
-                        ItemSelected(Facade.SelectedListItem);
-                }, null, _settings.Delay, Timeout.Infinite);
+                _publishTimer = new Timer(x => ItemSelected(Facade.SelectedListItem), null, _settings.Delay, Timeout.Infinite);
             }
             else
             {

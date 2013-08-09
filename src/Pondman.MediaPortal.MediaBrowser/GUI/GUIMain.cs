@@ -77,9 +77,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     {
                         case "movies-genres":
                             GUIContext.Instance.Client.GetGenres(GetItemsByNameQueryForMovie(), result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
+                            _mre.WaitOne();
                             return;
                         case "movies-studios":
                             GUIContext.Instance.Client.GetStudios(GetItemsByNameQueryForMovie(), result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
+                            _mre.WaitOne();
                             return;
                         case "movies-boxset":
                             query = query
@@ -295,11 +297,12 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <param name="item">The item.</param>
         protected void OnBaseItemSelected(GUIListItem item)
         {
-            if (item != null)
-            {
-                // todo: check for specific dto
-                var dto = item.TVTag as BaseItemDto;
+            if (item == null) return;
 
+            // todo: check for specific dto
+            var dto = item.TVTag as BaseItemDto;
+            if (dto != null)
+            {
                 PublishItemDetails(dto, MediaBrowserPlugin.DefaultProperty + ".Selected");
             }
         }
