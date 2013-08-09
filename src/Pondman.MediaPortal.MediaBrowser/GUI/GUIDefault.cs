@@ -2,6 +2,7 @@
 using MediaBrowser.Model.Entities;
 using MediaPortal.GUI.Library;
 using Pondman.MediaPortal.MediaBrowser.Models;
+using Pondman.MediaPortal.MediaBrowser.Resources.Languages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -224,6 +225,20 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         protected void RegisterCommand(string name, Action<GUIControl, MPGUI.Action.ActionType> command) 
         {
             _commands[name] = command;
+        }
+
+        /// <summary>
+        /// Shorthand for Translations
+        /// </summary>
+        /// <value>
+        /// Translations
+        /// </value>
+        protected Translations T
+        {
+            get
+            {
+                return MediaBrowserPlugin.UI.Resource;
+            }
         }
     }
 

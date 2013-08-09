@@ -205,6 +205,7 @@ namespace Pondman.MediaPortal.GUI
         public virtual void Reload(bool refresh = false)
         {
             var view = _history.Pop();
+            view.Offset = 0;
 
             if (refresh)
             {
@@ -366,7 +367,7 @@ namespace Pondman.MediaPortal.GUI
             // add loading placeholder, should be last item
             if (Current.HasMore)
             {
-                var placeholder = new GUIListItem(Settings.LoadingPlaceholderLabel);
+                var placeholder = new GUIListItem("-- " + Settings.LoadingPlaceholderLabel + " --");
                 placeholder.OnItemSelected += OnPlaceholderSelected;
 
                 Facade.Add(placeholder);

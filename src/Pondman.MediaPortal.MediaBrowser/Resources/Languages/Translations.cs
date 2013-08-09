@@ -44,6 +44,7 @@
 
         public string ServerNotFoundOnTheNetwork = "Media Browser server could not be found.";
         public string Server = "Server";
+        public string SortOptions = "Sort Options";
         public string Studio = "Studio";
         public string Studios = "Studios";
 
