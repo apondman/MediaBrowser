@@ -593,15 +593,17 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             var items = new List<GUIListItem>
             {
-                GetSortItem(ItemSortBy.SortName, ItemSortBy.SortName),
-                GetSortItem(ItemSortBy.PremiereDate, ItemSortBy.PremiereDate),
-                GetSortItem(ItemSortBy.ProductionYear, ItemSortBy.ProductionYear),
-                GetSortItem(ItemSortBy.DateCreated, ItemSortBy.DateCreated),
-                GetSortItem(ItemSortBy.Runtime, ItemSortBy.Runtime),
-                GetSortItem(ItemSortBy.CommunityRating, ItemSortBy.CommunityRating),
-                GetSortItem(ItemSortBy.CriticRating, ItemSortBy.CriticRating),
-                GetSortItem(ItemSortBy.Budget, ItemSortBy.Budget),
-                GetSortItem(ItemSortBy.Revenue, ItemSortBy.Revenue)
+                GetSortItem(T.SortByName, ItemSortBy.SortName),
+                GetSortItem(T.SortByBudget, ItemSortBy.Budget),
+                GetSortItem(T.SortByCommunityRating, ItemSortBy.CommunityRating),
+                GetSortItem(T.SortByContentRating, ItemSortBy.OfficialRating),
+                GetSortItem(T.SortByCriticRating, ItemSortBy.CriticRating),
+                GetSortItem(T.SortByDateAdded, ItemSortBy.DateCreated),
+                GetSortItem(T.SortByDatePlayed, ItemSortBy.DatePlayed),
+                GetSortItem(T.SortByDateReleased, ItemSortBy.PremiereDate),
+                GetSortItem(T.SortByPlayCount, ItemSortBy.PlayCount),
+                GetSortItem(T.SortByRevenue, ItemSortBy.Revenue),
+                GetSortItem(T.SortByRuntime, ItemSortBy.Runtime),
             };
 
             var result = GUIUtils.ShowMenuDialog(T.SortOptions, items, items.FindIndex(x => x.Path == _sortableQuery.SortBy));

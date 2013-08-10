@@ -44,6 +44,19 @@
 
         public string ServerNotFoundOnTheNetwork = "Media Browser server could not be found.";
         public string Server = "Server";
+
+        public string SortByName = "Name";
+        public string SortByBudget = "Budget";
+        public string SortByCommunityRating = "Community Rating";
+        public string SortByContentRating = "Content Rating";
+        public string SortByCriticRating = "Critit Rating";
+        public string SortByDateAdded = "Date Added";
+        public string SortByDatePlayed = "Date Played";
+        public string SortByDateReleased = "Date Released";
+        public string SortByPlayCount = "Play Count";
+        public string SortByRevenue = "Revenue";
+        public string SortByRuntime = "Runtime";
+        
         public string SortOptions = "Sort Options";
         public string Studio = "Studio";
         public string Studios = "Studios";
@@ -58,6 +71,8 @@
         public string UserProfileLoginFailed = "Login failed.";
         public string UserProfileProvidePassword = "Please provide the password for this user.";
         
+
+
         
         // todo: add more translations
     }
