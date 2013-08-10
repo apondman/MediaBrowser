@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Windows.Controls;
 using ConsoleApplication2.com.amazon.webservices;
 using MediaBrowser.Model.Dto;
@@ -422,10 +423,13 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// Navigates the specified item.
         /// </summary>
         /// <param name="item">The item.</param>
-        private void Navigate(GUIListItem item = null)
+        private void Navigate(GUIListItem item)
         {
+            if (item == null || !(item.TVTag is BaseItemDto))
+                return;
+            
             // start
-            if (item == null || !item.Path.StartsWith("Movie"))
+            if (!item.Path.StartsWith("Movie"))
             {
                 _browser.Browse(item, null);
             }

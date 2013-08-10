@@ -26,14 +26,14 @@
             </FileItem>
             <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
               <Param1 />
-              <UpdateOption>OverwriteIfOlder</UpdateOption>
+              <UpdateOption>AlwaysOverwrite</UpdateOption>
               <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Newtonsoft.Json.dll</LocalFileName>
               <ZipFileName>Installer{CopyFile}\{71a80c58-bb55-4980-906f-df48f54178ab}-Newtonsoft.Json.dll</ZipFileName>
               <DestinationFilename>%Base%\Newtonsoft.Json.dll</DestinationFilename>
             </FileItem>
             <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
               <Param1 />
-              <UpdateOption>OverwriteIfOlder</UpdateOption>
+              <UpdateOption>AlwaysOverwrite</UpdateOption>
               <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\WebSocket4Net.dll</LocalFileName>
               <ZipFileName>Installer{CopyFile}\{33978656-5154-42ea-a0f3-a5cc45fdd4c1}-WebSocket4Net.dll</ZipFileName>
               <DestinationFilename>%Base%\WebSocket4Net.dll</DestinationFilename>
@@ -44,6 +44,13 @@
               <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Pondman.MediaPortal.dll</LocalFileName>
               <ZipFileName>Installer{CopyFile}\{7cc5a198-7811-4dac-8276-fc696c37d95e}-Pondman.MediaPortal.dll</ZipFileName>
               <DestinationFilename>%Base%\Pondman.MediaPortal.dll</DestinationFilename>
+            </FileItem>
+            <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
+              <Param1 />
+              <UpdateOption>AlwaysOverwrite</UpdateOption>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\MediaBrowser.Model.dll</LocalFileName>
+              <ZipFileName>Installer{CopyFile}\{66d88872-4783-4809-a426-8b0f2036f77f}-MediaBrowser.Model.dll</ZipFileName>
+              <DestinationFilename>%Base%\MediaBrowser.Model.dll</DestinationFilename>
             </FileItem>
           </Items>
         </Files>
@@ -286,18 +293,17 @@ Click Next to continue or Cancel to exit Setup.</Value>
     <UpdateUrl />
     <Version>
       <Major>0</Major>
-      <Minor>7</Minor>
-      <Build>4957</Build>
-      <Revision>4473</Revision>
+      <Minor>8</Minor>
+      <Build>4970</Build>
+      <Revision>3056</Revision>
     </Version>
     <ExtensionDescription>MediaPortal client for MediaBrowser3 server (http://www.mediabrowser3.com). </ExtensionDescription>
-    <VersionDescription>- Added Box Sets view
-- Added Resumable Movies view
-- Added Random Movie command
-- Added support for resumable media
-- Added resume dialog for movies with resume data
-- Improved remote browse/play handling
-- Improved default Titan skin (still needs alot of work)
+    <VersionDescription>- Improved browsing experience
+- Implemented inifinite scroll (50 items auto loading)
+- Implemented playback progress reporting
+- Added sorting
+- Updated translations
+- Improved default Titan skin (still needs more work)
 </VersionDescription>
     <DevelopmentStatus>Beta</DevelopmentStatus>
     <OnlineLocation />
@@ -354,14 +360,14 @@ Click Next to continue or Cancel to exit Setup.</Value>
       </FileItem>
       <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
         <Param1 />
-        <UpdateOption>OverwriteIfOlder</UpdateOption>
+        <UpdateOption>AlwaysOverwrite</UpdateOption>
         <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Newtonsoft.Json.dll</LocalFileName>
         <ZipFileName>Installer{CopyFile}\{71a80c58-bb55-4980-906f-df48f54178ab}-Newtonsoft.Json.dll</ZipFileName>
         <DestinationFilename>%Base%\Newtonsoft.Json.dll</DestinationFilename>
       </FileItem>
       <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
         <Param1 />
-        <UpdateOption>OverwriteIfOlder</UpdateOption>
+        <UpdateOption>AlwaysOverwrite</UpdateOption>
         <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\WebSocket4Net.dll</LocalFileName>
         <ZipFileName>Installer{CopyFile}\{33978656-5154-42ea-a0f3-a5cc45fdd4c1}-WebSocket4Net.dll</ZipFileName>
         <DestinationFilename>%Base%\WebSocket4Net.dll</DestinationFilename>
@@ -372,6 +378,13 @@ Click Next to continue or Cancel to exit Setup.</Value>
         <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Pondman.MediaPortal.dll</LocalFileName>
         <ZipFileName>Installer{CopyFile}\{7cc5a198-7811-4dac-8276-fc696c37d95e}-Pondman.MediaPortal.dll</ZipFileName>
         <DestinationFilename>%Base%\Pondman.MediaPortal.dll</DestinationFilename>
+      </FileItem>
+      <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
+        <Param1 />
+        <UpdateOption>AlwaysOverwrite</UpdateOption>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\MediaBrowser.Model.dll</LocalFileName>
+        <ZipFileName>Installer{CopyFile}\{66d88872-4783-4809-a426-8b0f2036f77f}-MediaBrowser.Model.dll</ZipFileName>
+        <DestinationFilename>%Base%\MediaBrowser.Model.dll</DestinationFilename>
       </FileItem>
       <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
         <Param1 />
@@ -440,14 +453,14 @@ Click Next to continue or Cancel to exit Setup.</Value>
         <Param1 />
         <UpdateOption>OverwriteIfOlder</UpdateOption>
         <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\Resources\Images\mblogoicon.png</LocalFileName>
-        <ZipFileName>Installer{CopyFile}\{ca2d50c2-c909-4159-9605-f91c94b82891}-mblogoicon.png</ZipFileName>
+        <ZipFileName>Installer{CopyFile}\{bb36c7f8-3f74-46df-af03-e035c710d713}-mblogoicon.png</ZipFileName>
         <DestinationFilename />
       </FileItem>
     </Items>
   </UniqueFileList>
   <ProjectSettings>
     <FolderGroups />
-    <ProjectFilename>mediabrowser.xmp2</ProjectFilename>
+    <ProjectFilename>MediaBrowser.xmp2</ProjectFilename>
     <UpdatePath1 />
     <UpdatePath2 />
     <UpdatePath3 />
