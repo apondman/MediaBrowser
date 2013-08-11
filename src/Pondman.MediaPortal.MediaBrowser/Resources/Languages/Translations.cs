@@ -71,9 +71,6 @@
         public string UserProfileLoginFailed = "Login failed.";
         public string UserProfileProvidePassword = "Please provide the password for this user.";
         
-
-
-        
         // todo: add more translations
     }
 }

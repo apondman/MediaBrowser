@@ -355,7 +355,7 @@
       <id>0</id>
       <posX>1038</posX>
       <posY>516</posY>
-      <label>#Genres</label>
+      <label>#MediaBrowser.Translation.Genres.Label</label>
       <visible>Control.IsVisible(5)</visible>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
@@ -379,7 +379,7 @@
       <id>0</id>
       <posX>1038</posX>
       <posY>554</posY>
-      <label>#Directors</label>
+      <label>#MediaBrowser.Translation.Directors.Label</label>
       <visible>Control.IsVisible(5)</visible>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
@@ -403,7 +403,7 @@
       <id>0</id>
       <posX>1038</posX>
       <posY>592</posY>
-      <label>#Actors</label>
+      <label>#MediaBrowser.Translation.Actors.Label</label>
       <visible>Control.IsVisible(5)</visible>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
