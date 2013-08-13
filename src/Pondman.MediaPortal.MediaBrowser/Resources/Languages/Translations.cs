@@ -23,6 +23,8 @@
         public string Error = "Error";
         public string ErrorMakingRequest = "An error occured while making the request";
 
+        public string FilterOptions = "Filter Options";
+
         public string Genre = "Genre";
         public string Genres = "Genres";
 

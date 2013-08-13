@@ -115,7 +115,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         protected BaseItemDto LoadMovieDetails(GUITask task)
         {
             Log.Debug("Loading movie details for: {0}", Parameters.Id);
-            
+
             ManualResetEvent mre = new ManualResetEvent(false);
 
             GUIContext.Instance.Client.GetItem(Parameters.Id, GUIContext.Instance.Client.CurrentUserId, (result) =>
@@ -142,12 +142,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         protected override void PublishMovieDetails(BaseItemDto movie, string prefix = null)
         {
             base.PublishMovieDetails(movie, prefix);
-
-            if (Parameters.Playback) 
-            {
-                Parameters.Playback = false;
-                GUITask.MainThreadCallback(() => Play(Parameters.ResumeFrom));
-            }
+            if (!Parameters.Playback) return;
+            Parameters.Playback = false;
+            GUITask.MainThreadCallback(() => Play(Parameters.ResumeFrom));
         }
 
         protected void OnPlaybackStarted(MediaPlayerInfo info)

@@ -332,6 +332,11 @@ namespace Pondman.MediaPortal.MediaBrowser
                 query.SortBy(ItemSortBy.SortName).Ascending();
             }
 
+            if (options.Filters.Count > 0)
+            {
+                options.Filters.ToList().ForEach(x => query.Filters(x));
+            }
+
             return query;
         }
 

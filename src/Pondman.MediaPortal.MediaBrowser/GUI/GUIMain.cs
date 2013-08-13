@@ -43,6 +43,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             RegisterCommand("CycleLayout", CycleLayoutCommand);
             RegisterCommand("ChangeUser", ChangeUserCommand);
             RegisterCommand("Sort", SortCommand);
+            RegisterCommand("Filter", FilterCommand);
         }
 
         private void OnItemsRequested(object sender, ItemRequestEventArgs e)
@@ -184,6 +185,16 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             ShowSortMenuDialog();
         }
 
+        /// <summary>
+        /// Shows the filter menu dialog.
+        /// </summary>
+        /// <param name="control">The control.</param>
+        /// <param name="actionType">Type of the action.</param>
+        protected void FilterCommand(GUIControl control, MPGui.Action.ActionType actionType)
+        {
+            ShowFilterMenuDialog();
+        }
+
         #endregion 
 
         #region Window overrides
@@ -269,7 +280,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             // show the profile selection dialog for now
             // todo: add contextual options
             // ShowUserProfilesDialog();
-            ShowSortMenuDialog();
+            //ShowSortMenuDialog();
+            ShowFilterMenuDialog();
         }
 
         /// <summary>
@@ -465,7 +477,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             _mre.Set();
         }
 
-        protected ItemsByNameQuery GetItemsByNameQueryForMovie(int startIndex = 0)
+        protected ItemsByNameQuery GetItemsByNameQueryForMovie()
         {
             var query = new ItemsByNameQuery
                             {
@@ -593,6 +605,33 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }            
         }
 
+        protected void ShowFilterMenuDialog()
+        {
+            var items = new List<GUIListItem>
+            {
+                GetFilterItem(ItemFilter.IsPlayed),
+                GetFilterItem(ItemFilter.IsUnplayed),
+                GetFilterItem(ItemFilter.IsResumable),
+                GetFilterItem(ItemFilter.IsFavorite),
+                GetFilterItem(ItemFilter.Likes),
+                GetFilterItem(ItemFilter.Dislikes),
+            };
+
+            var result = GUIUtils.ShowMenuDialog(T.FilterOptions, items);
+            if (result == -1) return;
+
+            var filter = (ItemFilter)items[result].TVTag;
+            if (!_sortableQuery.Filters.Remove(filter))
+            {
+                _sortableQuery.Filters.Add(filter);
+            }
+
+            _sortableQuery.Publish(MediaBrowserPlugin.DefaultProperty + ".Sortable");
+            CurrentItem = null;
+            _browser.Reload(true);
+
+        }
+        
         protected void ShowSortMenuDialog()
         {
             var items = new List<GUIListItem>
@@ -645,6 +684,12 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         static GUIListItem GetSortItem(string label, string field)
         {
             var item = new GUIListItem(label) {Path = field};
+            return item;
+        }
+
+        static GUIListItem GetFilterItem(ItemFilter filter)
+        {
+            var item = new GUIListItem(filter.ToString()) { TVTag = filter };
             return item;
         }
     }
