@@ -358,7 +358,7 @@
     <control Style="InfoValueDetails">
       <description>Director</description>
       <type>fadelabel</type>
-      <label>#MediaBrowser.Movie.People.Directing.List</label>
+      <label>#MediaBrowser.Movie.People.Director.List</label>
       <id>0</id>
       <posX>1273</posX>
       <posY>563</posY>

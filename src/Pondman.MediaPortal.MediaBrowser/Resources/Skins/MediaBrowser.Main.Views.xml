@@ -168,7 +168,7 @@
       <id>0</id>
       <posX>798</posX>
       <posY>483</posY>
-      <label>#MediaBrowser.Selected.People.Directing.List</label>
+      <label>#MediaBrowser.Selected.People.Director.List</label>
       <visible>Control.IsVisible(777)</visible>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
@@ -192,7 +192,7 @@
       <id>0</id>
       <posX>798</posX>
       <posY>515</posY>
-      <label>#MediaBrowser.Selected.People.Actor.1.Name, #MediaBrowser.Selected.People.Actor.2.Name, #MediaBrowser.Selected.People.Actor.3.Name</label>
+      <label>#MediaBrowser.Selected.People.Actor.List</label>
       <visible>Control.IsVisible(777)</visible>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
@@ -391,7 +391,7 @@
       <id>0</id>
       <posX>1270</posX>
       <posY>554</posY>
-      <label>#MediaBrowser.Selected.People.Directing.List</label>
+      <label>#MediaBrowser.Selected.People.Director.List</label>
       <visible>Control.IsVisible(5)</visible>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
@@ -415,7 +415,7 @@
       <id>0</id>
       <posX>1270</posX>
       <posY>592</posY>
-      <label>#MediaBrowser.Selected.People.Actor.0.Name #MediaBrowser.Selected.People.Actor.1.Name #MediaBrowser.Selected.People.Actor.2.Name</label>
+      <label>#MediaBrowser.Selected.People.Actor.List</label>
       <visible>Control.IsVisible(5)</visible>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
