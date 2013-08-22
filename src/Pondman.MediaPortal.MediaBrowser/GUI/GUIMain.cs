@@ -370,6 +370,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             var item = new GUIListItem(dto.Name)
             {
                 Path = dto.Type + "/" + dto.Id,
+                Label2 = dto.ProductionYear.HasValue ? dto.ProductionYear.ToString() : string.Empty,
                 Year = dto.ProductionYear.GetValueOrDefault(),
                 TVTag = dto,
                 IsFolder = dto.IsFolder,
