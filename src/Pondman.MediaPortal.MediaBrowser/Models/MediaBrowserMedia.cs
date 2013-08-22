@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Pondman.MediaPortal.MediaBrowser.Models
+﻿namespace Pondman.MediaPortal.MediaBrowser.Models
 {
     public class MediaBrowserMedia : MediaBrowserItem
     {
