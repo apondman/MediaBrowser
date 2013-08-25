@@ -30,6 +30,7 @@
 
         public string Items = "Items";
 
+        public string LatestUnwatchedEpisodes = "Latest Unwatched Episodes";
         public string LatestUnwatchedMovies = "Latest Unwatched Movies";
 
         public string LastSeen = "Last seen";
@@ -39,6 +40,9 @@
         public string Movie = "Movie";
         public string Movies = "Movies";
 
+        public string Networks = "Networks";
+        public string NextUp = "Next Up";
+
         public string RandomMovie = "Random Movie";
         public string ResumableMovies = "Resumable Movies";
         public string ResumeFrom = "Resume from:";
@@ -46,6 +50,8 @@
 
         public string ServerNotFoundOnTheNetwork = "Media Browser server could not be found.";
         public string Server = "Server";
+
+        public string Shows = "Shows";
 
         public string SortByName = "Name";
         public string SortByBudget = "Budget";

@@ -105,7 +105,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         public void PublishUser()
         {
             GUICommon.UserPublishWorker.BeginInvoke(GUIContext.Instance.ActiveUser, GUICommon.UserPublishWorker.EndInvoke, null);
-        }        
+        }    
 
     }
 }

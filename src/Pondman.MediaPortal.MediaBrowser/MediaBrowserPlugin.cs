@@ -108,7 +108,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <summary>
         /// Settings
         /// </summary>
-        public static readonly MediaBrowserSettings Settings = new MediaBrowserSettings(Log);
+        public static readonly MediaBrowserSettings Settings = new MediaBrowserSettings();
 
         #endregion
 

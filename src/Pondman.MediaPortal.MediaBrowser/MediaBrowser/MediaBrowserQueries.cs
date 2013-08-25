@@ -103,6 +103,11 @@ namespace Pondman.MediaPortal.MediaBrowser
             return query.IncludeItemTypes("Episode");
         }
 
+        public static ItemQuery Season(this ItemQuery query)
+        {
+            return query.IncludeItemTypes("Season");
+        }
+
         /// <summary>
         /// Filter items by user id
         /// </summary>

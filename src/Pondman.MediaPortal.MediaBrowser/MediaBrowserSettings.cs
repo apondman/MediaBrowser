@@ -1,9 +1,5 @@
 ﻿using MediaPortal.Configuration;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
@@ -12,19 +8,14 @@ namespace Pondman.MediaPortal.MediaBrowser
     /// </summary>
     public class MediaBrowserSettings
     {
-        ILogger _logger;
-        
-        public MediaBrowserSettings(ILogger logger = null)
+        public MediaBrowserSettings()
         {
-            _logger = logger ?? NullLogger.Instance;
-
             MediaCacheFolder = Path.Combine(Config.GetFolder(Config.Dir.Thumbs), MediaBrowserPlugin.DefaultName);
             ShowRandomBackdrop = true;
             LogProperties = true; // todo: change to false on release
             DisplayName = MediaBrowserPlugin.DefaultName;
             DefaultItemLimit = 50;
         }
-
 
         /// <summary>
         /// Gets or sets the display name for the plugin.
