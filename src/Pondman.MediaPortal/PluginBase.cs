@@ -11,31 +11,31 @@ namespace Pondman.MediaPortal
     [PluginIcons("Pondman.MediaPortal.Resources.Images.plugin.png", "Pondman.MediaPortal.Resources.Images.plugin.png")]
     public abstract class PluginBase : IPlugin, ISetupForm
     {
-        protected readonly string _name;
-        protected readonly string _author;
-        protected readonly string _description;
-        protected readonly int _pluginId;
-        protected readonly Version _version;
-        protected readonly string _versionName;
+        readonly string _name;
+        readonly string _author;
+        readonly string _description;
+        readonly int _pluginId;
+        readonly Version _version;
+        readonly string _versionName;
 
         protected PluginBase(int id)
         {
             Assembly asm = Assembly.GetCallingAssembly();
             foreach (Attribute attr in Attribute.GetCustomAttributes(asm))
             {
-                if (attr.GetType() == typeof(AssemblyTitleAttribute))
+                if (attr is AssemblyTitleAttribute)
                 {
                     this._name = ((AssemblyTitleAttribute)attr).Title;
                 }
-                else if (attr.GetType() == typeof(AssemblyDescriptionAttribute))
+                else if (attr is AssemblyDescriptionAttribute)
                 {
                     this._description = ((AssemblyDescriptionAttribute)attr).Description;
                 }
-                else if (attr.GetType() == typeof(AssemblyCompanyAttribute))
+                else if (attr is AssemblyCompanyAttribute)
                 {
                     this._author = ((AssemblyCompanyAttribute)attr).Company;
                 }
-                else if (attr.GetType() == typeof(AssemblyInformationalVersionAttribute))
+                else if (attr is AssemblyInformationalVersionAttribute)
                 {
                     this._versionName = ((AssemblyInformationalVersionAttribute)attr).InformationalVersion;
                 }
@@ -44,8 +44,6 @@ namespace Pondman.MediaPortal
             _version = asm.GetName().Version;
             _pluginId = id;
         }
-        
-        #region ISetupForm
 
         public string VersionName
         {
@@ -55,13 +53,15 @@ namespace Pondman.MediaPortal
             }
         }
 
-        public virtual Version Version
+        public Version Version
         {
             get
             {
                 return _version;
             }
         }
+
+        #region ISetupForm
 
         public virtual string Author()
         {
