@@ -34,7 +34,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         void OnPlayerProgress(TimeSpan timeSpan)
         {
             GUIContext.Instance.Client.ReportPlaybackProgress(_movie.Id, GUIContext.Instance.ActiveUser.Id, 
-                timeSpan.Ticks, false, x => Log.Debug("PlayerProgress: {0}", timeSpan.TotalSeconds));
+                timeSpan.Ticks, false, false, x => Log.Debug("PlayerProgress: {0}", timeSpan.TotalSeconds));
         }
 
         ~GUIMovie() 
@@ -66,7 +66,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 else
                 {
                     GUIWindowManager.ShowPreviousWindow();
-                    return;
                 }
             }
             else
