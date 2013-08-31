@@ -153,7 +153,7 @@ namespace Pondman.MediaPortal
 
         protected void StartPlayback(int index)
         {
-            string path = _media.MediaFiles[index];
+            var path = _media.MediaFiles[index];
 
             // Play the file using the mediaportal player
             _logger.Debug("Play: Path={0}", path);           
@@ -162,6 +162,11 @@ namespace Pondman.MediaPortal
             if (g_Player.Play(path.Trim(), g_Player.MediaType.Video)) return;
             _logger.Error("Playback failed: Media={0}", path);
             Reset();
+        }
+
+        public void Seek(int absolutePositionInSeconds)
+        {
+            SeekPosition(absolutePositionInSeconds);
         }
 
         public virtual void Stop()

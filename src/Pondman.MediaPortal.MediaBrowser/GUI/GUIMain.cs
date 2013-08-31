@@ -459,14 +459,17 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             if (item == null || !(item.TVTag is BaseItemDto))
                 return;
             
+            
+
+
             // start
-            if (!item.Path.StartsWith("Movie"))
+            if (item.Path.StartsWith("Movie") || item.Path.StartsWith("Episode"))
             {
-                _browser.Browse(item, null);
+                ShowDetails(item);
             }
             else
             {
-                ShowDetails(item);
+                _browser.Browse(item, null);
             }
         }
 
