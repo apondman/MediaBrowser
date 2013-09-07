@@ -148,9 +148,9 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <summary>
         /// Called when the current user changes.
         /// </summary>
-        protected override void OnCurrentUserChanged()
+        protected override void OnAuthorizationInfoChanged()
         {
-            base.OnCurrentUserChanged();
+            base.OnAuthorizationInfoChanged();
 
             if (CurrentUserChanged != null) 
             {

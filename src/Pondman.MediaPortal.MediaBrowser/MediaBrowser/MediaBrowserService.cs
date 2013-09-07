@@ -88,11 +88,11 @@ namespace Pondman.MediaPortal.MediaBrowser
         protected virtual void StartWebSocket()
         {
             MediaBrowserClient client = Client;
-            ApiWebSocket socket = client.WebSocketConnection = new ApiWebSocket(new WebSocket4NetClientWebSocket());
+            ApiWebSocket socket = client.WebSocketConnection = new ApiWebSocket(client.ServerHostName, System.WebSocketPortNumber, client.DeviceId, client.ApplicationVersion, client.ClientName, 
+                new WebSocket4NetClientWebSocket());
             socket.PlayCommand += OnPlayCommand;
             socket.BrowseCommand += OnBrowseCommand;
-            socket.Connect(client.ServerHostName, System.WebSocketPortNumber, client.ClientName, client.DeviceId,
-                client.ApplicationVersion, _logger.Error);
+            socket.Connect(_logger.Error);
         }
 
         private void OnPlayCommand(object sender, PlayRequestEventArgs args)
