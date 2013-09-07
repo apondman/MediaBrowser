@@ -43,8 +43,6 @@ namespace MediaPortal.GUI.Library
             }
         }
 
-
-
         /// <summary>
         /// Gets the property with the given tag.
         /// </summary>

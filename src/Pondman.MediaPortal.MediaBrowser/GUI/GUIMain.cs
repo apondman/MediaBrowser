@@ -41,134 +41,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             RegisterCommand("Filter", FilterCommand);
         }
 
-        private void OnItemsRequested(object sender, ItemRequestEventArgs e)
-        {
-            Log.Debug("ItemsRequested()");
-
-            WaitFor(x =>
-            {
-                var item = e.Parent.TVTag as BaseItemDto;
-                // todo: this is a mess, rethink
-                var userId = GUIContext.Instance.Client.CurrentUserId;
-                var query = MediaBrowserQueries.Item
-                    .UserId(userId)
-                    .Recursive()
-                    .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams);
-
-                if (_browser.Settings.Limit > 0)
-                {
-                    _sortableQuery.Limit = _browser.Settings.Limit;
-                    _sortableQuery.Offset = e.Offset;
-                }
-
-                Log.Debug("GetItems: Type={0}, Id={1}", item.Type, item.Id);
-
-                switch (item.Type)
-                {
-                    case "UserRootFolder":
-                        LoadRootViews(e);
-                        return;
-                    case "View":
-                        switch (item.Id)
-                        {
-                            case "root-movies":
-                                LoadMovieViewsAndContinue(e);
-                                return;
-                            case "root-tvshows":
-                                LoadTvShowsViewsAndContinue(e);
-                                return;
-                            case "movies-genres":
-                                GUIContext.Instance.Client.GetGenres(GetItemsByNameQuery("Movie"),
-                                    result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
-                                return;
-                            case "movies-studios":
-                                GUIContext.Instance.Client.GetStudios(GetItemsByNameQuery("Movie"),
-                                    result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
-                                return;
-                            case "movies-boxset":
-                                query = query
-                                    .BoxSets()
-                                    .Fields(ItemFields.ItemCounts);
-                                break;
-                            case "movies-latest":
-                                query = query
-                                    .Movies()
-                                    .SortBy(ItemSortBy.DateCreated)
-                                    .Filters(ItemFilter.IsUnplayed)
-                                    .Descending();
-                                break;
-                            case "movies-resume":
-                                query = query
-                                    .Movies()
-                                    .SortBy(ItemSortBy.DatePlayed)
-                                    .Filters(ItemFilter.IsResumable)
-                                    .Descending();
-                                break;
-                            case "movies-all":
-                                query = query
-                                    .Movies();
-                                break;
-                            case "tvshows-all":
-                                query = query
-                                    .TvShows();
-                                break;
-                            case "tvshows-latest":
-                                query = query
-                                   .Episode()
-                                   .SortBy(ItemSortBy.DateCreated)
-                                   .Filters(ItemFilter.IsUnplayed)
-                                   .Descending();
-                                break;
-                            case "tvshows-genres":
-                                GUIContext.Instance.Client.GetGenres(GetItemsByNameQuery("Series"),
-                                    result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
-                                return;
-                        }
-                        break;
-                    case "Genre":
-                        query = query.Genres(item.Name);
-                        if (CurrentItem.Id == "tvshows-genres")
-                        {
-                            query = query.TvShows();
-                        }
-                        else
-                        {
-                            query = query.Movies();
-                        }
-                        break;
-                    case "Studio":
-                        query = query.Movies().Studios(item.Name);
-                        break;
-                    case "Series":
-                        query = query.Season().ParentId(item.Id);
-                        break;
-                    case "Season":
-                        query = query.Episode().ParentId(item.Id);
-                        break;
-                    default:
-                        // get movies by parent id
-                        query = query.Movies().ParentId(item.Id);
-                        break;
-                }
-
-                // default is item query
-                GUIContext.Instance.Client.GetItems(query.Apply(_sortableQuery), result => LoadItemsAndContinue(result, e),
-                    ShowItemsErrorAndContinue);
-
-            });
-        }
-
-        void LoadItemsAndContinue(ItemsResult result, ItemRequestEventArgs e)
-        {
-            foreach (var listitem in result.Items.Select(GetBaseListItem))
-            {
-                e.List.Add(listitem);
-            }
-
-            e.TotalItems = result.TotalRecordCount;
-
-            _mre.Set();
-        }
+        
 
         #region Controls
         
@@ -249,8 +122,15 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             // browse to item
             if (!String.IsNullOrEmpty(Parameters.Id))
             {
-                // todo: check type? add loading indicator?
-                GUIContext.Instance.Client.GetItem(Parameters.Id, GUIContext.Instance.Client.CurrentUserId, LoadItem, ShowItemsError);
+                if (Parameters.Type == "View")
+                {
+                    var item = GetViewListItem(Parameters.Id);
+                    Navigate(item);
+                }
+                else 
+                {
+                    GUIContext.Instance.Client.GetItem(Parameters.Id, GUIContext.Instance.Client.CurrentUserId, LoadItem, ShowItemsError);
+                }
                 return;
             }
 
@@ -379,9 +259,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <param name="id">The id.</param>
         /// <param name="label">The label.</param>
         /// <returns></returns>
-        public GUIListItem GetViewListItem(string id, string label)
+        public GUIListItem GetViewListItem(string id, string label = null)
         {
-            var view = new BaseItemDto {Name = label, Id = id, Type = "View", IsFolder = true};
+            var view = new BaseItemDto {Name = label ?? id, Id = id, Type = "View", IsFolder = true};
 
             return GetBaseListItem(view);
         }
@@ -471,6 +351,147 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             // get root folder
             GUIContext.Instance.Client.GetRootFolder(GUIContext.Instance.Client.CurrentUserId, LoadItem, ShowItemsError);
+        }
+
+        private void OnItemsRequested(object sender, ItemRequestEventArgs e)
+        {
+            Log.Debug("ItemsRequested()");
+
+            WaitFor(x =>
+            {
+                var item = e.Parent.TVTag as BaseItemDto;
+                // todo: this is a mess, rethink
+                var userId = GUIContext.Instance.Client.CurrentUserId;
+                var query = MediaBrowserQueries.Item
+                    .UserId(userId)
+                    .Recursive()
+                    .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams);
+
+                if (_browser.Settings.Limit > 0)
+                {
+                    _sortableQuery.Limit = _browser.Settings.Limit;
+                    _sortableQuery.Offset = e.Offset;
+                }
+
+                Log.Debug("GetItems: Type={0}, Id={1}", item.Type, item.Id);
+
+                switch (item.Type)
+                {
+                    case "UserRootFolder":
+                        LoadRootViews(e);
+                        return;
+                    case "View":
+                        switch (item.Id)
+                        {
+                            case "root-movies":
+                                LoadMovieViewsAndContinue(e);
+                                return;
+                            case "root-tvshows":
+                                LoadTvShowsViewsAndContinue(e);
+                                return;
+                            case "movies-genres":
+                                GUIContext.Instance.Client.GetGenres(GetItemsByNameQuery("Movie"),
+                                    result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
+                                return;
+                            case "movies-studios":
+                                GUIContext.Instance.Client.GetStudios(GetItemsByNameQuery("Movie"),
+                                    result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
+                                return;
+                            case "movies-boxset":
+                                query = query
+                                    .BoxSets()
+                                    .Fields(ItemFields.ItemCounts);
+                                break;
+                            case "movies-latest":
+                                query = query
+                                    .Movies()
+                                    .SortBy(ItemSortBy.DateCreated)
+                                    .Filters(ItemFilter.IsUnplayed)
+                                    .Descending();
+                                break;
+                            case "movies-resume":
+                                query = query
+                                    .Movies()
+                                    .SortBy(ItemSortBy.DatePlayed)
+                                    .Filters(ItemFilter.IsResumable)
+                                    .Descending();
+                                break;
+                            case "movies-all":
+                                query = query
+                                    .Movies();
+                                break;
+                            case "tvshows-networks":
+                                GUIContext.Instance.Client.GetStudios(GetItemsByNameQuery("Series"),
+                                    result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
+                                return;
+                            case "tvshows-all":
+                                query = query
+                                    .TvShows();
+                                break;
+                            case "tvshows-latest":
+                                query = query
+                                   .Episode()
+                                   .SortBy(ItemSortBy.DateCreated)
+                                   .Filters(ItemFilter.IsUnplayed)
+                                   .Descending();
+                                break;
+                            case "tvshows-genres":
+                                GUIContext.Instance.Client.GetGenres(GetItemsByNameQuery("Series"),
+                                    result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
+                                return;
+                        }
+                        break;
+                    case "Genre":
+                        query = query.Genres(item.Name);
+                        if (CurrentItem.Id == "tvshows-genres")
+                        {
+                            query = query.TvShows();
+                        }
+                        else
+                        {
+                            query = query.Movies();
+                        }
+                        break;
+                    case "Studio":
+                        query = query.Studios(item.Name);
+                        if (CurrentItem.Id == "tvshows-networks")
+                        {
+                            query = query.TvShows();
+                        }
+                        else
+                        {
+                            query = query.Movies();
+                        }
+                        break;
+                    case "Series":
+                        query = query.Season().ParentId(item.Id);
+                        break;
+                    case "Season":
+                        query = query.Episode().ParentId(item.Id);
+                        break;
+                    default:
+                        // get movies by parent id
+                        query = query.Movies().ParentId(item.Id);
+                        break;
+                }
+
+                // default is item query
+                GUIContext.Instance.Client.GetItems(query.Apply(_sortableQuery), result => LoadItemsAndContinue(result, e),
+                    ShowItemsErrorAndContinue);
+
+            });
+        }
+
+        void LoadItemsAndContinue(ItemsResult result, ItemRequestEventArgs e)
+        {
+            foreach (var listitem in result.Items.Select(GetBaseListItem))
+            {
+                e.List.Add(listitem);
+            }
+
+            e.TotalItems = result.TotalRecordCount;
+
+            _mre.Set();
         }
 
         /// <summary>
