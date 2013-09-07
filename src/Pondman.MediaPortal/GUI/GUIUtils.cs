@@ -27,6 +27,14 @@ namespace MediaPortal.GUI.Library
             GUIPropertyManager.OnPropertyChanged += RegisterProperty;
         }
 
+        public static CultureInfo Culture
+        {
+            get
+            {
+                return _cultureInfo;
+            }
+        }
+
         static void RegisterProperty(string tag, string tagValue)
         {
             lock (lockObject)
@@ -34,6 +42,8 @@ namespace MediaPortal.GUI.Library
                 _registeredProperties.Add(tag);
             }
         }
+
+
 
         /// <summary>
         /// Gets the property with the given tag.
@@ -391,6 +401,5 @@ namespace MediaPortal.GUI.Library
         }
 
         #endregion
-
     }
 }

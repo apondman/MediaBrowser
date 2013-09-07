@@ -126,7 +126,15 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                         }
                         break;
                     case "Genre":
-                        query = query.Movies().Genres(item.Name);
+                        query = query.Genres(item.Name);
+                        if (CurrentItem.Id == "tvshows-genres")
+                        {
+                            query = query.TvShows();
+                        }
+                        else
+                        {
+                            query = query.Movies();
+                        }
                         break;
                     case "Studio":
                         query = query.Movies().Studios(item.Name);
@@ -388,16 +396,31 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             var item = new GUIListItem(dto.Name)
             {
                 Path = dto.Type + "/" + dto.Id,
-                Label2 = dto.ProductionYear.HasValue ? dto.ProductionYear.ToString() : string.Empty,
                 Year = dto.ProductionYear.GetValueOrDefault(),
                 TVTag = dto,
                 IsFolder = dto.IsFolder,
                 IconImage = "defaultVideo.png",
                 IconImageBig = "defaultVideoBig.png",
-                RetrieveArt = true
+                RetrieveArt = true,
+                IsPlayed = dto.UserData != null ? dto.UserData.Played : false,
             };
             item.OnRetrieveArt += GetItemImage;
-
+            
+            switch(dto.Type) 
+            {
+                case "Episode":
+                    item.Label = dto.IndexNumber.HasValue ? dto.IndexNumber.Value.ToString("0: " + item.Label) : string.Empty;
+                    item.Label2 = dto.PremiereDate.HasValue ? dto.PremiereDate.Value.ToString(GUIUtils.Culture.DateTimeFormat.ShortDatePattern) : string.Empty;
+                    break;
+                case "Serie":
+                case "Movie":
+                    item.Label2 = dto.ProductionYear.HasValue ? dto.ProductionYear.ToString() : string.Empty;
+                    break;
+                case "Studio":
+                case "Genre":
+                    item.Label2 = dto.ChildCount.HasValue ? dto.ChildCount.ToString() : string.Empty;
+                    break;
+            }
             return item;
         }
 
@@ -458,9 +481,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             if (item == null || !(item.TVTag is BaseItemDto))
                 return;
-            
-            
-
 
             // start
             if (item.Path.StartsWith("Movie") || item.Path.StartsWith("Episode"))
