@@ -44,6 +44,11 @@ namespace System
             return str.IsNull() || String.IsNullOrEmpty(str.Trim());
         }
 
+        public static bool IsIn(this string str, params string[] args)
+        {
+            return args.Contains(str);
+        }
+
         public static void SafeInvoke<T1>(this Action<T1> obj, T1 arg)
         {
             obj.IfNotNull(handler => handler(arg));
