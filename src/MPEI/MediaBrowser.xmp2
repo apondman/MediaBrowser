@@ -293,16 +293,15 @@ Click Next to continue or Cancel to exit Setup.</Value>
     <UpdateUrl />
     <Version>
       <Major>0</Major>
-      <Minor>8</Minor>
-      <Build>4970</Build>
-      <Revision>3056</Revision>
+      <Minor>9</Minor>
+      <Build>5011</Build>
+      <Revision>20380</Revision>
     </Version>
     <ExtensionDescription>MediaPortal client for MediaBrowser3 server (http://www.mediabrowser3.com). </ExtensionDescription>
-    <VersionDescription>- Improved browsing experience
-- Implemented inifinite scroll (50 items auto loading)
-- Implemented playback progress reporting
-- Added sorting
-- Updated translations
+    <VersionDescription>- Update to latest MediaBrowser components
+- Added TV Shows and Episodes
+- Added initial context filtering.
+- Updated translations. 
 - Improved default Titan skin (still needs more work)
 </VersionDescription>
     <DevelopmentStatus>Beta</DevelopmentStatus>
@@ -453,7 +452,7 @@ Click Next to continue or Cancel to exit Setup.</Value>
         <Param1 />
         <UpdateOption>OverwriteIfOlder</UpdateOption>
         <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\Resources\Images\mblogoicon.png</LocalFileName>
-        <ZipFileName>Installer{CopyFile}\{bb36c7f8-3f74-46df-af03-e035c710d713}-mblogoicon.png</ZipFileName>
+        <ZipFileName>Installer{CopyFile}\{b5b2ffbc-d2eb-483c-8bae-979a9b05b0a5}-mblogoicon.png</ZipFileName>
         <DestinationFilename />
       </FileItem>
     </Items>
