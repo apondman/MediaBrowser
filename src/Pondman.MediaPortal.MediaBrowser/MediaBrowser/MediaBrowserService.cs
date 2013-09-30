@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Threading;
 using MediaBrowser.ApiInteraction;
 using MediaBrowser.ApiInteraction.WebSocket;
 using MediaBrowser.Model.System;
@@ -15,6 +16,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         private readonly ILogger _logger;
         private readonly MediaBrowserPlugin _plugin;
         private IPEndPoint _endpoint;
+        Timer _retryTimer;
 
         #endregion
 
@@ -87,12 +89,20 @@ namespace Pondman.MediaPortal.MediaBrowser
 
         protected virtual void StartWebSocket()
         {
+            _logger.Info("Connecting to Media Browser Server.");
             MediaBrowserClient client = Client;
             ApiWebSocket socket = client.WebSocketConnection = new ApiWebSocket(client.ServerHostName, System.WebSocketPortNumber, client.DeviceId, client.ApplicationVersion, client.ClientName, 
                 new WebSocket4NetClientWebSocket());
             socket.PlayCommand += OnPlayCommand;
             socket.BrowseCommand += OnBrowseCommand;
-            socket.Connect(_logger.Error);
+            socket.Connect(RetryWebSocket);
+        }
+
+        private void RetryWebSocket(Exception e)
+        {
+            _logger.Error(e);
+            _logger.Info("Lost connection with Media Browser Server.");
+            _retryTimer = new Timer(x => StartWebSocket(), null, 15000, Timeout.Infinite);
         }
 
         private void OnPlayCommand(object sender, PlayRequestEventArgs args)

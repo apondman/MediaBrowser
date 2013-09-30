@@ -300,6 +300,7 @@ namespace Pondman.MediaPortal.GUI
             Facade.CurrentLayout = Facade.CurrentLayout;
             Facade.ClearAll();
 
+
             Populate(true);
 
             // Publish current item
