@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MediaPortal.Configuration;
+﻿using MediaPortal.Configuration;
+using MediaPortal.GUI.Library;
 using MediaPortal.Services;
 using Pondman.MediaPortal.MediaBrowser.GUI;
-using MediaPortal.GUI.Library;
 using Pondman.MediaPortal.MediaBrowser.Resources.Languages;
-using System.IO;
-using MediaBrowser.Model.Dto;
+using System;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
@@ -63,6 +58,8 @@ namespace Pondman.MediaPortal.MediaBrowser
         #endregion
 
         #region Handlers
+
+        
 
         void GUIPropertyManager_OnPropertyChanged(string tag, string tagValue)
         {

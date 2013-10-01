@@ -341,13 +341,13 @@ namespace Pondman.MediaPortal.GUI
         {
             var list = Current.List;
 
-            if (Facade.Count > 0 && Current.Offset > 0)
-            {
-                // disable the selection lock
-                var placeholder = Facade[Facade.Count - 1];
-                placeholder.Label = "-----";
-                placeholder.OnItemSelected -= OnPlaceholderSelected;
-            }
+            //if (Facade.Count > 0 && Current.Offset > 0)
+            //{
+            //    // disable the selection lock
+            //    var placeholder = Facade[Facade.Count - 1];
+            //    placeholder.Label = "-----";
+            //    placeholder.OnItemSelected -= OnPlaceholderSelected;
+            //}
 
             for (var i = Current.Offset; i < list.Count; i++)
             {
@@ -368,10 +368,10 @@ namespace Pondman.MediaPortal.GUI
             // add loading placeholder, should be last item
             if (Current.HasMore)
             {
-                var placeholder = new GUIListItem("-- " + Settings.LoadingPlaceholderLabel + " --");
-                placeholder.OnItemSelected += OnPlaceholderSelected;
+                //var placeholder = new GUIListItem("-- " + Settings.LoadingPlaceholderLabel + " --");
+                //placeholder.OnItemSelected += OnPlaceholderSelected;
 
-                Facade.Add(placeholder);
+                //Facade.Add(placeholder);
             }
 
             // Update Total Count if it was not done manually

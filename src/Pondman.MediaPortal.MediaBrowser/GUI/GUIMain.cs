@@ -12,7 +12,6 @@ using MPGui = MediaPortal.GUI.Library;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
 {
-
     /// <summary>
     /// Main Browser
     /// </summary>
@@ -409,8 +408,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 return;
                             case "movies-boxset":
                                 query = query
-                                    .BoxSets()
-                                    .Fields(ItemFields.ItemCounts);
+                                    .BoxSets();
                                 break;
                             case "movies-latest":
                                 query = query
@@ -599,7 +597,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 SortOrder=SortOrder.Ascending,
                                 IncludeItemTypes = includeItemTypes,
                                 Recursive = true,
-                                Fields = new [] {ItemFields.ItemCounts, ItemFields.DateCreated},
+                                Fields = new [] { ItemFields.DateCreated},
                                 UserId = GUIContext.Instance.Client.CurrentUserId
                             };
 

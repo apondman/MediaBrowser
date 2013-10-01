@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Reflection;
 using System.Threading;
 using MediaBrowser.ApiInteraction;
 using MediaBrowser.ApiInteraction.WebSocket;
@@ -11,17 +12,25 @@ namespace Pondman.MediaPortal.MediaBrowser
 {
     public class MediaBrowserService : IMediaBrowserService // todo: disposable?
     {
+        const string MediaBrowserModelAssemblyVersion = "3.0.5021.27473";
+        const string MediaBrowserModelAssembly = "MediaBrowser.Model, Version=" + MediaBrowserModelAssemblyVersion + ", Culture=neutral, PublicKeyToken=6cde51960597a7f9";
+        
         #region Private variables
 
+        private readonly ServerLocator _locator;
         private readonly ILogger _logger;
         private readonly MediaBrowserPlugin _plugin;
-        private IPEndPoint _endpoint;
+
         Timer _retryTimer;
 
         #endregion
 
         public MediaBrowserService(MediaBrowserPlugin plugin, ILogger logger = null)
         {
+            // Assembly rebinding for Media Browser
+            AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
+            
+            _locator = new ServerLocator();
             _logger = logger ?? NullLogger.Instance;
             _plugin = plugin;
             _logger.Info("MediaBrowserService initialized.");
@@ -29,7 +38,7 @@ namespace Pondman.MediaPortal.MediaBrowser
 
         public event Action<IPEndPoint> ServerChanged;
 
-        public virtual MediaBrowserPlugin Plugin
+        public MediaBrowserPlugin Plugin
         {
             get { return _plugin; }
         }
@@ -40,7 +49,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <value>
         ///     The server endpoint.
         /// </value>
-        public virtual IPEndPoint Server
+        public IPEndPoint Server
         {
             get { return _endpoint; }
             set
@@ -48,40 +57,45 @@ namespace Pondman.MediaPortal.MediaBrowser
                 _endpoint = value;
                 OnServerChanged(_endpoint);
             }
-        }
+        } IPEndPoint _endpoint;
 
-        public virtual bool IsServerLocated
+        public bool IsServerLocated
         {
             get { return (Server != null); }
         }
 
-        public virtual SystemInfo System { get; internal set; }
+        public SystemInfo System { get; internal set; }
 
-        public virtual MediaBrowserClient Client { get; internal set; }
+        public MediaBrowserClient Client
+        {
+            get { return _client; }
+            internal set
+            {
+                _client = value;
+                Update();
+            }
+        } MediaBrowserClient _client;
+
+        public void Update()
+        {
+            if (!IsServerLocated) return;
+            Client.GetSystemInfo(info =>
+            {
+                System = info;
+                if (Client.WebSocketConnection == null)
+                {
+                    StartWebSocket();
+                }
+            }, _logger.Error);
+        }
 
         public virtual void Discover()
         {
-            var locator = new ServerLocator();
-            locator.FindServer(OnServerDiscovered);
-        }
-
-        public virtual void Update()
-        {
-            if (IsServerLocated)
+            _retryTimer = new Timer(x =>
             {
-                Client.GetSystemInfo(info =>
-                {
-                    System = info;
-                    if (Client.WebSocketConnection == null)
-                    {
-                        StartWebSocket();
-                    }
-                }, _logger.Error);
-            }
-            else
-            {
-                Discover();
-            }
+                _logger.Info("Discovering Media Browser Server.");
+                _locator.FindServer(OnServerDiscovered);
+            }, null, 0, 60000);
         }
 
         // todo: create a WebSocket listener class that you can attach to a client
@@ -90,9 +104,15 @@ namespace Pondman.MediaPortal.MediaBrowser
         protected virtual void StartWebSocket()
         {
             _logger.Info("Connecting to Media Browser Server.");
-            MediaBrowserClient client = Client;
-            ApiWebSocket socket = client.WebSocketConnection = new ApiWebSocket(client.ServerHostName, System.WebSocketPortNumber, client.DeviceId, client.ApplicationVersion, client.ClientName, 
-                new WebSocket4NetClientWebSocket());
+            var socket = Client.WebSocketConnection = new ApiWebSocket(
+                Client.ServerHostName, 
+                System.WebSocketPortNumber, 
+                Client.DeviceId, 
+                Client.ApplicationVersion, 
+                Client.ClientName, 
+                new WebSocket4NetClientWebSocket()
+            );
+
             socket.PlayCommand += OnPlayCommand;
             socket.BrowseCommand += OnBrowseCommand;
             socket.Connect(RetryWebSocket);
@@ -102,20 +122,53 @@ namespace Pondman.MediaPortal.MediaBrowser
         {
             _logger.Error(e);
             _logger.Info("Lost connection with Media Browser Server.");
-            _retryTimer = new Timer(x => StartWebSocket(), null, 15000, Timeout.Infinite);
+            _retryTimer = new Timer(x =>
+            {
+                _logger.Info("Reconnecting to Media Browser Server.");
+                Client.WebSocketConnection.Connect(RetryWebSocket);
+            }, null, 15000, Timeout.Infinite);
         }
 
-        private void OnPlayCommand(object sender, PlayRequestEventArgs args)
+        protected void OnServerDiscovered(IPEndPoint endpoint)
+        {
+            if (_retryTimer == null) return;
+
+            _retryTimer.Dispose();
+            _retryTimer = null;
+
+            _logger.Info("Found MediaBrowser Server: {0}", endpoint);
+            Server = endpoint;
+        }
+
+        protected void OnServerChanged(IPEndPoint endpoint)
+        {
+            _logger.Debug("Creating Media Browser client.");
+            var client = new MediaBrowserClient(
+                            endpoint.Address.ToString(), 
+                            endpoint.Port,
+                            Environment.OSVersion.VersionString, 
+                            Environment.MachineName, 
+                            Plugin.Version.ToString()
+                            );
+            Client = client;
+
+            if (ServerChanged != null)
+            {
+                ServerChanged(endpoint);
+            }
+        }
+
+        protected void OnPlayCommand(object sender, PlayRequestEventArgs args)
         {
             // todo: support multiple ids
             _logger.Info("Remote Play Request: Id={1}, StartPositionTicks={2}", args.Request.ItemIds[0],
                 args.Request.StartPositionTicks);
-            var resumeTime = (int) TimeSpan.FromTicks(args.Request.StartPositionTicks ?? 0).TotalSeconds;
+            var resumeTime = (int)TimeSpan.FromTicks(args.Request.StartPositionTicks ?? 0).TotalSeconds;
 
             GUICommon.Window(MediaBrowserWindow.Movie, MediaBrowserMedia.Play(args.Request.ItemIds[0], resumeTime));
         }
 
-        private void OnBrowseCommand(object sender, BrowseRequestEventArgs args)
+        protected void OnBrowseCommand(object sender, BrowseRequestEventArgs args)
         {
             _logger.Info("Remote Browse Request: Type={0}, Id={1}, Name={2}", args.Request.ItemType, args.Request.ItemId,
                 args.Request.ItemName);
@@ -137,23 +190,17 @@ namespace Pondman.MediaPortal.MediaBrowser
             }
         }
 
-        protected virtual void OnServerDiscovered(IPEndPoint endpoint)
+        private Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
-            _logger.Info("Found MediaBrowser Server: {0}", endpoint);
-            Server = endpoint;
-        }
-
-        protected virtual void OnServerChanged(IPEndPoint endpoint)
-        {
-            _logger.Debug("Creating Default Media Browser API Client.");
-            var client = new MediaBrowserClient(endpoint.Address.ToString(), endpoint.Port,
-                Environment.OSVersion.VersionString, Environment.MachineName, Plugin.Version.ToString());
-            Client = client;
-            Update();
-
-            if (ServerChanged != null)
+            // this is a work around to load the expected assembly
+            var requestedName = new AssemblyName(args.Name);
+            if (requestedName.Name == "MediaBrowser.Model" && requestedName.Version.ToString() != MediaBrowserModelAssemblyVersion)
             {
-                ServerChanged(endpoint);
+                return Assembly.Load(MediaBrowserModelAssembly);
+            }
+            else
+            {
+                return null;
             }
         }
     }
