@@ -15,13 +15,14 @@ namespace Pondman.MediaPortal
     public class MediaPlayer
     {
         #region Variables
-        
-        protected GUIWindow _window;
-        protected ILogger _logger;
-        protected MediaPlayerState _state;
-        protected int _resumeTime = 0;
-        protected int _mediaIndex = 0;
-        protected MediaPlayerInfo _media;
+
+        readonly ILogger _logger;
+
+        GUIWindow _window;
+        MediaPlayerState _state;
+        int _resumeTime = 0;
+        int _mediaIndex = 0;
+        MediaPlayerInfo _media;
 
         #endregion
 
@@ -40,10 +41,10 @@ namespace Pondman.MediaPortal
             _media = null;
             
             // hookup internal playback handlers
-            g_Player.PlayBackStarted += new g_Player.StartedHandler(OnPlaybackStarted);
-            g_Player.PlayBackEnded += new g_Player.EndedHandler(OnPlayBackEnded);
-            g_Player.PlayBackStopped += new g_Player.StoppedHandler(OnPlayBackStoppedOrChanged);
-            g_Player.PlayBackChanged += new g_Player.ChangedHandler(OnPlayBackStoppedOrChanged);
+            g_Player.PlayBackStarted += OnPlaybackStarted;
+            g_Player.PlayBackEnded += OnPlayBackEnded;
+            g_Player.PlayBackStopped += OnPlayBackStoppedOrChanged;
+            g_Player.PlayBackChanged += OnPlayBackStoppedOrChanged;
 
             // hook up to the property manager
             GUIPropertyManager.OnPropertyChanged += GUIPropertyManager_OnPropertyChanged;
@@ -71,10 +72,10 @@ namespace Pondman.MediaPortal
         ~MediaPlayer()
         {
             // unhook internal playback handlers
-            g_Player.PlayBackStarted -= new g_Player.StartedHandler(OnPlaybackStarted);
-            g_Player.PlayBackEnded -= new g_Player.EndedHandler(OnPlayBackEnded);
-            g_Player.PlayBackStopped -= new g_Player.StoppedHandler(OnPlayBackStoppedOrChanged);
-            g_Player.PlayBackChanged -= new g_Player.ChangedHandler(OnPlayBackStoppedOrChanged);
+            g_Player.PlayBackStarted -= OnPlaybackStarted;
+            g_Player.PlayBackEnded -= OnPlayBackEnded;
+            g_Player.PlayBackStopped -= OnPlayBackStoppedOrChanged;
+            g_Player.PlayBackChanged -= OnPlayBackStoppedOrChanged;
             GUIPropertyManager.OnPropertyChanged -= GUIPropertyManager_OnPropertyChanged;
         }
 

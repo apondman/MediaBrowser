@@ -28,7 +28,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         public MediaBrowserService(MediaBrowserPlugin plugin, ILogger logger = null)
         {
             // Assembly rebinding for Media Browser
-            AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
+            //AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
             
             _locator = new ServerLocator();
             _logger = logger ?? NullLogger.Instance;

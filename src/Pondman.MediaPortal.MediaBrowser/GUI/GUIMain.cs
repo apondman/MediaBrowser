@@ -1,25 +1,25 @@
-﻿using MediaBrowser.Model.Dto;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Querying;
 using MediaPortal.GUI.Library;
 using Pondman.MediaPortal.GUI;
 using Pondman.MediaPortal.MediaBrowser.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using MPGui = MediaPortal.GUI.Library;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
 {
     /// <summary>
-    /// Main Browser
+    ///     Main Browser
     /// </summary>
     public class GUIMain : GUIDefault
     {
-        readonly GUIBrowser<string> _browser;
-        readonly ManualResetEvent _mre;
-        readonly List<GUIListItem> _filters;
+        private readonly GUIBrowser<string> _browser;
+        private readonly List<GUIListItem> _filters;
+        private readonly ManualResetEvent _mre;
 
         private SortableQuery _sortableQuery;
 
@@ -45,16 +45,15 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         }
 
         #region Controls
-        
-        [SkinControl(50)]
-        protected GUIFacadeControl Facade = null;
+
+        [SkinControl(50)] protected GUIFacadeControl Facade = null;
 
         #endregion
 
         #region Commands
 
         /// <summary>
-        /// Cycles layout modes for the facade.
+        ///     Cycles layout modes for the facade.
         /// </summary>
         /// <param name="control">The control.</param>
         /// <param name="actionType">Type of the action.</param>
@@ -66,7 +65,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         }
 
         /// <summary>
-        /// Switch User
+        ///     Switch User
         /// </summary>
         /// <param name="control">The control.</param>
         /// <param name="actionType">Type of the action.</param>
@@ -76,7 +75,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         }
 
         /// <summary>
-        /// Sort the current view
+        ///     Sort the current view
         /// </summary>
         /// <param name="control">The control.</param>
         /// <param name="actionType">Type of the action.</param>
@@ -86,7 +85,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         }
 
         /// <summary>
-        /// Shows the filter menu dialog.
+        ///     Shows the filter menu dialog.
         /// </summary>
         /// <param name="control">The control.</param>
         /// <param name="actionType">Type of the action.</param>
@@ -100,7 +99,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             ShowSearchDialog();
         }
 
-        #endregion 
+        #endregion
 
         #region Window overrides
 
@@ -112,7 +111,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             _browser.Settings.Limit = MediaBrowserPlugin.Settings.DefaultItemLimit;
             _browser.Attach(Facade);
 
-            if (!GUIContext.Instance.IsServerReady) 
+            if (!GUIContext.Instance.IsServerReady)
             {
                 GUIWindowManager.ShowPreviousWindow();
                 return;
@@ -133,14 +132,15 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     var item = GetViewListItem(Parameters.Id);
                     Navigate(item);
                 }
-                else 
+                else
                 {
-                    GUIContext.Instance.Client.GetItem(Parameters.Id, GUIContext.Instance.Client.CurrentUserId, LoadItem, ShowItemsError);
+                    GUIContext.Instance.Client.GetItem(Parameters.Id, GUIContext.Instance.Client.CurrentUserId, LoadItem,
+                        ShowItemsError);
                 }
                 return;
             }
 
-            _browser.Reload();  
+            _browser.Reload();
         }
 
         protected override void OnClicked(int controlId, GUIControl control, MPGui.Action.ActionType actionType)
@@ -152,12 +152,12 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             switch (controlId)
             {
-                // Facade
+                    // Facade
                 case 50:
                     switch (actionType)
                     {
                         case MPGui.Action.ActionType.ACTION_SELECT_ITEM:
-                            
+
                             // reset sortable query
                             // todo: bad place
                             _sortableQuery = new SortableQuery();
@@ -173,7 +173,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         public override void OnAction(MPGui.Action action)
         {
-            switch (action.wID) 
+            switch (action.wID)
             {
                 case MPGui.Action.ActionType.ACTION_PARENT_DIR:
                     // reset sortable query
@@ -184,7 +184,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 default:
                     base.OnAction(action);
                     break;
-            }           
+            }
         }
 
         protected override void OnShowContextMenu()
@@ -197,7 +197,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         }
 
         /// <summary>
-        /// Navigate back
+        ///     Navigate back
         /// </summary>
         protected override void OnPreviousWindow()
         {
@@ -213,7 +213,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         #region GUIListItem Handlers
 
         /// <summary>
-        /// Gets an image for users
+        ///     Gets an image for users
         /// </summary>
         /// <param name="item">The item.</param>
         public static void GetUserImage(GUIListItem item)
@@ -222,7 +222,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         }
 
         /// <summary>
-        /// Gets an image for the item
+        ///     Gets an image for the item
         /// </summary>
         /// <param name="item">The item.</param>
         public static void GetItemImage(GUIListItem item)
@@ -231,7 +231,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         }
 
         /// <summary>
-        /// Handler for selected item
+        ///     Handler for selected item
         /// </summary>
         /// <param name="item">The item.</param>
         protected void OnBaseItemSelected(GUIListItem item)
@@ -244,13 +244,13 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         }
 
         /// <summary>
-        /// Handler for current item
+        ///     Handler for current item
         /// </summary>
         /// <param name="item">The item.</param>
         protected void OnItemChanged(GUIListItem item)
         {
             if (item == null) return;
-            
+
             CurrentItem = item.TVTag as BaseItemDto;
             CurrentItem.IfNotNull(x => PublishItemDetails(x, MediaBrowserPlugin.DefaultProperty + ".Current"));
         }
@@ -260,7 +260,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         #region GUIListItem Factory Methods
 
         /// <summary>
-        /// Gets the view list item.
+        ///     Gets the view list item.
         /// </summary>
         /// <param name="id">The id.</param>
         /// <param name="label">The label.</param>
@@ -273,7 +273,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         }
 
         /// <summary>
-        /// Gets the base list item.
+        ///     Gets the base list item.
         /// </summary>
         /// <param name="dto">The dto.</param>
         /// <returns></returns>
@@ -291,12 +291,16 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 IsPlayed = dto.UserData != null ? dto.UserData.Played : false,
             };
             item.OnRetrieveArt += GetItemImage;
-            
-            switch(dto.Type) 
+
+            switch (dto.Type)
             {
                 case "Episode":
-                    item.Label = dto.IndexNumber.HasValue ? dto.IndexNumber.Value.ToString("0: " + item.Label) : string.Empty;
-                    item.Label2 = dto.PremiereDate.HasValue ? dto.PremiereDate.Value.ToString(GUIUtils.Culture.DateTimeFormat.ShortDatePattern) : string.Empty;
+                    item.Label = dto.IndexNumber.HasValue
+                        ? dto.IndexNumber.Value.ToString("0: " + item.Label)
+                        : string.Empty;
+                    item.Label2 = dto.PremiereDate.HasValue
+                        ? dto.PremiereDate.Value.ToString(GUIUtils.Culture.DateTimeFormat.ShortDatePattern)
+                        : string.Empty;
                     break;
                 case "Serie":
                 case "Movie":
@@ -311,7 +315,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         }
 
         /// <summary>
-        /// Gets the user list item.
+        ///     Gets the user list item.
         /// </summary>
         /// <param name="user">The user.</param>
         /// <returns></returns>
@@ -320,9 +324,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             var item = new GUIListItem(user.Name)
             {
                 Path = "User/" + user.Id,
-                Label2 = 
+                Label2 =
                     user.LastLoginDate.HasValue
-                        ? String.Format("{0}: {1}", MediaBrowserPlugin.UI.Resource.LastSeen, user.LastLoginDate.Value.ToShortDateString())
+                        ? String.Format("{0}: {1}", MediaBrowserPlugin.UI.Resource.LastSeen,
+                            user.LastLoginDate.Value.ToShortDateString())
                         : string.Empty,
                 TVTag = user,
                 IconImage = "defaultPicture.png",
@@ -337,15 +342,15 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         #endregion
 
         /// <summary>
-        /// Gets or sets the current item.
+        ///     Gets or sets the current item.
         /// </summary>
         /// <value>
-        /// The current item.
+        ///     The current item.
         /// </value>
         public BaseItemDto CurrentItem { get; set; }
 
         /// <summary>
-        /// Resets the  navigation to the starting position
+        ///     Resets the  navigation to the starting position
         /// </summary>
         public void Reset()
         {
@@ -369,9 +374,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 // todo: this is a mess, rethink
                 var userId = GUIContext.Instance.Client.CurrentUserId;
                 var query = MediaBrowserQueries.Item
-                    .UserId(userId)
-                    .Recursive()
-                    .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams);
+                                .UserId(userId)
+                                .Recursive()
+                                .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams);
 
                 if (_browser.Settings.Limit > 0)
                 {
@@ -438,10 +443,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 break;
                             case "tvshows-latest":
                                 query = query
-                                   .Episode()
-                                   .SortBy(ItemSortBy.DateCreated)
-                                   .Filters(ItemFilter.IsUnplayed)
-                                   .Descending();
+                                    .Episode()
+                                    .SortBy(ItemSortBy.DateCreated)
+                                    .Filters(ItemFilter.IsUnplayed)
+                                    .Descending();
                                 break;
                             case "tvshows-genres":
                                 GUIContext.Instance.Client.GetGenres(GetItemsByNameQuery("Series"),
@@ -451,14 +456,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                         break;
                     case "Genre":
                         query = query.Genres(item.Name);
-                        if (CurrentItem.Id == "tvshows-genres")
-                        {
-                            query = query.TvShows();
-                        }
-                        else
-                        {
-                            query = query.Movies();
-                        }
+                        query = CurrentItem.Id == "tvshows-genres" ? query.TvShows() : query.Movies();
                         break;
                     case "Studio":
                         query = query.Studios(item.Name);
@@ -484,13 +482,13 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 }
 
                 // default is item query
-                GUIContext.Instance.Client.GetItems(query.Apply(_sortableQuery), result => LoadItemsAndContinue(result, e),
+                GUIContext.Instance.Client.GetItems(query.Apply(_sortableQuery),
+                    result => LoadItemsAndContinue(result, e),
                     ShowItemsErrorAndContinue);
-
             });
         }
 
-        void LoadItemsAndContinue(ItemsResult result, ItemRequestEventArgs e)
+        private void LoadItemsAndContinue(ItemsResult result, ItemRequestEventArgs e)
         {
             foreach (var listitem in result.Items.Select(GetBaseListItem))
             {
@@ -501,14 +499,14 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             if (e.Offset == 0)
             {
-                string type = result.Items.Select(x => x.Type).FirstOrDefault();
+                var type = result.Items.Select(x => x.Type).FirstOrDefault();
 
                 _filters.Clear();
                 _filters.Add(GetFilterItem(ItemFilter.IsFavorite));
                 _filters.Add(GetFilterItem(ItemFilter.Likes));
                 _filters.Add(GetFilterItem(ItemFilter.Dislikes));
-                
-                if (type.IsIn("Movie", "Episode")) 
+
+                if (type.IsIn("Movie", "Episode"))
                 {
                     _filters.Add(GetFilterItem(ItemFilter.IsPlayed));
                     _filters.Add(GetFilterItem(ItemFilter.IsUnplayed));
@@ -520,7 +518,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         }
 
         /// <summary>
-        /// Navigates the specified item.
+        ///     Navigates the specified item.
         /// </summary>
         /// <param name="item">The item.</param>
         private void Navigate(GUIListItem item)
@@ -540,7 +538,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         }
 
         /// <summary>
-        /// Loads the root folder into the navigation system.
+        ///     Loads the root folder into the navigation system.
         /// </summary>
         /// <param name="dto">The dto.</param>
         protected void LoadItem(BaseItemDto dto)
@@ -555,11 +553,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             request.List.Add(GetViewListItem("root-tvshows", MediaBrowserPlugin.UI.Resource.TVShows));
             request.TotalItems = 2;
 
-            _mre.Set(); 
+            _mre.Set();
         }
 
         /// <summary>
-        /// Loads the movie views and continues the main task.
+        ///     Loads the movie views and continues the main task.
         /// </summary>
         protected void LoadMovieViewsAndContinue(ItemRequestEventArgs request)
         {
@@ -575,7 +573,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         }
 
         /// <summary>
-        /// Loads the tv show views and continues the main task.
+        ///     Loads the tv show views and continues the main task.
         /// </summary>
         protected void LoadTvShowsViewsAndContinue(ItemRequestEventArgs request)
         {
@@ -592,14 +590,14 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         protected ItemsByNameQuery GetItemsByNameQuery(params string[] includeItemTypes)
         {
             var query = new ItemsByNameQuery
-                            {
-                                SortBy = new [] { ItemSortBy.SortName },
-                                SortOrder=SortOrder.Ascending,
-                                IncludeItemTypes = includeItemTypes,
-                                Recursive = true,
-                                Fields = new [] { ItemFields.DateCreated },
-                                UserId = GUIContext.Instance.Client.CurrentUserId
-                            };
+            {
+                SortBy = new[] {ItemSortBy.SortName},
+                SortOrder = SortOrder.Ascending,
+                IncludeItemTypes = includeItemTypes,
+                Recursive = true,
+                Fields = new[] {ItemFields.DateCreated},
+                UserId = GUIContext.Instance.Client.CurrentUserId
+            };
 
             return query.Apply(_sortableQuery);
         }
@@ -611,7 +609,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         }
 
         /// <summary>
-        /// Load item details window
+        ///     Load item details window
         /// </summary>
         /// <param name="item">The item.</param>
         protected void ShowDetails(GUIListItem item)
@@ -621,7 +619,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         }
 
         /// <summary>
-        /// Gets the unique identifier for the list item
+        ///     Gets the unique identifier for the list item
         /// </summary>
         /// <param name="item">The item.</param>
         /// <returns></returns>
@@ -631,7 +629,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         }
 
         /// <summary>
-        /// Shows the profile selection dialog.
+        ///     Shows the profile selection dialog.
         /// </summary>
         /// <param name="items">The items.</param>
         protected void ShowUserProfilesDialog(List<GUIListItem> items = null)
@@ -640,7 +638,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             {
                 return;
             }
-            
+
             if (items == null)
             {
                 MainTask = GUITask.Run(LoadUserProfiles, ShowUserProfilesDialog, MediaBrowserPlugin.Log.Error, true);
@@ -653,7 +651,12 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 var item = items[result];
                 var user = item.TVTag as UserDto;
 
-                var password = user != null && user.HasPassword ? GUIUtils.ShowKeyboard(string.Empty, true) : string.Empty;
+                if (user == null)
+                    return;
+
+                var password = user.HasPassword
+                    ? GUIUtils.ShowKeyboard(string.Empty, true)
+                    : string.Empty;
 
                 GUIContext.Instance.Client.AuthenticateUser(user.Id, password, success =>
                 {
@@ -663,7 +666,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                         Reset();
                         return;
                     }
-                    GUIUtils.ShowOKDialog(MediaBrowserPlugin.UI.Resource.UserProfileLogin, MediaBrowserPlugin.UI.Resource.UserProfileLoginFailed);
+                    GUIUtils.ShowOKDialog(MediaBrowserPlugin.UI.Resource.UserProfileLogin,
+                        MediaBrowserPlugin.UI.Resource.UserProfileLoginFailed);
                     ShowUserProfilesDialog(items);
                 });
             }
@@ -674,7 +678,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         }
 
         /// <summary>
-        /// Loads the user profiles from the server
+        ///     Loads the user profiles from the server
         /// </summary>
         /// <param name="task">The task.</param>
         /// <returns></returns>
@@ -693,13 +697,13 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 Log.Error(e);
                 x.Set();
             })
-            ); // todo: timeout?
+                ); // todo: timeout?
 
             return list;
         }
 
         /// <summary>
-        /// Publishes the artwork.
+        ///     Publishes the artwork.
         /// </summary>
         /// <param name="item">The item.</param>
         protected override void PublishArtwork(BaseItemDto item)
@@ -712,9 +716,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             // the selection could be changed so we quickly check whether the image is still relevant
             if (!Facade.IsNull() && !Facade.SelectedListItem.IsNull() && Facade.SelectedListItem.TVTag == item)
             {
-               _cover.Filename = cover ?? String.Empty;
-               _backdrop.Filename = backdrop ?? String.Empty;
-            }            
+                _cover.Filename = cover ?? String.Empty;
+                _backdrop.Filename = backdrop ?? String.Empty;
+            }
         }
 
         protected void ShowFilterMenuDialog()
@@ -722,7 +726,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             var result = GUIUtils.ShowMenuDialog(T.FilterOptions, _filters);
             if (result == -1) return;
 
-            var filter = (ItemFilter)_filters[result].TVTag;
+            var filter = (ItemFilter) _filters[result].TVTag;
             if (!_sortableQuery.Filters.Remove(filter))
             {
                 _sortableQuery.Filters.Add(filter);
@@ -731,9 +735,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             _sortableQuery.Publish(MediaBrowserPlugin.DefaultProperty + ".Sortable");
             CurrentItem = null;
             _browser.Reload(true);
-
         }
-        
+
         protected void ShowSortMenuDialog()
         {
             var items = new List<GUIListItem>
@@ -751,9 +754,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 GetSortItem(T.SortByRuntime, ItemSortBy.Runtime),
             };
 
-            var result = GUIUtils.ShowMenuDialog(T.SortOptions, items, items.FindIndex(x => x.Path == _sortableQuery.SortBy));
+            var result = GUIUtils.ShowMenuDialog(T.SortOptions, items,
+                items.FindIndex(x => x.Path == _sortableQuery.SortBy));
             if (result == -1) return;
-            
+
             var field = items[result].Path;
             if (_sortableQuery.SortBy == field)
             {
@@ -774,16 +778,22 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         protected void ShowSearchDialog()
         {
-            string term = GUIUtils.ShowKeyboard("Enter Search Term");
+            var term = GUIUtils.ShowKeyboard("Enter Search Term");
             if (!term.IsNullOrWhiteSpace())
             {
-                var dto = new BaseItemDto { Name = "Results: " + term, Id = term.ToLower(), Type = "MovieSearchResults", IsFolder = true };
+                var dto = new BaseItemDto
+                {
+                    Name = "Results: " + term,
+                    Id = term.ToLower(),
+                    Type = "MovieSearchResults",
+                    IsFolder = true
+                };
                 Navigate(GetBaseListItem(dto));
             }
         }
 
         /// <summary>
-        /// Execute the given action and blocks using the ManualResetEvent.
+        ///     Execute the given action and blocks using the ManualResetEvent.
         /// </summary>
         /// <param name="action">The action.</param>
         protected void WaitFor(Action<ManualResetEvent> action)
@@ -793,17 +803,16 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             _mre.WaitOne();
         }
 
-        static GUIListItem GetSortItem(string label, string field)
+        private static GUIListItem GetSortItem(string label, string field)
         {
             var item = new GUIListItem(label) {Path = field};
             return item;
         }
 
-        static GUIListItem GetFilterItem(ItemFilter filter)
+        private static GUIListItem GetFilterItem(ItemFilter filter)
         {
-            var item = new GUIListItem(filter.ToString()) { TVTag = filter };
+            var item = new GUIListItem(filter.ToString()) {TVTag = filter};
             return item;
         }
-
     }
 }
