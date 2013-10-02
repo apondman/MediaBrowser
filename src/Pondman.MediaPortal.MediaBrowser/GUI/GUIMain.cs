@@ -304,7 +304,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     break;
                 case "Studio":
                 case "Genre":
-                    item.Label2 = dto.ChildCount.HasValue ? dto.ChildCount.ToString() : string.Empty;
+                    item.Label2 = dto.MovieCount.HasValue ? dto.MovieCount.ToString() : string.Empty;
                     break;
             }
             return item;
@@ -597,7 +597,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 SortOrder=SortOrder.Ascending,
                                 IncludeItemTypes = includeItemTypes,
                                 Recursive = true,
-                                Fields = new [] { ItemFields.DateCreated},
+                                Fields = new [] { ItemFields.DateCreated },
                                 UserId = GUIContext.Instance.Client.CurrentUserId
                             };
 
