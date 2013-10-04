@@ -3,7 +3,6 @@ using MediaPortal.GUI.Library;
 using MediaPortal.Services;
 using Pondman.MediaPortal.MediaBrowser.GUI;
 using Pondman.MediaPortal.MediaBrowser.Resources.Languages;
-using System;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
@@ -13,12 +12,11 @@ namespace Pondman.MediaPortal.MediaBrowser
     [PluginIcons("Pondman.MediaPortal.MediaBrowser.Resources.Images.mblogoicon.png", "Pondman.MediaPortal.MediaBrowser.Resources.Images.mblogoicon.png")]
     public class MediaBrowserPlugin : PluginBase
     {
-
         #region Ctor
 
         public MediaBrowserPlugin()
             : base((int)MediaBrowserWindow.Main)
-        {
+        {           
             // check if we have registered the MediaBrowserService
             bool isServiceRegistered = GlobalServiceProvider.IsRegistered<IMediaBrowserService>();
             if (!isServiceRegistered)
@@ -59,11 +57,9 @@ namespace Pondman.MediaPortal.MediaBrowser
 
         #region Handlers
 
-        
-
         void GUIPropertyManager_OnPropertyChanged(string tag, string tagValue)
         {
-            if (!MediaBrowserPlugin.Settings.LogProperties || !tag.StartsWith(MediaBrowserPlugin.DefaultProperty))
+            if (!Settings.LogProperties || !tag.StartsWith(DefaultProperty))
                 return;
 
             if (tagValue != " ") 
@@ -93,9 +89,9 @@ namespace Pondman.MediaPortal.MediaBrowser
         public static readonly string DefaultName = "MediaBrowser";
 
         /// <summary>
-        /// Wrapper for the default MediaPortal logger, adding the MediaBrowser prefix
+        /// Wrapper for log4net
         /// </summary>
-        public static readonly Logger Log = new Logger(MediaBrowserPlugin.DefaultName);
+        public static readonly ILogger Log = new Log4NetLogger(MediaBrowserPlugin.DefaultName);
 
         /// <summary>
         /// Translations
@@ -108,7 +104,6 @@ namespace Pondman.MediaPortal.MediaBrowser
         public static readonly MediaBrowserSettings Settings = new MediaBrowserSettings();
 
         #endregion
-
 
     }
 }

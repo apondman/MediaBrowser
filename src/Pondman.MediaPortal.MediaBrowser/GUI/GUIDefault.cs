@@ -26,7 +26,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         [SkinControl(2)]
         protected GUIImage _backdropControl2 = null;
         
-        public GUIDefault(MediaBrowserWindow window)
+        protected GUIDefault(MediaBrowserWindow window)
             : base(MediaBrowserPlugin.DefaultName + "." + window, (int)window)
         {
             MainTask = null;

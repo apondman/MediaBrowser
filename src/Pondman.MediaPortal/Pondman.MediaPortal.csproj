@@ -45,6 +45,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\MediaPortal\Dialogs.dll</HintPath>
     </Reference>
+    <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\MediaPortal\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="MediaPortal.Support, Version=1.4.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\MediaPortal\MediaPortal.Support.dll</HintPath>
@@ -79,6 +83,7 @@
     <Compile Include="GUI\GUIUtils.cs" />
     <Compile Include="i18n.cs" />
     <Compile Include="Logger\ILogger.cs" />
+    <Compile Include="Logger\Log4NetLogger.cs" />
     <Compile Include="Logger\Logger.cs" />
     <Compile Include="Players\MediaPlayer.cs" />
     <Compile Include="netfx\System\Guard.cs" />

@@ -5,12 +5,13 @@ using System.Threading;
 using MediaBrowser.ApiInteraction;
 using MediaBrowser.ApiInteraction.WebSocket;
 using MediaBrowser.Model.System;
+using MediaPortal.ExtensionMethods;
 using Pondman.MediaPortal.MediaBrowser.GUI;
 using Pondman.MediaPortal.MediaBrowser.Models;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
-    public class MediaBrowserService : IMediaBrowserService // todo: disposable?
+    public class MediaBrowserService : IMediaBrowserService, IDisposable // todo: disposable?
     {
         const string MediaBrowserModelAssemblyVersion = "3.0.5021.27473";
         const string MediaBrowserModelAssembly = "MediaBrowser.Model, Version=" + MediaBrowserModelAssemblyVersion + ", Culture=neutral, PublicKeyToken=6cde51960597a7f9";
@@ -28,7 +29,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         public MediaBrowserService(MediaBrowserPlugin plugin, ILogger logger = null)
         {
             // Assembly rebinding for Media Browser
-            //AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
+            // AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
             
             _locator = new ServerLocator();
             _logger = logger ?? NullLogger.Instance;
@@ -110,12 +111,19 @@ namespace Pondman.MediaPortal.MediaBrowser
                 Client.DeviceId, 
                 Client.ApplicationVersion, 
                 Client.ClientName, 
+                Client.DeviceName,
                 new WebSocket4NetClientWebSocket()
             );
 
+            socket.MessageCommand += socket_MessageCommand;
             socket.PlayCommand += OnPlayCommand;
             socket.BrowseCommand += OnBrowseCommand;
             socket.Connect(RetryWebSocket);
+        }
+
+        void socket_MessageCommand(object sender, MessageCommandEventArgs e)
+        {
+            _logger.Debug("Message: {0}", e.Request.Text);
         }
 
         private void RetryWebSocket(Exception e)
@@ -202,6 +210,13 @@ namespace Pondman.MediaPortal.MediaBrowser
             {
                 return null;
             }
+        }
+
+        public void Dispose()
+        {
+            if (Client == null || Client.WebSocketConnection == null) return;
+
+            Client.WebSocketConnection.SafeDispose();
         }
     }
 }

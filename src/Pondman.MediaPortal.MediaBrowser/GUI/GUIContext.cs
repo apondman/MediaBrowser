@@ -80,6 +80,12 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
         }
 
+        public void Update(string itemType, string itemId, string itemName, string context = " ")
+        {
+            Service.Client.WebSocketConnection.SendContextMessage(itemType, itemId, itemName, context,
+                MediaBrowserPlugin.Log.Error);
+        }
+
         public bool IsServerReady
         {
             get

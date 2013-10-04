@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace MediaPortal.GUI.Library
 {
@@ -121,16 +120,16 @@ namespace MediaPortal.GUI.Library
                         object key = itemType.GetProperty("Key").GetValue(item, null);
                         object value = itemType.GetProperty("Value").GetValue(item, null);
                         
-                        value.Publish(tag + "." + key.ToString());
+                        Publish(value, tag + "." + key.ToString());
                     }
                     else
                     {
-                        item.Publish(tag + "." + i);
+                        Publish(item, tag + "." + i);
                     }
                     i++;
                 }
 
-                i.Publish(tag + ".Count");
+                Publish(i, tag + ".Count");
             }
             else
             {
@@ -157,7 +156,7 @@ namespace MediaPortal.GUI.Library
                 {
                     string name = tag + "." + property.Name;
                     object value = property.GetValue(obj, null);
-                    value.Publish(name);
+                    Publish(value, name);
                 }
             }
         }

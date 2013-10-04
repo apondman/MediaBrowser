@@ -252,6 +252,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             if (item == null) return;
 
             CurrentItem = item.TVTag as BaseItemDto;
+            GUIContext.Instance.Update(CurrentItem.Type, CurrentItem.Id, CurrentItem.Name);
             CurrentItem.IfNotNull(x => PublishItemDetails(x, MediaBrowserPlugin.DefaultProperty + ".Current"));
         }
 

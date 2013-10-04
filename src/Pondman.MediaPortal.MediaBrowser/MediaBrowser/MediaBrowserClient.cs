@@ -1,10 +1,12 @@
-﻿using MediaBrowser.ApiInteraction.net35;
+﻿using System.Net.NetworkInformation;
+using MediaBrowser.ApiInteraction.net35;
 using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Querying;
 using System;
 using System.IO;
 using System.Net;
+using System.Linq;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
@@ -183,5 +185,6 @@ namespace Pondman.MediaPortal.MediaBrowser
 
             return item.ImageTags[options.ImageType];
         }
+
     }
 }
