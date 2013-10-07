@@ -7,9 +7,9 @@
       <type>image</type>
       <posX>60</posX>
       <posY>34</posY>
-      <width>68</width>
-      <height>60</height>
-      <texture>icon_movies.png</texture>
+      <width>400</width>
+      <height>57</height>
+      <texture>Logos/mediabrowser.png</texture>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
     </control>

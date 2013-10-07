@@ -10,7 +10,7 @@
       <posY>858</posY>
       <width>99</width>
       <height>65</height>
-      <texture>Logos\resolution\#MediaBrowser.Movie.MediaStreams.Video.0.Heightp.png</texture>
+      <texture>Logos\resolution\#MediaBrowser.Details.MediaStreams.Video.0.Heightp.png</texture>
       <keepaspectratio>yes</keepaspectratio>
       <visible>!Control.HasFocus(10001)+ !Control.HasFocus(20002) + !Control.HasFocus(10005)</visible>
       <animation effect="fade" time="250">Visible</animation>
@@ -25,7 +25,7 @@
       <posY>858</posY>
       <width>99</width>
       <height>65</height>
-      <texture>Logos\video\#MediaBrowser.Movie.MediaStreams.Video.0.Codec.png</texture>
+      <texture>Logos\video\#MediaBrowser.Details.MediaStreams.Video.0.Codec.png</texture>
       <keepaspectratio>yes</keepaspectratio>
       <visible>Control.IsVisible(31)</visible>
       <animation effect="fade" time="250">Visible</animation>
@@ -40,7 +40,7 @@
       <posY>858</posY>
       <width>99</width>
       <height>65</height>
-      <texture>Logos\audio\#MediaBrowser.Movie.MediaStreams.Audio.0.Codec.png</texture>
+      <texture>Logos\audio\#MediaBrowser.Details.MediaStreams.Audio.0.Codec.png</texture>
       <keepaspectratio>yes</keepaspectratio>
       <visible>Control.IsVisible(31)</visible>
       <animation effect="fade" time="250">Visible</animation>
@@ -55,7 +55,7 @@
       <posY>858</posY>
       <width>99</width>
       <height>65</height>
-      <texture>Logos\audio\#MediaBrowser.Movie.MediaStreams.Audio.0.Channels.png</texture>
+      <texture>Logos\audio\#MediaBrowser.Details.MediaStreams.Audio.0.Channels.png</texture>
       <keepaspectratio>yes</keepaspectratio>
       <visible>Control.IsVisible(31)</visible>
       <animation effect="fade" time="250">Visible</animation>
@@ -70,7 +70,7 @@
       <posY>858</posY>
       <width>99</width>
       <height>65</height>
-      <texture>Logos\aspectratio\#MediaBrowser.Movie.MediaStreams.Video.0.AspectRatio.png</texture>
+      <texture>Logos\aspectratio\#MediaBrowser.Details.MediaStreams.Video.0.AspectRatio.png</texture>
       <keepaspectratio>yes</keepaspectratio>
       <visible>Control.IsVisible(31)</visible>
       <animation effect="fade" time="250">Visible</animation>

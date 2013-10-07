@@ -47,15 +47,28 @@
     </control>
 
     <control>
-      <description>Cover Art</description>
+      <description>MediaBrowser.Image.Default</description>
       <type>image</type>
       <id>60</id>
       <posX>123</posX>
       <posY>360</posY>
       <width>379</width>
       <height>563</height>
-      <texture>#MediaBrowser.Coverart</texture>
-      <visible>facadeview.list</visible>
+      <texture>#MediaBrowser.Image.Default</texture>
+      <visible>facadeview.list+!string.equals(#MediaBrowser.Selected.Type,Episode)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control>
+      <description>MediaBrowser.Image.Episode</description>
+      <type>image</type>
+      <posX>123</posX>
+      <posY>360</posY>
+      <width>382</width>
+      <height>215</height>
+      <texture>#MediaBrowser.Image.Episode</texture>
+      <visible>facadeview.list+string.equals(#MediaBrowser.Selected.Type,Episode)</visible>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
     </control>

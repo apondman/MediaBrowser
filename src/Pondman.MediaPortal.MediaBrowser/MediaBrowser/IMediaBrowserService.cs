@@ -14,6 +14,11 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// Occurs when the server changes.
         /// </summary>
         event Action<IPEndPoint> ServerChanged;
+
+        /// <summary>
+        /// Occurs when system information changes.
+        /// </summary>
+        event Action<SystemInfo> SystemInfoChanged;
         
         /// <summary>
         /// Gets the plugin associated with this service.

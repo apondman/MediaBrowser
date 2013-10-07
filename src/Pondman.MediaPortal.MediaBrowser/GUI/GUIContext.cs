@@ -1,4 +1,6 @@
 ﻿using MediaBrowser.Model.Dto;
+using MediaBrowser.Model.System;
+using MediaPortal.GUI.Library;
 using MediaPortal.Services;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
@@ -13,6 +15,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         
         static GUIContext()
         {
+                
         }
 
         GUIContext()
@@ -59,17 +62,19 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             get
             {
-                if (_service == null)
-                {
-                    if (GlobalServiceProvider.IsRegistered<IMediaBrowserService>())
-                    {
-                        _service = GlobalServiceProvider.Get<IMediaBrowserService>();
-                    }
-                }
+                if (_service != null || !GlobalServiceProvider.IsRegistered<IMediaBrowserService>()) return _service;
+
+                _service = GlobalServiceProvider.Get<IMediaBrowserService>();
+                _service.SystemInfoChanged += OnSystemInfoChanged;
 
                 return _service;
             }
         } IMediaBrowserService _service;
+
+        static void OnSystemInfoChanged(SystemInfo info)
+        {
+            info.Publish(MediaBrowserPlugin.DefaultProperty + ".System");
+        } 
 
         public MediaBrowserClient Client
         {
@@ -80,7 +85,12 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
         }
 
-        public void Update(string itemType, string itemId, string itemName, string context = " ")
+        public void Update(BaseItemDto item, string context = "")
+        {
+            Update(item.Type, item.Id, item.Name, context);
+        }
+
+        public void Update(string itemType, string itemId, string itemName, string context = "")
         {
             Service.Client.WebSocketConnection.SendContextMessage(itemType, itemId, itemName, context,
                 MediaBrowserPlugin.Log.Error);
@@ -111,7 +121,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         public void PublishUser()
         {
             GUICommon.UserPublishWorker.BeginInvoke(GUIContext.Instance.ActiveUser, GUICommon.UserPublishWorker.EndInvoke, null);
-        }    
+        }
 
+        public void PublishSystemInfo()
+        {
+            OnSystemInfoChanged(Service.System);
+        }
     }
 }

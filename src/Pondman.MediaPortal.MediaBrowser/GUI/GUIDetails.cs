@@ -13,14 +13,14 @@ using Pondman.MediaPortal.MediaBrowser.Models;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
 {
-    public class GUIMovie : GUIDefault<MediaBrowserMedia>
+    public class GUIDetails : GUIDefault<MediaBrowserMedia>
     {
         BaseItemDto _movie = null;
         MediaPlayer _player = null;
         
         #region Constructors
 
-        public GUIMovie() : base(MediaBrowserWindow.Movie)
+        public GUIDetails() : base(MediaBrowserWindow.Details)
         {
             _player = new MediaPlayer(this, this._logger);
             _player.PlayerStarted += OnPlaybackStarted;
@@ -37,7 +37,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 timeSpan.Ticks, false, false, x => Log.Debug("PlayerProgress: {0}", timeSpan.TotalSeconds));
         }
 
-        ~GUIMovie() 
+        ~GUIDetails() 
         {
             _player.PlayerStarted -= OnPlaybackStarted;
         }
@@ -84,10 +84,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 // show a resume dialog if move is resumable
                 TimeSpan timespan = TimeSpan.FromTicks(_movie.ResumePositionTicks);
                 string sbody = _movie.Name + "\n" + MediaBrowserPlugin.UI.Resource.ResumeFrom + " " + timespan.ToString();
-                if (GUIUtils.ShowYesNoDialog(MediaBrowserPlugin.UI.Resource.ResumeFromLast, sbody, true))
-                {
-                    Play((int) timespan.TotalSeconds);
-                }
+                if (!GUIUtils.ShowYesNoDialog(MediaBrowserPlugin.UI.Resource.ResumeFromLast, sbody, true)) return;
+
+                Play((int) timespan.TotalSeconds);
+                return;
             }
 
             Play();
@@ -103,7 +103,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 Year = _movie.ProductionYear.ToString(),
                 Plot = _movie.Overview,
                 Genre = _movie.Genres.FirstOrDefault(),
-                Thumb = _cover.Filename,
+                Thumb = ImageResources["Default"].Resource.Filename,
                 ResumePlaybackPosition = resumeTime
             };
 
@@ -115,7 +115,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             Log.Debug("Loading movie details for: {0}", Parameters.Id);
 
-            ManualResetEvent mre = new ManualResetEvent(false);
+            var mre = new ManualResetEvent(false);
 
             GUIContext.Instance.Client.GetItem(Parameters.Id, GUIContext.Instance.Client.CurrentUserId, (result) =>
             {

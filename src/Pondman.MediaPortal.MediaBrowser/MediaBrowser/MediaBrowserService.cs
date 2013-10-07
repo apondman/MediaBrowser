@@ -39,6 +39,8 @@ namespace Pondman.MediaPortal.MediaBrowser
 
         public event Action<IPEndPoint> ServerChanged;
 
+        public event Action<SystemInfo> SystemInfoChanged;
+
         public MediaBrowserPlugin Plugin
         {
             get { return _plugin; }
@@ -65,7 +67,18 @@ namespace Pondman.MediaPortal.MediaBrowser
             get { return (Server != null); }
         }
 
-        public SystemInfo System { get; internal set; }
+        public SystemInfo System
+        {
+            get { return _systemInfo; }
+            internal set
+            {
+                _systemInfo = value;
+                if (SystemInfoChanged != null)
+                {
+                    SystemInfoChanged(value);
+                }
+            } 
+        } SystemInfo _systemInfo;
 
         public MediaBrowserClient Client
         {
@@ -80,14 +93,31 @@ namespace Pondman.MediaPortal.MediaBrowser
         public void Update()
         {
             if (!IsServerLocated) return;
-            Client.GetSystemInfo(info =>
-            {
-                System = info;
-                if (Client.WebSocketConnection == null)
-                {
-                    StartWebSocket();
-                }
-            }, _logger.Error);
+
+            Client.GetSystemInfo(info => System = info, MediaBrowserPlugin.Log.Error);
+            ApiWebSocket.Create(Client, OnConnecting, _logger.Error);
+        }
+
+        protected void OnConnecting(ApiWebSocket socket)
+        {
+            socket.MessageCommand += socket_MessageCommand;
+            socket.PlayCommand += OnPlayCommand;
+            socket.BrowseCommand += OnBrowseCommand;
+            socket.Connected += socket_Connected;
+            socket.Disconnected += socket_Disconnected;
+            
+            _logger.Info("Connecting to Media Browser Server.");
+            socket.Connect(true);
+        }
+
+        void socket_Connected(object sender, EventArgs e)
+        {
+            _logger.Info("Connected to Media Browser Server.");
+        }
+
+        void socket_Disconnected(object sender, EventArgs e)
+        {
+            _logger.Info("Lost connection with Media Browser Server.");
         }
 
         public virtual void Discover()
@@ -99,42 +129,11 @@ namespace Pondman.MediaPortal.MediaBrowser
             }, null, 0, 60000);
         }
 
-        // todo: create a WebSocket listener class that you can attach to a client
         // todo: move command handlers to GUI code
-
-        protected virtual void StartWebSocket()
-        {
-            _logger.Info("Connecting to Media Browser Server.");
-            var socket = Client.WebSocketConnection = new ApiWebSocket(
-                Client.ServerHostName, 
-                System.WebSocketPortNumber, 
-                Client.DeviceId, 
-                Client.ApplicationVersion, 
-                Client.ClientName, 
-                Client.DeviceName,
-                new WebSocket4NetClientWebSocket()
-            );
-
-            socket.MessageCommand += socket_MessageCommand;
-            socket.PlayCommand += OnPlayCommand;
-            socket.BrowseCommand += OnBrowseCommand;
-            socket.Connect(RetryWebSocket);
-        }
 
         void socket_MessageCommand(object sender, MessageCommandEventArgs e)
         {
             _logger.Debug("Message: {0}", e.Request.Text);
-        }
-
-        private void RetryWebSocket(Exception e)
-        {
-            _logger.Error(e);
-            _logger.Info("Lost connection with Media Browser Server.");
-            _retryTimer = new Timer(x =>
-            {
-                _logger.Info("Reconnecting to Media Browser Server.");
-                Client.WebSocketConnection.Connect(RetryWebSocket);
-            }, null, 15000, Timeout.Infinite);
         }
 
         protected void OnServerDiscovered(IPEndPoint endpoint)
@@ -173,7 +172,7 @@ namespace Pondman.MediaPortal.MediaBrowser
                 args.Request.StartPositionTicks);
             var resumeTime = (int)TimeSpan.FromTicks(args.Request.StartPositionTicks ?? 0).TotalSeconds;
 
-            GUICommon.Window(MediaBrowserWindow.Movie, MediaBrowserMedia.Play(args.Request.ItemIds[0], resumeTime));
+            GUICommon.Window(MediaBrowserWindow.Details, MediaBrowserMedia.Play(args.Request.ItemIds[0], resumeTime));
         }
 
         protected void OnBrowseCommand(object sender, BrowseRequestEventArgs args)
@@ -184,7 +183,7 @@ namespace Pondman.MediaPortal.MediaBrowser
             switch (args.Request.ItemType)
             {
                 case "Movie":
-                    GUICommon.Window(MediaBrowserWindow.Movie, MediaBrowserMedia.Browse(args.Request.ItemId));
+                    GUICommon.Window(MediaBrowserWindow.Details, MediaBrowserMedia.Browse(args.Request.ItemId));
                     return;
                 default:
                     GUICommon.Window(MediaBrowserWindow.Main,

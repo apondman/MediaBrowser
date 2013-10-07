@@ -14,9 +14,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
     public enum MediaBrowserWindow
     {
         Main = 20130603,
-        TvShow = 201306031,
-        Movie = 201306032,
-        Episode = 201306033
+        Details = 201306032,
     }
 
     /// <summary>
@@ -105,7 +103,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             {
                 GUIContext.Instance.Client.GetItems(
                     MediaBrowserQueries.RandomMovie(GUIContext.Instance.ActiveUser.Id).Watched(false),
-                    result => Window(MediaBrowserWindow.Movie, MediaBrowserMedia.Browse(result.Items.First().Id))
+                    result => Window(MediaBrowserWindow.Details, MediaBrowserMedia.Browse(result.Items.First().Id))
                     , ShowRequestErrorDialog);
             }
         }
@@ -129,7 +127,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             if (dto.Type == "Movie" || dto.Type == "Episode")
             {
                 var parameters = new MediaBrowserItem {Id = dto.Id};
-                Window(MediaBrowserWindow.Movie, parameters);
+                Window(MediaBrowserWindow.Details, parameters);
             }
         }
 

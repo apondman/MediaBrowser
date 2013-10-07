@@ -249,11 +249,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <param name="item">The item.</param>
         protected void OnItemChanged(GUIListItem item)
         {
-            if (item == null) return;
+            if (item == null || !(item.TVTag is BaseItemDto)) return;
 
             CurrentItem = item.TVTag as BaseItemDto;
-            GUIContext.Instance.Update(CurrentItem.Type, CurrentItem.Id, CurrentItem.Name);
-            CurrentItem.IfNotNull(x => PublishItemDetails(x, MediaBrowserPlugin.DefaultProperty + ".Current"));
         }
 
         #endregion
@@ -307,6 +305,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 case "Movie":
                     item.Label2 = dto.ProductionYear.HasValue ? dto.ProductionYear.ToString() : string.Empty;
                     break;
+                case "BoxSet":
+                    item.Label2 = dto.ChildCount.HasValue ? dto.ChildCount.ToString() : string.Empty;
+                    break;
                 case "Studio":
                 case "Genre":
                     item.Label2 = dto.MovieCount.HasValue ? dto.MovieCount.ToString() : string.Empty;
@@ -348,7 +349,18 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <value>
         ///     The current item.
         /// </value>
-        public BaseItemDto CurrentItem { get; set; }
+        public BaseItemDto CurrentItem {
+            get { return _currentItem; }
+            set
+            {
+                _currentItem = value;
+                if (_currentItem != null)
+                {
+                    GUIContext.Instance.Update(_currentItem); // todo: context?
+                    PublishItemDetails(_currentItem, MediaBrowserPlugin.DefaultProperty + ".Current");
+                }
+            }
+        }private BaseItemDto _currentItem;
 
         /// <summary>
         ///     Resets the  navigation to the starting position
@@ -471,7 +483,14 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                         }
                         break;
                     case "Series":
-                        query = query.Season().ParentId(item.Id);
+                        if (item.SeasonCount > 0)
+                        {
+                            query = query.Season().ParentId(item.Id);
+                        }
+                        else
+                        {
+                            query = query.ParentId(item.Id);
+                        }
                         break;
                     case "Season":
                         query = query.Episode().ParentId(item.Id);
@@ -709,7 +728,19 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <param name="item">The item.</param>
         protected override void PublishArtwork(BaseItemDto item)
         {
-            var cover = GetCoverUrl(item);
+            var cover = string.Empty;
+
+            DynamicImageResource resource;
+            if (ImageResources.TryGetValue(item.Type, out resource))
+            {
+                // load specific image
+                cover = resource.GetImageUrl(item);
+            } 
+            else if (ImageResources.TryGetValue("Default", out resource))
+            {
+                cover = resource.GetImageUrl(item);
+            }
+
             var backdrop = GetBackdropUrl(item);
 
             // todo: need a better way to do this 
@@ -717,8 +748,20 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             // the selection could be changed so we quickly check whether the image is still relevant
             if (!Facade.IsNull() && !Facade.SelectedListItem.IsNull() && Facade.SelectedListItem.TVTag == item)
             {
-                _cover.Filename = cover ?? String.Empty;
                 _backdrop.Filename = backdrop ?? String.Empty;
+
+                if (ImageResources.TryGetValue(item.Type, out resource))
+                {
+                    // load specific image
+                    resource.Resource.Filename = cover;
+                    return;
+                }
+
+                // load default image
+                if (ImageResources.TryGetValue("Default", out resource))
+                {
+                    resource.Resource.Filename = cover;
+                }
             }
         }
 

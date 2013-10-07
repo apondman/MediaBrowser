@@ -10,12 +10,43 @@ using MPGUI = MediaPortal.GUI.Library;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
 {
+    public class DynamicImageResource
+    {
+        public DynamicImageResource(string name, int width, int height)
+        {
+            Name = name;
+            Width = width;
+            Height = height;
+
+            Resource = new AsyncImageResource(MediaBrowserPlugin.Log)
+            {
+                Property = MediaBrowserPlugin.DefaultProperty + ".Image." + Name,
+                Delay = 0
+            };
+        }
+
+        public string Name { get; private set; }
+
+        public int Height { get; private set; }
+
+        public int Width { get; private set; }
+
+        public AsyncImageResource Resource { get; private set; }
+
+        public string GetImageUrl(BaseItemDto item)
+        {
+            return item.HasPrimaryImage ? GUIContext.Instance.Client.GetLocalImageUrl(item, new ImageOptions { Width = Width, Height = Height }) : string.Empty;
+        }
+
+    }
+    
     public abstract class GUIDefault<TParameters> : GUIWindowX<TParameters>
         where TParameters : class, new()
     {
         static readonly Random _randomizer = new Random();
 
-        protected AsyncImageResource _cover = null;
+        protected readonly Dictionary<string, DynamicImageResource> ImageResources;
+
         protected ImageSwapper _backdrop = null;
         protected Dictionary<string, Action<GUIControl, MPGUI.Action.ActionType>> _commands = null;
         protected string _commandPrefix = MediaBrowserPlugin.DefaultName + ".Command.";
@@ -32,6 +63,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             MainTask = null;
             _logger = MediaBrowserPlugin.Log;
             _commands = new Dictionary<string, Action<GUIControl, MPGUI.Action.ActionType>>();
+            ImageResources = new Dictionary<string, DynamicImageResource>();
 
             // create backdrop image swapper
             _backdrop = new ImageSwapper
@@ -41,13 +73,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             };
             
             _backdrop.ImageResource.Delay = 0;
-
-            // create cover image swapper
-            _cover = new AsyncImageResource(MediaBrowserPlugin.Log)
-            {
-                Property = MediaBrowserPlugin.DefaultProperty + ".Coverart",
-                Delay = 0
-            };
 
             // auto register commands by convention
             //var commands = this.GetType().GetMethods().Where(m => m.Name.EndsWith("Command"));
@@ -64,6 +89,18 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             base.OnPageLoad();
 
+            if (controlList != null)
+                controlList
+                    .Where(x => x.Description.StartsWith("MediaBrowser.Image.") && x is GUIImage)
+                    .Select(x => x as GUIImage)
+                    .Select(
+                        x => new DynamicImageResource(x.Description.Replace("MediaBrowser.Image.", ""), x.Width, x.Height))
+                    .ToList()
+                    .ForEach(x => ImageResources[x.Name] = x);
+
+
+            Log.Debug("Found {0} image controls.", ImageResources.Count);
+
             _backdrop.GUIImageOne = _backdropControl1;
             _backdrop.GUIImageTwo = _backdropControl2;
 
@@ -75,9 +112,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 GUIUtils.ShowOKDialog(MediaBrowserPlugin.UI.Resource.Error, MediaBrowserPlugin.UI.Resource.ServerNotFoundOnTheNetwork);
             }
             else {
-
-                // Publish System Information
-                GUIContext.Instance.Service.System.Publish(MediaBrowserPlugin.DefaultProperty + ".System");
+                // Publish System Info
+                GUIContext.Instance.PublishSystemInfo();
 
                 // Publish Default User
                 GUIContext.Instance.PublishUser();
@@ -208,13 +244,23 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <param name="item">The item.</param>
         protected virtual void PublishArtwork(BaseItemDto item)
         {
-            _cover.Filename = GetCoverUrl(item);
             _backdrop.Filename = GetBackdropUrl(item);
-        }
 
-        protected virtual string GetCoverUrl(BaseItemDto item)
-        {
-            return item.HasPrimaryImage ? GUIContext.Instance.Client.GetLocalImageUrl(item, new ImageOptions { Width = 277, Height = 400 }) : string.Empty;
+            if (ImageResources.Count == 0) return;
+
+            DynamicImageResource resource;
+            if (ImageResources.TryGetValue(item.Type, out resource))
+            {
+                // load specific image
+                resource.Resource.Filename = resource.GetImageUrl(item);
+                return;
+            }
+
+            // load default image
+            if (ImageResources.TryGetValue("Default", out resource))
+            {
+                resource.Resource.Filename = resource.GetImageUrl(item);
+            }
         }
 
         protected virtual string GetBackdropUrl(BaseItemDto item)

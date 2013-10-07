@@ -4,7 +4,7 @@
   <id>20130603</id>
   <defaultcontrol>50</defaultcontrol>
   <allowoverlay>no</allowoverlay>
-  <define>#header.label:#MediaBrowser.Settings.DisplayName</define>
+  <define>#header.label:</define>
   <controls>
     <import>MediaBrowser.Fanart.xml</import>
 
