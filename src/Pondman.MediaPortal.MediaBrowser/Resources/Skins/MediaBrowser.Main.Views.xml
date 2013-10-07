@@ -80,17 +80,17 @@
       <posX>565</posX>
       <posY>387</posY>
       <height>388</height>
-      <label>#MediaBrowser.Selected.Overview</label>
+      <label>#(iif(string.equals(#MediaBrowser.Current.Type,Series),#MediaBrowser.Current.Overview,#MediaBrowser.Selected.Overview))</label>
       <seperator>---------------------------------------------------------------------------------------------------------</seperator>
       <onleft>1026</onleft>
       <onright>1026</onright>
       <onup>1026</onup>
       <ondown>1026</ondown>
-      <visible>facadeview.list+string.equals(#MediaBrowser.Selected.Type,BoxSet)</visible>
+      <visible>facadeview.list+!string.equals(#MediaBrowser.Selected.Type,Movie)</visible>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
     </control>
-    
+
     <control Style="InfoLabel">
       <description>Release Date Label (and visibility control)</description>
       <type>label</type>

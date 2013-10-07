@@ -359,6 +359,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     GUIContext.Instance.Update(_currentItem); // todo: context?
                     PublishItemDetails(_currentItem, MediaBrowserPlugin.DefaultProperty + ".Current");
                 }
+                
             }
         }private BaseItemDto _currentItem;
 
@@ -379,11 +380,15 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         private void OnItemsRequested(object sender, ItemRequestEventArgs e)
         {
+            var item = e.Parent.TVTag as BaseItemDto;
+            if (item == null) return;
+
             Log.Debug("ItemsRequested()");
 
             WaitFor(x =>
             {
-                var item = e.Parent.TVTag as BaseItemDto;
+                
+
                 // todo: this is a mess, rethink
                 var userId = GUIContext.Instance.Client.CurrentUserId;
                 var query = MediaBrowserQueries.Item
@@ -473,24 +478,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                         break;
                     case "Studio":
                         query = query.Studios(item.Name);
-                        if (CurrentItem.Id == "tvshows-networks")
-                        {
-                            query = query.TvShows();
-                        }
-                        else
-                        {
-                            query = query.Movies();
-                        }
+                        query = CurrentItem.Id == "tvshows-networks" ? query.TvShows() : query.Movies();
                         break;
                     case "Series":
-                        if (item.SeasonCount > 0)
-                        {
-                            query = query.Season().ParentId(item.Id);
-                        }
-                        else
-                        {
-                            query = query.ParentId(item.Id);
-                        }
+                        query = item.SeasonCount > 0 ? query.Season().ParentId(item.Id) : query.ParentId(item.Id);
                         break;
                     case "Season":
                         query = query.Episode().ParentId(item.Id);
@@ -748,7 +739,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             // the selection could be changed so we quickly check whether the image is still relevant
             if (!Facade.IsNull() && !Facade.SelectedListItem.IsNull() && Facade.SelectedListItem.TVTag == item)
             {
-                _backdrop.Filename = backdrop ?? String.Empty;
+                if (backdrop != string.Empty || !item.Type.IsIn("Season", "Episode"))
+                {
+                    _backdrop.Filename = backdrop ?? String.Empty;
+                }
 
                 if (ImageResources.TryGetValue(item.Type, out resource))
                 {
