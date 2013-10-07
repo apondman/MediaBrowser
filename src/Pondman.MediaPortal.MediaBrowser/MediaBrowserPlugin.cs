@@ -81,6 +81,17 @@ namespace Pondman.MediaPortal.MediaBrowser
             return false;
         }
 
+        public override bool GetHome(out string strButtonText, out string strButtonImage, out string strButtonImageFocus,
+            out string strPictureImage)
+        {
+            strButtonText = PluginName();
+            strButtonImage = string.Empty;
+            strButtonImageFocus = string.Empty;
+            strPictureImage = @"hover_MediaBrowser.png";
+
+            return true;
+        }
+
         #endregion        
 
         #region Core 

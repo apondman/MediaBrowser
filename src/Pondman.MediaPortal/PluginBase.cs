@@ -9,7 +9,7 @@ using MediaPortal.GUI.Library;
 namespace Pondman.MediaPortal
 {
     [PluginIcons("Pondman.MediaPortal.Resources.Images.plugin.png", "Pondman.MediaPortal.Resources.Images.plugin.png")]
-    public abstract class PluginBase : IPlugin, ISetupForm
+    public abstract class PluginBase : IPlugin, ISetupForm, IShowPlugin
     {
         readonly string _name;
         readonly string _author;
@@ -128,5 +128,9 @@ namespace Pondman.MediaPortal
 
         #endregion
 
+        public virtual bool ShowDefaultHome()
+        {
+            return true;
+        }
     }
 }

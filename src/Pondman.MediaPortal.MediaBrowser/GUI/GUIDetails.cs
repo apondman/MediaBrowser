@@ -103,9 +103,21 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 Year = _movie.ProductionYear.ToString(),
                 Plot = _movie.Overview,
                 Genre = _movie.Genres.FirstOrDefault(),
-                Thumb = ImageResources["Default"].Resource.Filename,
                 ResumePlaybackPosition = resumeTime
             };
+
+            DynamicImageResource resource;
+            if (ImageResources.TryGetValue(_movie.Type, out resource))
+            {
+                // load specific image
+                info.Thumb = resource.Resource.Filename;
+            }
+
+            // load default image
+            if (ImageResources.TryGetValue("Default", out resource))
+            {
+                info.Thumb = resource.Resource.Filename;
+            }
 
             info.MediaFiles.Add(_movie.Path);
             _player.Play(info);
