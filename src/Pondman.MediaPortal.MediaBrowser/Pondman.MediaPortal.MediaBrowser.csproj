@@ -45,9 +45,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\MediaPortal\Dialogs.dll</HintPath>
     </Reference>
-    <Reference Include="MediaBrowser.ApiInteraction.net35, Version=3.0.5028.17407, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="MediaBrowser.ApiInteraction.net35, Version=3.0.5029.22037, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\MediaBrowser.ApiClient.3.0.0.240\lib\net35\MediaBrowser.ApiInteraction.net35.dll</HintPath>
+      <HintPath>..\packages\MediaBrowser.ApiClient.3.0.0.241\lib\net35\MediaBrowser.ApiInteraction.net35.dll</HintPath>
     </Reference>
     <Reference Include="MediaBrowser.Model, Version=3.0.5028.17180, Culture=neutral, PublicKeyToken=6cde51960597a7f9, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -101,7 +101,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

@@ -117,16 +117,16 @@
             <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
               <Param1 />
               <UpdateOption>AlwaysOverwrite</UpdateOption>
-              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Movie.MediaInfo.xml</LocalFileName>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Details.MediaInfo.xml</LocalFileName>
               <ZipFileName>Installer{GenericSkinFile}\{f20cecdd-120d-4a7d-83f0-629fb33302fd}-MediaBrowser.Movie.MediaInfo.xml</ZipFileName>
-              <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Movie.MediaInfo.xml</DestinationFilename>
+              <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Details.MediaInfo.xml</DestinationFilename>
             </FileItem>
             <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
               <Param1 />
               <UpdateOption>AlwaysOverwrite</UpdateOption>
-              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Movie.xml</LocalFileName>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Details.xml</LocalFileName>
               <ZipFileName>Installer{GenericSkinFile}\{5a3805cd-d69b-423b-8771-f75a6a1da537}-MediaBrowser.Movie.xml</ZipFileName>
-              <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Movie.xml</DestinationFilename>
+              <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Details.xml</DestinationFilename>
             </FileItem>
             <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
               <Param1 />
@@ -134,6 +134,13 @@
               <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.User.xml</LocalFileName>
               <ZipFileName>Installer{GenericSkinFile}\{03d951d0-8ee9-4e7c-83aa-a221a8bcddd2}-MediaBrowser.User.xml</ZipFileName>
               <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.User.xml</DestinationFilename>
+            </FileItem>
+            <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
+              <Param1 />
+              <UpdateOption>AlwaysOverwrite</UpdateOption>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Media\Logos\mediabrowser.png</LocalFileName>
+              <ZipFileName>Installer{GenericSkinFile}\{c2e4f6d4-b78d-414b-aa5b-c2adada8704f}-mediabrowser.png</ZipFileName>
+              <DestinationFilename>%Skin%\[DEFAULT]\Media\Logos\mediabrowser.png</DestinationFilename>
             </FileItem>
           </Items>
         </Files>
@@ -294,8 +301,8 @@ Click Next to continue or Cancel to exit Setup.</Value>
     <Version>
       <Major>0</Major>
       <Minor>9</Minor>
-      <Build>5011</Build>
-      <Revision>20380</Revision>
+      <Build>5030</Build>
+      <Revision>353</Revision>
     </Version>
     <ExtensionDescription>MediaPortal client for MediaBrowser3 server (http://www.mediabrowser3.com). </ExtensionDescription>
     <VersionDescription>- Update to latest MediaBrowser components
@@ -430,16 +437,16 @@ Click Next to continue or Cancel to exit Setup.</Value>
       <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
         <Param1 />
         <UpdateOption>AlwaysOverwrite</UpdateOption>
-        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Movie.MediaInfo.xml</LocalFileName>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Details.MediaInfo.xml</LocalFileName>
         <ZipFileName>Installer{GenericSkinFile}\{f20cecdd-120d-4a7d-83f0-629fb33302fd}-MediaBrowser.Movie.MediaInfo.xml</ZipFileName>
-        <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Movie.MediaInfo.xml</DestinationFilename>
+        <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Details.MediaInfo.xml</DestinationFilename>
       </FileItem>
       <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
         <Param1 />
         <UpdateOption>AlwaysOverwrite</UpdateOption>
-        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Movie.xml</LocalFileName>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Details.xml</LocalFileName>
         <ZipFileName>Installer{GenericSkinFile}\{5a3805cd-d69b-423b-8771-f75a6a1da537}-MediaBrowser.Movie.xml</ZipFileName>
-        <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Movie.xml</DestinationFilename>
+        <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Details.xml</DestinationFilename>
       </FileItem>
       <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
         <Param1 />
@@ -447,6 +454,13 @@ Click Next to continue or Cancel to exit Setup.</Value>
         <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.User.xml</LocalFileName>
         <ZipFileName>Installer{GenericSkinFile}\{03d951d0-8ee9-4e7c-83aa-a221a8bcddd2}-MediaBrowser.User.xml</ZipFileName>
         <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.User.xml</DestinationFilename>
+      </FileItem>
+      <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
+        <Param1 />
+        <UpdateOption>AlwaysOverwrite</UpdateOption>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Media\Logos\mediabrowser.png</LocalFileName>
+        <ZipFileName>Installer{GenericSkinFile}\{c2e4f6d4-b78d-414b-aa5b-c2adada8704f}-mediabrowser.png</ZipFileName>
+        <DestinationFilename>%Skin%\[DEFAULT]\Media\Logos\mediabrowser.png</DestinationFilename>
       </FileItem>
       <FileItem InstallType="CopyFile" SystemFile="true" Modified="true">
         <Param1 />
@@ -459,7 +473,7 @@ Click Next to continue or Cancel to exit Setup.</Value>
   </UniqueFileList>
   <ProjectSettings>
     <FolderGroups />
-    <ProjectFilename>MediaBrowser.xmp2</ProjectFilename>
+    <ProjectFilename>mediabrowser.xmp2</ProjectFilename>
     <UpdatePath1 />
     <UpdatePath2 />
     <UpdatePath3 />

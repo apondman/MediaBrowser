@@ -287,7 +287,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 IconImage = "defaultVideo.png",
                 IconImageBig = "defaultVideoBig.png",
                 RetrieveArt = true,
-                IsPlayed = dto.UserData != null ? dto.UserData.Played : false,
+                IsPlayed = dto.UserData != null && dto.UserData.Played,
             };
             item.OnRetrieveArt += GetItemImage;
 
@@ -301,10 +301,13 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                         ? dto.PremiereDate.Value.ToString(GUIUtils.Culture.DateTimeFormat.ShortDatePattern)
                         : string.Empty;
                     break;
-                case "Serie":
+                case "Series":
+                    item.Label2 = dto.ProductionYear.HasValue ? dto.ProductionYear.ToString() : string.Empty;
+                    break;
                 case "Movie":
                     item.Label2 = dto.ProductionYear.HasValue ? dto.ProductionYear.ToString() : string.Empty;
                     break;
+                case "Season":
                 case "BoxSet":
                     item.Label2 = dto.ChildCount.HasValue ? dto.ChildCount.ToString() : string.Empty;
                     break;
@@ -459,6 +462,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 query = query
                                     .TvShows();
                                 break;
+                            case "tvshows-nextup":
+                                var next = new NextUpQuery { UserId = userId, Limit = 24 };
+                                GUIContext.Instance.Client.GetNextUp(next,
+                                    result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
+                                return;
                             case "tvshows-latest":
                                 query = query
                                     .Episode()
@@ -589,7 +597,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         protected void LoadTvShowsViewsAndContinue(ItemRequestEventArgs request)
         {
             request.List.Add(GetViewListItem("tvshows-latest", MediaBrowserPlugin.UI.Resource.LatestUnwatchedEpisodes));
-            request.List.Add(GetViewListItem("tvshows-next", MediaBrowserPlugin.UI.Resource.NextUp));
+            request.List.Add(GetViewListItem("tvshows-nextup", MediaBrowserPlugin.UI.Resource.NextUp));
             request.List.Add(GetViewListItem("tvshows-all", MediaBrowserPlugin.UI.Resource.Shows));
             request.List.Add(GetViewListItem("tvshows-genres", MediaBrowserPlugin.UI.Resource.Genres));
             request.List.Add(GetViewListItem("tvshows-networks", MediaBrowserPlugin.UI.Resource.Networks));
