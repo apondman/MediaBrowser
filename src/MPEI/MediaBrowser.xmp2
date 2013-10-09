@@ -300,20 +300,26 @@ Click Next to continue or Cancel to exit Setup.</Value>
     <UpdateUrl />
     <Version>
       <Major>0</Major>
-      <Minor>9</Minor>
+      <Minor>10</Minor>
       <Build>5030</Build>
-      <Revision>353</Revision>
+      <Revision>2485</Revision>
     </Version>
     <ExtensionDescription>MediaPortal client for MediaBrowser3 server (http://www.mediabrowser3.com). </ExtensionDescription>
-    <VersionDescription>- Update to latest MediaBrowser components
-- Added TV Shows and Episodes
-- Added initial context filtering.
+    <VersionDescription>- Added "Nextup" to TV Shows listing.
+- Improved 2nd label information on listings.
+- Improved auto discovery
+- Added automatic reconnect on connection loss.
+- Added context reporting to server.
+- Removed placeholder item when background loading.
+- Implemented seperate logfile.
+- Skin: Introducing smart image controls
+- Update to latest MediaBrowser components
 - Updated translations. 
 - Improved default Titan skin (still needs more work)
-</VersionDescription>
+- Several other tweaks and bugfixes.</VersionDescription>
     <DevelopmentStatus>Beta</DevelopmentStatus>
     <OnlineLocation />
-    <ReleaseDate>2013-07-23T23:40:16.6657028+02:00</ReleaseDate>
+    <ReleaseDate>2013-10-09T23:40:16</ReleaseDate>
     <Tags />
     <Location>MediaBrowser-[Version].mpe1</Location>
     <Params>
@@ -466,14 +472,14 @@ Click Next to continue or Cancel to exit Setup.</Value>
         <Param1 />
         <UpdateOption>OverwriteIfOlder</UpdateOption>
         <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\Resources\Images\mblogoicon.png</LocalFileName>
-        <ZipFileName>Installer{CopyFile}\{b5b2ffbc-d2eb-483c-8bae-979a9b05b0a5}-mblogoicon.png</ZipFileName>
+        <ZipFileName>Installer{CopyFile}\{c6bbde29-bd3d-41dd-883b-030e43471c0d}-mblogoicon.png</ZipFileName>
         <DestinationFilename />
       </FileItem>
     </Items>
   </UniqueFileList>
   <ProjectSettings>
     <FolderGroups />
-    <ProjectFilename>mediabrowser.xmp2</ProjectFilename>
+    <ProjectFilename>MediaBrowser.xmp2</ProjectFilename>
     <UpdatePath1 />
     <UpdatePath2 />
     <UpdatePath3 />
