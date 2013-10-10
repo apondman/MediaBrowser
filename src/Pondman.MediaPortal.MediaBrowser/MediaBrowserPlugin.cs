@@ -57,7 +57,7 @@ namespace Pondman.MediaPortal.MediaBrowser
 
         #region Handlers
 
-        void GUIPropertyManager_OnPropertyChanged(string tag, string tagValue)
+        static void GUIPropertyManager_OnPropertyChanged(string tag, string tagValue)
         {
             if (!Settings.LogProperties || !tag.StartsWith(DefaultProperty))
                 return;
@@ -97,6 +97,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         #region Core 
 
         public static readonly string DefaultProperty = "#MediaBrowser";
+
         public static readonly string DefaultName = "MediaBrowser";
 
         /// <summary>

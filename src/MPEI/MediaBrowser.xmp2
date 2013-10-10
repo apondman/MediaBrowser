@@ -82,63 +82,63 @@
             <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
               <Param1 />
               <UpdateOption>AlwaysOverwrite</UpdateOption>
-              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Fanart.xml</LocalFileName>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Generic\MediaBrowser.Fanart.xml</LocalFileName>
               <ZipFileName>Installer{GenericSkinFile}\{b7a89798-27bb-4140-8a7d-9c055b6c0d5d}-MediaBrowser.Fanart.xml</ZipFileName>
               <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Fanart.xml</DestinationFilename>
             </FileItem>
             <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
               <Param1 />
               <UpdateOption>AlwaysOverwrite</UpdateOption>
-              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Main.HiddenMenu.xml</LocalFileName>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Generic\MediaBrowser.Main.HiddenMenu.xml</LocalFileName>
               <ZipFileName>Installer{GenericSkinFile}\{ba0a90cd-d6e8-4630-bd7a-39d56f89f7c1}-MediaBrowser.Main.HiddenMenu.xml</ZipFileName>
               <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Main.HiddenMenu.xml</DestinationFilename>
             </FileItem>
             <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
               <Param1 />
               <UpdateOption>AlwaysOverwrite</UpdateOption>
-              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Main.MediaInfo.xml</LocalFileName>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Generic\MediaBrowser.Main.MediaInfo.xml</LocalFileName>
               <ZipFileName>Installer{GenericSkinFile}\{b05ccd81-e671-45fc-99a5-aec87e46b923}-MediaBrowser.Main.MediaInfo.xml</ZipFileName>
               <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Main.MediaInfo.xml</DestinationFilename>
             </FileItem>
             <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
               <Param1 />
               <UpdateOption>AlwaysOverwrite</UpdateOption>
-              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Main.Views.xml</LocalFileName>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Generic\MediaBrowser.Main.Views.xml</LocalFileName>
               <ZipFileName>Installer{GenericSkinFile}\{f6383623-87b9-45e2-8b4e-f5435e161071}-MediaBrowser.Main.Views.xml</ZipFileName>
               <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Main.Views.xml</DestinationFilename>
             </FileItem>
             <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
               <Param1 />
               <UpdateOption>AlwaysOverwrite</UpdateOption>
-              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Main.xml</LocalFileName>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Generic\MediaBrowser.Main.xml</LocalFileName>
               <ZipFileName>Installer{GenericSkinFile}\{ce9ee416-52b3-41e5-b924-aa29723d9b82}-MediaBrowser.Main.xml</ZipFileName>
               <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Main.xml</DestinationFilename>
             </FileItem>
             <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
               <Param1 />
               <UpdateOption>AlwaysOverwrite</UpdateOption>
-              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Details.MediaInfo.xml</LocalFileName>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Generic\MediaBrowser.Details.MediaInfo.xml</LocalFileName>
               <ZipFileName>Installer{GenericSkinFile}\{f20cecdd-120d-4a7d-83f0-629fb33302fd}-MediaBrowser.Movie.MediaInfo.xml</ZipFileName>
               <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Details.MediaInfo.xml</DestinationFilename>
             </FileItem>
             <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
               <Param1 />
               <UpdateOption>AlwaysOverwrite</UpdateOption>
-              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Details.xml</LocalFileName>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Generic\MediaBrowser.Details.xml</LocalFileName>
               <ZipFileName>Installer{GenericSkinFile}\{5a3805cd-d69b-423b-8771-f75a6a1da537}-MediaBrowser.Movie.xml</ZipFileName>
               <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Details.xml</DestinationFilename>
             </FileItem>
             <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
               <Param1 />
               <UpdateOption>AlwaysOverwrite</UpdateOption>
-              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.User.xml</LocalFileName>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Generic\MediaBrowser.User.xml</LocalFileName>
               <ZipFileName>Installer{GenericSkinFile}\{03d951d0-8ee9-4e7c-83aa-a221a8bcddd2}-MediaBrowser.User.xml</ZipFileName>
               <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.User.xml</DestinationFilename>
             </FileItem>
             <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
               <Param1 />
               <UpdateOption>AlwaysOverwrite</UpdateOption>
-              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Media\Logos\mediabrowser.png</LocalFileName>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Generic\Media\Logos\mediabrowser.png</LocalFileName>
               <ZipFileName>Installer{GenericSkinFile}\{c2e4f6d4-b78d-414b-aa5b-c2adada8704f}-mediabrowser.png</ZipFileName>
               <DestinationFilename>%Skin%\[DEFAULT]\Media\Logos\mediabrowser.png</DestinationFilename>
             </FileItem>
@@ -301,8 +301,8 @@ Click Next to continue or Cancel to exit Setup.</Value>
     <Version>
       <Major>0</Major>
       <Minor>10</Minor>
-      <Build>5030</Build>
-      <Revision>2485</Revision>
+      <Build>5031</Build>
+      <Revision>28038</Revision>
     </Version>
     <ExtensionDescription>MediaPortal client for MediaBrowser3 server (http://www.mediabrowser3.com). </ExtensionDescription>
     <VersionDescription>- Added "Nextup" to TV Shows listing.
@@ -408,63 +408,63 @@ Click Next to continue or Cancel to exit Setup.</Value>
       <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
         <Param1 />
         <UpdateOption>AlwaysOverwrite</UpdateOption>
-        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Fanart.xml</LocalFileName>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Generic\MediaBrowser.Fanart.xml</LocalFileName>
         <ZipFileName>Installer{GenericSkinFile}\{b7a89798-27bb-4140-8a7d-9c055b6c0d5d}-MediaBrowser.Fanart.xml</ZipFileName>
         <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Fanart.xml</DestinationFilename>
       </FileItem>
       <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
         <Param1 />
         <UpdateOption>AlwaysOverwrite</UpdateOption>
-        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Main.HiddenMenu.xml</LocalFileName>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Generic\MediaBrowser.Main.HiddenMenu.xml</LocalFileName>
         <ZipFileName>Installer{GenericSkinFile}\{ba0a90cd-d6e8-4630-bd7a-39d56f89f7c1}-MediaBrowser.Main.HiddenMenu.xml</ZipFileName>
         <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Main.HiddenMenu.xml</DestinationFilename>
       </FileItem>
       <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
         <Param1 />
         <UpdateOption>AlwaysOverwrite</UpdateOption>
-        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Main.MediaInfo.xml</LocalFileName>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Generic\MediaBrowser.Main.MediaInfo.xml</LocalFileName>
         <ZipFileName>Installer{GenericSkinFile}\{b05ccd81-e671-45fc-99a5-aec87e46b923}-MediaBrowser.Main.MediaInfo.xml</ZipFileName>
         <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Main.MediaInfo.xml</DestinationFilename>
       </FileItem>
       <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
         <Param1 />
         <UpdateOption>AlwaysOverwrite</UpdateOption>
-        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Main.Views.xml</LocalFileName>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Generic\MediaBrowser.Main.Views.xml</LocalFileName>
         <ZipFileName>Installer{GenericSkinFile}\{f6383623-87b9-45e2-8b4e-f5435e161071}-MediaBrowser.Main.Views.xml</ZipFileName>
         <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Main.Views.xml</DestinationFilename>
       </FileItem>
       <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
         <Param1 />
         <UpdateOption>AlwaysOverwrite</UpdateOption>
-        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Main.xml</LocalFileName>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Generic\MediaBrowser.Main.xml</LocalFileName>
         <ZipFileName>Installer{GenericSkinFile}\{ce9ee416-52b3-41e5-b924-aa29723d9b82}-MediaBrowser.Main.xml</ZipFileName>
         <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Main.xml</DestinationFilename>
       </FileItem>
       <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
         <Param1 />
         <UpdateOption>AlwaysOverwrite</UpdateOption>
-        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Details.MediaInfo.xml</LocalFileName>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Generic\MediaBrowser.Details.MediaInfo.xml</LocalFileName>
         <ZipFileName>Installer{GenericSkinFile}\{f20cecdd-120d-4a7d-83f0-629fb33302fd}-MediaBrowser.Movie.MediaInfo.xml</ZipFileName>
         <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Details.MediaInfo.xml</DestinationFilename>
       </FileItem>
       <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
         <Param1 />
         <UpdateOption>AlwaysOverwrite</UpdateOption>
-        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.Details.xml</LocalFileName>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Generic\MediaBrowser.Details.xml</LocalFileName>
         <ZipFileName>Installer{GenericSkinFile}\{5a3805cd-d69b-423b-8771-f75a6a1da537}-MediaBrowser.Movie.xml</ZipFileName>
         <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Details.xml</DestinationFilename>
       </FileItem>
       <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
         <Param1 />
         <UpdateOption>AlwaysOverwrite</UpdateOption>
-        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\MediaBrowser.User.xml</LocalFileName>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Generic\MediaBrowser.User.xml</LocalFileName>
         <ZipFileName>Installer{GenericSkinFile}\{03d951d0-8ee9-4e7c-83aa-a221a8bcddd2}-MediaBrowser.User.xml</ZipFileName>
         <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.User.xml</DestinationFilename>
       </FileItem>
       <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
         <Param1 />
         <UpdateOption>AlwaysOverwrite</UpdateOption>
-        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Media\Logos\mediabrowser.png</LocalFileName>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Generic\Media\Logos\mediabrowser.png</LocalFileName>
         <ZipFileName>Installer{GenericSkinFile}\{c2e4f6d4-b78d-414b-aa5b-c2adada8704f}-mediabrowser.png</ZipFileName>
         <DestinationFilename>%Skin%\[DEFAULT]\Media\Logos\mediabrowser.png</DestinationFilename>
       </FileItem>
@@ -479,7 +479,7 @@ Click Next to continue or Cancel to exit Setup.</Value>
   </UniqueFileList>
   <ProjectSettings>
     <FolderGroups />
-    <ProjectFilename>MediaBrowser.xmp2</ProjectFilename>
+    <ProjectFilename>mediabrowser.xmp2</ProjectFilename>
     <UpdatePath1 />
     <UpdatePath2 />
     <UpdatePath3 />

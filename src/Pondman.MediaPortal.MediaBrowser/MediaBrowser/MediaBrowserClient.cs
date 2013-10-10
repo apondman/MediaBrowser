@@ -168,22 +168,17 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <returns></returns>
         static Guid GetImageTag(BaseItemDto item, ImageOptions options)
         {
-            if (options.ImageType == ImageType.Backdrop)
+            switch (options.ImageType)
             {
-                return item.BackdropImageTags[options.ImageIndex ?? 0];
+                case ImageType.Backdrop:
+                    return item.BackdropImageTags[options.ImageIndex ?? 0];
+                case ImageType.Screenshot:
+                    return item.ScreenshotImageTags[options.ImageIndex ?? 0];
+                case ImageType.Chapter:
+                    return item.Chapters[options.ImageIndex ?? 0].ImageTag.Value;
+                default:
+                    return item.ImageTags[options.ImageType];
             }
-
-            if (options.ImageType == ImageType.Screenshot)
-            {
-                //return item.scree[options.ImageIndex ?? 0];
-            }
-
-            if (options.ImageType == ImageType.Chapter)
-            {
-                return item.Chapters[options.ImageIndex ?? 0].ImageTag.Value;
-            }
-
-            return item.ImageTags[options.ImageType];
         }
 
     }

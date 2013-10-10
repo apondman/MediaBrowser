@@ -105,42 +105,45 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Images\mblogoicon.png" />
-    <Content Include="Resources\Skins\Media\Logos\mediabrowser.png">
+    <Content Include="Resources\Skins\Generic\Media\Logos\mediabrowser.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\Languages\en.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\Skins\MediaBrowser.Details.MediaInfo.xml">
+    <Content Include="Resources\Skins\Generic\MediaBrowser.Details.MediaInfo.xml">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\Skins\MediaBrowser.User.xml">
+    <Content Include="Resources\Skins\Generic\MediaBrowser.User.xml">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\Skins\MediaBrowser.Main.MediaInfo.xml">
+    <Content Include="Resources\Skins\Generic\MediaBrowser.Main.MediaInfo.xml">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\Skins\MediaBrowser.Main.HiddenMenu.xml">
+    <Content Include="Resources\Skins\Generic\MediaBrowser.Main.HiddenMenu.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\Skins\MediaBrowser.Main.Views.xml">
+    <Content Include="Resources\Skins\Generic\MediaBrowser.Main.Views.xml">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\Skins\MediaBrowser.Fanart.xml">
+    <Content Include="Resources\Skins\Generic\MediaBrowser.Fanart.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\Skins\MediaBrowser.Details.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Resources\Skins\MediaBrowser.Main.xml">
+    <Content Include="Resources\Skins\Generic\MediaBrowser.Details.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Resources\Skins\Generic\MediaBrowser.Main.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\Skins\Titan\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
@@ -156,7 +159,7 @@
       xcopy /y "MediaBrowser.Model.dll"  "%25PROGRAMFILES%25\Team MediaPortal\MediaPortal"
       xcopy /y "Newtonsoft.Json.dll"  "%25PROGRAMFILES%25\Team MediaPortal\MediaPortal"
       xcopy /y "WebSocket4Net.dll"  "%25PROGRAMFILES%25\Team MediaPortal\MediaPortal"
-      xcopy /y /s "Resources\Skins" "%25ALLUSERSPROFILE%25\Team MediaPortal\MediaPortal\skin\Titan"
+      xcopy /y /s "Resources\Skins\Generic" "%25ALLUSERSPROFILE%25\Team MediaPortal\MediaPortal\skin\Titan"
       xcopy /y "Resources\Languages\*.xml" "%25ALLUSERSPROFILE%25\Team MediaPortal\MediaPortal\language\MediaBrowser"
 
       :exit</PostBuildEvent>

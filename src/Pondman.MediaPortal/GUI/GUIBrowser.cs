@@ -300,7 +300,6 @@ namespace Pondman.MediaPortal.GUI
             Facade.CurrentLayout = Facade.CurrentLayout;
             Facade.ClearAll();
 
-
             Populate(true);
 
             // Publish current item
@@ -340,15 +339,6 @@ namespace Pondman.MediaPortal.GUI
         protected virtual void Populate(bool reselect = true)
         {
             var list = Current.List;
-
-            //if (Facade.Count > 0 && Current.Offset > 0)
-            //{
-            //    // disable the selection lock
-            //    var placeholder = Facade[Facade.Count - 1];
-            //    placeholder.Label = "-----";
-            //    placeholder.OnItemSelected -= OnPlaceholderSelected;
-            //}
-
             for (var i = Current.Offset; i < list.Count; i++)
             {
                 var item = list[i];
@@ -363,15 +353,6 @@ namespace Pondman.MediaPortal.GUI
             {
                 // select the first item to trigger labels
                 Facade.SelectIndex(0);
-            }
-
-            // add loading placeholder, should be last item
-            if (Current.HasMore)
-            {
-                //var placeholder = new GUIListItem("-- " + Settings.LoadingPlaceholderLabel + " --");
-                //placeholder.OnItemSelected += OnPlaceholderSelected;
-
-                //Facade.Add(placeholder);
             }
 
             // Update Total Count if it was not done manually
@@ -411,11 +392,6 @@ namespace Pondman.MediaPortal.GUI
             {
                 _publishTimer.Change(_settings.Delay, Timeout.Infinite);
             }
-        }
-
-        protected void OnPlaceholderSelected(GUIListItem item, GUIControl control)
-        {
-            Facade.SelectIndex(Facade.SelectedListItemIndex - 1);
         }
 
     }
