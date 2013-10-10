@@ -99,7 +99,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     .ForEach(x => ImageResources[x.Name] = x);
 
 
-            Log.Debug("Found {0} image controls.", ImageResources.Count);
+            Log.Debug("Detected {0} smart image controls.", ImageResources.Count);
 
             _backdrop.GUIImageOne = _backdropControl1;
             _backdrop.GUIImageTwo = _backdropControl2;

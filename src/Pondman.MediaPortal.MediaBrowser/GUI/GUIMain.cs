@@ -634,7 +634,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         protected void ShowDetails(GUIListItem item)
         {
             var details = item.TVTag as BaseItemDto;
-            details.IfNotNull(GUICommon.ViewMovieDetails);
+            details.IfNotNull(GUICommon.ViewDetails);
         }
 
         /// <summary>

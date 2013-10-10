@@ -119,10 +119,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         }
 
         /// <summary>
-        /// Views the movie details.
+        /// Jumps to the detail window for the specific base item
         /// </summary>
         /// <param name="dto">The dto.</param>
-        public static void ViewMovieDetails(BaseItemDto dto)
+        public static void ViewDetails(BaseItemDto dto)
         {
             if (dto.Type == "Movie" || dto.Type == "Episode")
             {

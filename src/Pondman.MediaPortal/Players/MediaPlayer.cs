@@ -1,7 +1,9 @@
-﻿using MediaPortal.GUI.Library;
+﻿using System.IO;
+using MediaPortal.GUI.Library;
 using MediaPortal.Player;
 using System;
 using System.Threading;
+using MediaPortal.Util;
 
 namespace Pondman.MediaPortal
 {
@@ -156,8 +158,35 @@ namespace Pondman.MediaPortal
         {
             var path = _media.MediaFiles[index];
 
+            // Handle folder paths
+            if (!Path.HasExtension(path))
+            {
+                _logger.Debug("Path is a folder, evaluating video entry points.");
+
+                var formats = new string[]
+                {
+                    @"video_ts\video_ts.ifo",  // DVD
+                    @"BDMV\index.bdmv",        // BluRay
+                    @"adv_obj\discid.dat",     // HDDVD
+                    @"vcd\entries.vcd"         // SVCD
+                };
+
+                foreach (var format in formats)
+                {
+                    var entry = Path.Combine(path, format);
+                    var exists = File.Exists(entry);
+                    _logger.Debug("Evaluate: {0}, Result: {1}", entry, exists);
+                    if (!File.Exists(entry)) continue;
+
+                    path = entry;
+                    break;
+                }
+            }
+
+            // todo: handle images
+
             // Play the file using the mediaportal player
-            _logger.Debug("Play: Path={0}", path);           
+            _logger.Debug("Play: Path={0}", path);        
 
             // if the playback started and we are still playing go full screen (internal player)
             if (g_Player.Play(path.Trim(), g_Player.MediaType.Video)) return;
