@@ -39,6 +39,7 @@
 
         public string Movie = "Movie";
         public string Movies = "Movies";
+        public string Music = "Music";
 
         public string Networks = "Networks";
         public string NextUp = "Next Up";
@@ -53,6 +54,8 @@
 
         public string Shows = "Shows";
 
+        public string Songs = "Songs";
+
         public string SortByName = "Name";
         public string SortByBudget = "Budget";
         public string SortByCommunityRating = "Community Rating";
@@ -64,7 +67,6 @@
         public string SortByPlayCount = "Play Count";
         public string SortByRevenue = "Revenue";
         public string SortByRuntime = "Runtime";
-        
         public string SortOptions = "Sort Options";
         public string Studio = "Studio";
         public string Studios = "Studios";
@@ -80,5 +82,7 @@
         public string UserProfileProvidePassword = "Please provide the password for this user.";
         
         // todo: add more translations
+
+        
     }
 }

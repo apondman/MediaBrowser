@@ -73,6 +73,11 @@ namespace Pondman.MediaPortal.MediaBrowser
             return query.IncludeItemTypes("BoxSet");
         }
 
+        public static ItemQuery Audio(this ItemQuery query)
+        {
+            return query.IncludeItemTypes("Audio");
+        }
+
         /// <summary>
         /// Include TVShows in the current query
         /// </summary>

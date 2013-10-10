@@ -6,6 +6,7 @@ using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Querying;
 using MediaPortal.GUI.Library;
+using MediaPortal.Player;
 using Pondman.MediaPortal.GUI;
 using Pondman.MediaPortal.MediaBrowser.Models;
 using MPGui = MediaPortal.GUI.Library;
@@ -418,6 +419,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     case "View":
                         switch (item.Id)
                         {
+                            case "root-music":
+                                LoadMusicViewsAndContinue(e);
+                                return;
                             case "root-movies":
                                 LoadMovieViewsAndContinue(e);
                                 return;
@@ -453,6 +457,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                             case "movies-all":
                                 query = query
                                     .Movies();
+                                break;
+                            case "music-songs":
+                                query = query
+                                    .Audio()
+                                    .SortBy(ItemSortBy.Album, ItemSortBy.SortName);
                                 break;
                             case "tvshows-networks":
                                 GUIContext.Instance.Client.GetStudios(GetItemsByNameQuery("Series"),
@@ -546,7 +555,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 return;
 
             var dto = item.TVTag as BaseItemDto;
-            if (dto.Type.IsIn("Movie", "Episode"))
+            if (dto.Type.IsIn("Movie", "Episode", "Audio"))
             {
                 ShowDetails(item);
             }
@@ -570,7 +579,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             request.List.Add(GetViewListItem("root-movies", MediaBrowserPlugin.UI.Resource.Movies));
             request.List.Add(GetViewListItem("root-tvshows", MediaBrowserPlugin.UI.Resource.TVShows));
-            request.TotalItems = 2;
+            request.List.Add(GetViewListItem("root-music", MediaBrowserPlugin.UI.Resource.Music));
+            request.TotalItems = 3;
 
             _mre.Set();
         }
@@ -590,6 +600,14 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             _mre.Set();
         }
+
+        protected void LoadMusicViewsAndContinue(ItemRequestEventArgs request)
+        {
+            request.List.Add(GetViewListItem("music-songs", MediaBrowserPlugin.UI.Resource.Songs));
+            request.TotalItems = 1;
+            _mre.Set();
+        }
+
 
         /// <summary>
         ///     Loads the tv show views and continues the main task.
