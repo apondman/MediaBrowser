@@ -21,15 +21,27 @@
     <control>
       <description>Poster shadow</description>
       <type>image</type>
-      <id>0</id>
       <posX>105</posX>
       <posY>346</posY>
       <width>429</width>
       <height>613</height>
       <texture>list_poster_shadow.png</texture>
-      <visible>facadeview.list</visible>
+      <visible>Control.IsVisible(60)</visible>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control>
+      <description>Episode shadow</description>
+      <type>image</type>
+      <posX>105</posX>
+      <posY>346</posY>
+      <width>432</width>
+      <height>265</height>
+      <texture>list_poster_shadow.png</texture>
+      <visible>Control.IsVisible(61)</visible>
+      <animation effect="fade" time="0">Visible</animation>
+      <animation effect="fade" time="0">WindowClose</animation>
     </control>
 
     <control>
@@ -41,7 +53,21 @@
       <width>379</width>
       <height>563</height>
       <texture>defaultVideoBig.png</texture>
-      <visible>facadeview.list+!Control.HasThumb(60)</visible>
+      <visible>Control.IsVisible(60)+!Control.HasThumb(60)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+
+    <control>
+      <description>Default Episode Art</description>
+      <type>image</type>
+      <id>0</id>
+      <posX>123</posX>
+      <posY>360</posY>
+      <width>382</width>
+      <height>215</height>
+      <texture>defaultVideoBig.png</texture>
+      <visible>Control.IsVisible(61)+!Control.HasThumb(61)</visible>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
     </control>
@@ -62,6 +88,7 @@
 
     <control>
       <description>MediaBrowser.Image.Episode</description>
+      <id>61</id>
       <type>image</type>
       <posX>123</posX>
       <posY>360</posY>

@@ -325,11 +325,10 @@ namespace Pondman.MediaPortal.GUI
 
         protected void OnItemSelected(GUIListItem item, GUIControl parent)
         {
-            if (!Facade.IsRelated(parent) || Facade != null && Facade.SelectedListItem != item)
+            if (Facade == null || Facade.SelectedListItem != item || !Facade.IsRelated(parent))
                 return;
 
-            // todo: calculation will be incorrect if placeholder items are present
-            if (_settings.Limit > 0 && !IsBusy && Current.HasMore && Facade.SelectedListItemIndex > Current.List.Count - (int)(_settings.Limit / 2))
+            if (_settings.Limit > 0 && Current.HasMore && !IsBusy &&  Facade.SelectedListItemIndex > Current.List.Count - (int)(_settings.Limit / 2))
                 Continue(Current);
 
             Current.Selected = GetKeyForItem(item);
