@@ -1,4 +1,5 @@
 ﻿using System.Net.NetworkInformation;
+using ConsoleApplication2.com.amazon.webservices;
 using MediaBrowser.ApiInteraction.net35;
 using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Entities;
@@ -94,6 +95,16 @@ namespace Pondman.MediaPortal.MediaBrowser
             return GetCachedImageUrl("users", options, () => GetUserImageUrl(user, options));
         }
 
+        public virtual string GetLocalBackdropImageUrl(BaseItemDto item, ImageOptions options)
+        {
+            string[] urls = GetBackdropImageUrls(item, options);
+            if (urls.Length == 0)
+                return string.Empty;
+
+            return GetCachedImageUrl("items", options, () => urls[options.ImageIndex ?? 0]);
+        }
+
+
         /// <summary>
         /// Gets the cached image URL.
         /// </summary>
@@ -171,13 +182,16 @@ namespace Pondman.MediaPortal.MediaBrowser
             switch (options.ImageType)
             {
                 case ImageType.Backdrop:
-                    return item.BackdropImageTags[options.ImageIndex ?? 0];
+                    return item.BackdropCount > 0 ? item.BackdropImageTags[options.ImageIndex ?? 0] : Guid.Empty;
                 case ImageType.Screenshot:
-                    return item.ScreenshotImageTags[options.ImageIndex ?? 0];
+                    return item.ScreenshotCount > 0 ? item.ScreenshotImageTags[options.ImageIndex ?? 0] : Guid.Empty;
                 case ImageType.Chapter:
-                    return item.Chapters[options.ImageIndex ?? 0].ImageTag.Value;
+                    return item.Chapters != null && item.Chapters.Count > 0
+                        ? item.Chapters[options.ImageIndex ?? 0].ImageTag ?? Guid.Empty
+                        : Guid.Empty;
                 default:
-                    return item.ImageTags[options.ImageType];
+                    Guid guid;
+                    return item.ImageTags != null && item.ImageTags.TryGetValue(options.ImageType, out guid) ? guid : Guid.Empty;
             }
         }
 

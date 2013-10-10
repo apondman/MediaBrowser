@@ -10,34 +10,56 @@ using MPGUI = MediaPortal.GUI.Library;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
 {
-    public class DynamicImageResource
+    public class SmartImageControl
     {
-        public DynamicImageResource(string name, int width, int height)
+        private readonly GUIImage _control;
+
+        public SmartImageControl(GUIImage control)
         {
-            Name = name;
-            Width = width;
-            Height = height;
+            var tokens = control.Description.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
+
+            Name = tokens[2];
+            ImageType = ImageType.Primary;
+            _control = control;
 
             Resource = new AsyncImageResource(MediaBrowserPlugin.Log)
             {
-                Property = MediaBrowserPlugin.DefaultProperty + ".Image." + Name,
+                Property = MediaBrowserPlugin.DefaultProperty + ".Image." + string.Join(".", tokens.Skip(2).ToArray()),
                 Delay = 0
             };
         }
 
         public string Name { get; private set; }
 
-        public int Height { get; private set; }
+        public ImageType ImageType { get; private set; }
 
-        public int Width { get; private set; }
+        public int Width 
+        {
+            get
+            {
+                return _control.Width;
+            }
+        }
+
+        public int Height 
+        {
+            get
+            {
+                return _control.Height;
+            }
+        }
 
         public AsyncImageResource Resource { get; private set; }
 
         public string GetImageUrl(BaseItemDto item)
         {
-            return item.HasPrimaryImage ? GUIContext.Instance.Client.GetLocalImageUrl(item, new ImageOptions { Width = Width, Height = Height }) : string.Empty;
+            return item.ImageTags == null || item.ImageTags.Count == 0 ? string.Empty : GUIContext.Instance.Client.GetLocalImageUrl(item, new ImageOptions { ImageType = ImageType, Width = Width, Height = Height });
         }
 
+        public static implicit operator SmartImageControl(GUIImage control)
+        {
+            return new SmartImageControl(control);
+        }
     }
     
     public abstract class GUIDefault<TParameters> : GUIWindowX<TParameters>
@@ -45,7 +67,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
     {
         static readonly Random _randomizer = new Random();
 
-        protected readonly Dictionary<string, DynamicImageResource> ImageResources;
+        protected readonly Dictionary<string, SmartImageControl> ImageResources;
 
         protected ImageSwapper _backdrop = null;
         protected Dictionary<string, Action<GUIControl, MPGUI.Action.ActionType>> _commands = null;
@@ -63,7 +85,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             MainTask = null;
             _logger = MediaBrowserPlugin.Log;
             _commands = new Dictionary<string, Action<GUIControl, MPGUI.Action.ActionType>>();
-            ImageResources = new Dictionary<string, DynamicImageResource>();
+            ImageResources = new Dictionary<string, SmartImageControl>();
 
             // create backdrop image swapper
             _backdrop = new ImageSwapper
@@ -92,9 +114,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             if (controlList != null)
                 controlList
                     .Where(x => x.Description.StartsWith("MediaBrowser.Image.") && x is GUIImage)
-                    .Select(x => x as GUIImage)
-                    .Select(
-                        x => new DynamicImageResource(x.Description.Replace("MediaBrowser.Image.", ""), x.Width, x.Height))
+                    .Select(x => (SmartImageControl)x)
                     .ToList()
                     .ForEach(x => ImageResources[x.Name] = x);
 
@@ -184,10 +204,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             // Publish all properties
             item.Publish(prefix, "People", "MediaStreams");
 
-            if (item.Type == "Movie")
-            {
-                PublishMovieDetails(item, prefix);
-            }
+            PublishMovieDetails(item, prefix);
 
             // Artwork
             PublishArtwork(item);
@@ -205,7 +222,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             // Streams
             string streamPrefix = prefix + ".MediaStreams";
-            GUIUtils.Unpublish(streamPrefix);
+            //GUIUtils.Unpublish(streamPrefix);
             if (movie.MediaStreams != null && movie.MediaStreams.Count > 0)
             {
                 movie.MediaStreams.GroupBy(p => p.Type)
@@ -215,7 +232,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             // People
             string peoplePrefix = prefix + ".People";
-            GUIUtils.Unpublish(peoplePrefix);
+            //GUIUtils.Unpublish(peoplePrefix);
             if (movie.People != null && movie.People.Length > 0)
             {
                 movie.People.GroupBy(p => p.Type)
@@ -248,7 +265,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             if (ImageResources.Count == 0) return;
 
-            DynamicImageResource resource;
+            SmartImageControl resource;
             if (ImageResources.TryGetValue(item.Type, out resource))
             {
                 // load specific image
@@ -265,7 +282,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         protected virtual string GetBackdropUrl(BaseItemDto item)
         {
-            return item.BackdropCount > 0 ? GUIContext.Instance.Client.GetLocalImageUrl(item, new ImageOptions { ImageType = ImageType.Backdrop, ImageIndex = _randomizer.Next(item.BackdropCount) }) : string.Empty;
+            var index = _randomizer.Next(item.BackdropCount);
+            Log.Debug("Random Backdrop Index: {0}", index);
+            return GUIContext.Instance.Client.GetLocalBackdropImageUrl(item, new ImageOptions { ImageType = ImageType.Backdrop, ImageIndex = index });
         }
 
         protected void RegisterCommand(string name, Action<GUIControl, MPGUI.Action.ActionType> command) 

@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Threading;
 using MediaBrowser.ApiInteraction;
 using MediaBrowser.ApiInteraction.WebSocket;
+using MediaBrowser.Model.ApiClient;
 using MediaBrowser.Model.System;
 using MediaPortal.ExtensionMethods;
 using Pondman.MediaPortal.MediaBrowser.GUI;
@@ -11,7 +12,7 @@ using Pondman.MediaPortal.MediaBrowser.Models;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
-    public class MediaBrowserService : IMediaBrowserService, IDisposable // todo: disposable?
+    public class MediaBrowserService : IMediaBrowserService, IDisposable
     {
         const string MediaBrowserModelAssemblyVersion = "3.0.5021.27473";
         const string MediaBrowserModelAssembly = "MediaBrowser.Model, Version=" + MediaBrowserModelAssemblyVersion + ", Culture=neutral, PublicKeyToken=6cde51960597a7f9";
@@ -21,6 +22,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         private readonly ServerLocator _locator;
         private readonly ILogger _logger;
         private readonly MediaBrowserPlugin _plugin;
+        private bool _disposed;
 
         Timer _retryTimer;
 
@@ -89,6 +91,7 @@ namespace Pondman.MediaPortal.MediaBrowser
                 Update();
             }
         } MediaBrowserClient _client;
+        
 
         public void Update()
         {
@@ -213,9 +216,25 @@ namespace Pondman.MediaPortal.MediaBrowser
 
         public void Dispose()
         {
-            if (Client == null || Client.WebSocketConnection == null) return;
-
-            Client.WebSocketConnection.SafeDispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+
+            if (disposing)
+            {
+                if (_retryTimer != null)
+                    _retryTimer.Dispose();
+                
+                if (Client != null && Client.WebSocketConnection != null)
+                    Client.WebSocketConnection.Dispose();
+            }
+
+            _disposed = true;
+        }
+
     }
 }

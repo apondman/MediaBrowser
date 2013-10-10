@@ -37,11 +37,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 timeSpan.Ticks, false, false, x => Log.Debug("PlayerProgress: {0}", timeSpan.TotalSeconds));
         }
 
-        ~GUIDetails() 
-        {
-            _player.PlayerStarted -= OnPlaybackStarted;
-        }
-
         #endregion
 
         protected override void OnPageLoad()
@@ -82,8 +77,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             if (_movie.CanResume)
             {
                 // show a resume dialog if move is resumable
-                TimeSpan timespan = TimeSpan.FromTicks(_movie.ResumePositionTicks);
-                string sbody = _movie.Name + "\n" + MediaBrowserPlugin.UI.Resource.ResumeFrom + " " + timespan.ToString();
+                var timespan = TimeSpan.FromTicks(_movie.ResumePositionTicks);
+                var sbody = _movie.Name + "\n" + MediaBrowserPlugin.UI.Resource.ResumeFrom + " " + timespan.ToString();
                 if (!GUIUtils.ShowYesNoDialog(MediaBrowserPlugin.UI.Resource.ResumeFromLast, sbody, true)) return;
 
                 Play((int) timespan.TotalSeconds);
@@ -106,7 +101,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 ResumePlaybackPosition = resumeTime
             };
 
-            DynamicImageResource resource;
+            SmartImageControl resource;
             if (ImageResources.TryGetValue(_movie.Type, out resource))
             {
                 // load specific image
@@ -180,5 +175,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             Log.Debug("Reporting playback state to MediaBrowser. {0}", response);
         }
+
     }
 }

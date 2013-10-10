@@ -78,7 +78,7 @@ namespace MediaPortal.GUI.Library
         {
             string[] filter = exclude ?? new string[] {};
             Type objType = obj != null ? obj.GetType() : null;
-            if (obj == null || obj is string || objType.IsPrimitive)
+            if (obj == null || obj is string || objType.IsPrimitive || obj is Guid)
             {           
                 if (obj is float || obj is double || obj is decimal)
                 {

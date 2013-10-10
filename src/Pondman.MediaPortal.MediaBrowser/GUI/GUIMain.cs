@@ -729,7 +729,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             var cover = string.Empty;
 
-            DynamicImageResource resource;
+            SmartImageControl resource;
             if (ImageResources.TryGetValue(item.Type, out resource))
             {
                 // load specific image
@@ -747,10 +747,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             // the selection could be changed so we quickly check whether the image is still relevant
             if (!Facade.IsNull() && !Facade.SelectedListItem.IsNull() && Facade.SelectedListItem.TVTag == item)
             {
-                if (backdrop != string.Empty || !item.Type.IsIn("Season", "Episode"))
-                {
-                    _backdrop.Filename = backdrop ?? String.Empty;
-                }
+                _backdrop.Filename = backdrop ?? String.Empty;
 
                 if (ImageResources.TryGetValue(item.Type, out resource))
                 {
