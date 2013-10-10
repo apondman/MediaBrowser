@@ -456,7 +456,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 break;
                             case "movies-all":
                                 query = query
-                                    .Movies();
+                                    .Movies()
+                                    .SortBy(ItemSortBy.SortName);
                                 break;
                             case "music-songs":
                                 query = query
@@ -479,7 +480,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                             case "tvshows-latest":
                                 query = query
                                     .Episode()
-                                    .SortBy(ItemSortBy.DateCreated)
+                                    .SortBy(ItemSortBy.DateCreated, ItemSortBy.SortName)
                                     .Filters(ItemFilter.IsUnplayed)
                                     .Descending();
                                 break;
@@ -490,22 +491,22 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                         }
                         break;
                     case "Genre":
-                        query = query.Genres(item.Name);
+                        query = query.Genres(item.Name).SortBy(ItemSortBy.SortName);
                         query = CurrentItem.Id == "tvshows-genres" ? query.TvShows() : query.Movies();
                         break;
                     case "Studio":
-                        query = query.Studios(item.Name);
+                        query = query.Studios(item.Name).SortBy(ItemSortBy.SortName);
                         query = CurrentItem.Id == "tvshows-networks" ? query.TvShows() : query.Movies();
                         break;
                     case "Series":
-                        query = item.SeasonCount > 0 ? query.Season().ParentId(item.Id) : query.ParentId(item.Id);
+                        query = item.SeasonCount > 0 ? query.Season().ParentId(item.Id).SortBy(ItemSortBy.SortName) : query.ParentId(item.Id);
                         break;
                     case "Season":
-                        query = query.Episode().ParentId(item.Id);
+                        query = query.Episode().ParentId(item.Id).SortBy(ItemSortBy.SortName);
                         break;
                     default:
                         // get movies by parent id
-                        query = query.Movies().ParentId(item.Id);
+                        query = query.Movies().ParentId(item.Id).SortBy(ItemSortBy.SortName);
                         break;
                 }
 

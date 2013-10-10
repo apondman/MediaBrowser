@@ -28,6 +28,8 @@
     <import>common.overlay.xml</import>
     <import>MediaBrowser.User.xml</import>
     <import>MediaBrowser.Details.MediaInfo.xml</import>
+    <import>MediaBrowser.Details.Movie.xml</import>
+    <import>MediaBrowser.Details.Episode.xml</import>
 
     <control>
       <description>Button group</description>
@@ -209,65 +211,6 @@
         <visible>plugin.isenabled(Trakt)</visible>
       </control>
     </control>
-
-    <!-- Summary labels -->
-
-    <control>
-      <description>Default shadow</description>
-      <type>image</type>
-      <id>0</id>
-      <posX>105</posX>
-      <posY>346</posY>
-      <width>429</width>
-      <height>613</height>
-      <texture>list_poster_shadow.png</texture>
-      <visible>Control.IsVisible(50001)</visible>
-      <animation effect="fade" time="0">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
-    </control>
-
-    <control>
-      <description>Episode shadow</description>
-      <type>image</type>
-      <id>0</id>
-      <posX>105</posX>
-      <posY>346</posY>
-      <width>432</width>
-      <height>265</height>
-      <texture>list_poster_shadow.png</texture>
-      <visible>Control.IsVisible(50002)</visible>
-      <animation effect="fade" time="0">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
-    </control>
-
-    <control>
-      <description>MediaBrowser.Image.Default</description>
-      <id>50001</id>
-      <type>image</type>
-      <posX>123</posX>
-      <posY>360</posY>
-      <width>379</width>
-      <height>563</height>
-      <texture>#MediaBrowser.Image.Default</texture>
-      <visible>!Control.HasFocus(10005)+!Control.HasFocus(20002)+!string.equals(#MediaBrowser.Selected.Type,Episode)</visible>
-      <animation effect="fade" time="250">WindowOpen</animation>
-      <animation effect="fade" time="250">WindowClose</animation>
-    </control>
-
-    <control>
-      <description>MediaBrowser.Image.Episode</description>
-      <id>50002</id>
-      <type>image</type>
-      <posX>123</posX>
-      <posY>360</posY>
-      <width>382</width>
-      <height>215</height>
-      <texture>#MediaBrowser.Image.Episode</texture>
-      <visible>!Control.HasFocus(10005)+!Control.HasFocus(20002)+string.equals(#MediaBrowser.Selected.Type,Episode)</visible>
-      <animation effect="fade" time="250">WindowOpen</animation>
-      <animation effect="fade" time="250">WindowClose</animation>
-    </control>
-    
 
     <control>
       <description>Unwatched Icon</description>

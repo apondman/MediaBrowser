@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<window>
+  <controls>
+
+    <control>
+      <description>Default shadow</description>
+      <type>image</type>
+      <posX>105</posX>
+      <posY>346</posY>
+      <width>429</width>
+      <height>613</height>
+      <texture>list_poster_shadow.png</texture>
+      <visible>Control.IsVisible(50001)</visible>
+      <animation effect="fade" time="0">Visible</animation>
+      <animation effect="fade" time="0">WindowClose</animation>
+    </control>
+
+    <control>
+      <description>MediaBrowser.Image.Movie.Primary</description>
+      <id>50001</id>
+      <type>image</type>
+      <posX>123</posX>
+      <posY>360</posY>
+      <width>379</width>
+      <height>563</height>
+      <texture>#MediaBrowser.Image.Movie.Primary</texture>
+      <visible>!Control.HasFocus(10005)+!Control.HasFocus(20002)+string.equals(#MediaBrowser.Selected.Type,Movie)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
+    </control>
+    
+  </controls>
+</window>
