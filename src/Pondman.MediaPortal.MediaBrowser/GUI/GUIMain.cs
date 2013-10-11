@@ -21,6 +21,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         private readonly GUIBrowser<string> _browser;
         private readonly List<GUIListItem> _filters;
         private readonly ManualResetEvent _mre;
+        private readonly Dictionary<string, GUIFacadeControl> _facades;
 
         private SortableQuery _sortableQuery;
 
@@ -31,11 +32,13 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             _browser.Settings.Prefix = MediaBrowserPlugin.DefaultProperty;
             _browser.Settings.LoadingPlaceholderLabel = MediaBrowserPlugin.UI.Resource.LoadingMoreItems;
             _browser.ItemSelected += OnBaseItemSelected;
+            _browser.ItemPublished += OnItemPublished;
             _browser.ItemChanged += OnItemChanged;
             _browser.ItemsRequested += OnItemsRequested;
 
             _mre = new ManualResetEvent(false);
             _filters = new List<GUIListItem>();
+            _facades = new Dictionary<string, GUIFacadeControl>();
 
             // register commands
             RegisterCommand("CycleLayout", CycleLayoutCommand);
@@ -47,7 +50,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         #region Controls
 
-        [SkinControl(50)] protected GUIFacadeControl Facade = null;
+        protected GUIFacadeControl Facade = null;
 
         #endregion
 
@@ -108,9 +111,24 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             base.OnPageLoad();
 
+            if (controlList != null)
+                controlList
+                    .Where(x => x.Description.StartsWith("MediaBrowser.Facade.") && x is GUIFacadeControl)
+                    .Select(x => new { facade = x as GUIFacadeControl, name = x.Description.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries)[2]})
+                    .ToList()
+                    .ForEach(x => _facades[x.name] = x.facade);
+
+            // no facades!
+            if (_facades.Count == 0)
+            {
+                // todo: dialog?
+                GUIWindowManager.ShowPreviousWindow();
+                return;
+            }
+
+
             // update browser settings
             _browser.Settings.Limit = MediaBrowserPlugin.Settings.DefaultItemLimit;
-            _browser.Attach(Facade);
 
             if (!GUIContext.Instance.IsServerReady)
             {
@@ -151,23 +169,21 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 return;
             }
 
-            switch (controlId)
+            if (Facade == control)
             {
-                    // Facade
-                case 50:
-                    switch (actionType)
-                    {
-                        case MPGui.Action.ActionType.ACTION_SELECT_ITEM:
+                switch (actionType)
+                {
+                    case MPGui.Action.ActionType.ACTION_SELECT_ITEM:
 
-                            // reset sortable query
-                            // todo: bad place
-                            _sortableQuery = new SortableQuery();
+                        // reset sortable query
+                        // todo: bad place
+                        _sortableQuery = new SortableQuery();
 
-                            Navigate(Facade.SelectedListItem);
-                            return;
-                    }
-                    break;
+                        Navigate(Facade.SelectedListItem);
+                        return;
+                }
             }
+            
 
             base.OnClicked(controlId, control, actionType);
         }
@@ -244,15 +260,63 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             dto.IfNotNull(x => PublishItemDetails(x, MediaBrowserPlugin.DefaultProperty + ".Selected"));
         }
 
+
         /// <summary>
-        ///     Handler for current item
+        /// Called when parent item is changed
         /// </summary>
         /// <param name="item">The item.</param>
         protected void OnItemChanged(GUIListItem item)
         {
             if (item == null || !(item.TVTag is BaseItemDto)) return;
 
+            var facade = GetTypedFacade(item.TVTag as BaseItemDto);
+            
+            if (facade != Facade)
+            {
+                // Attach the facade to the browser
+                _browser.Attach(facade);
+            }
+        }
+
+        protected void OnItemPublished(GUIListItem item)
+        {
+            if (item == null || !(item.TVTag is BaseItemDto)) return;
+
+            var facade = GetTypedFacade(item.TVTag as BaseItemDto);
+
+            // if the facade changed
+            if (facade != Facade)
+            {
+                Log.Debug("FacadeSwitch: {0}", facade.Description);
+                
+                // Hide current facade (if it is not null)
+                Facade.IfNotNull(f => f.Visible(false));
+
+                // Replace active facade
+                Facade = facade;
+
+                // Show new facade
+                Facade.Visible(true);
+            }
+
             CurrentItem = item.TVTag as BaseItemDto;
+        }
+
+        GUIFacadeControl GetTypedFacade(BaseItemDto dto)
+        {
+            GUIFacadeControl facade;
+            // try typed facade
+            if (!_facades.TryGetValue(dto.Type, out facade))
+            {
+                // try the Default facade
+                if (!_facades.TryGetValue("Default", out facade))
+                {
+                    // just pick the first one 
+                    facade = _facades.First().Value;
+                }
+            }
+
+            return facade;
         }
 
         #endregion
@@ -391,8 +455,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             WaitFor(x =>
             {
-                
-
                 // todo: this is a mess, rethink
                 var userId = GUIContext.Instance.Client.CurrentUserId;
                 var query = MediaBrowserQueries.Item

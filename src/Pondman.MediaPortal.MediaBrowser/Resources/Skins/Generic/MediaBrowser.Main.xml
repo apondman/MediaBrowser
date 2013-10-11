@@ -75,7 +75,7 @@
       <align>left</align>
       <textcolor>FFFFFFFF</textcolor>
       <font>TitanLight12</font>
-      <visible>control.isvisible(50)+control.isvisible(17)</visible>
+      <visible>control.isvisible(17)</visible>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
     </control>
@@ -90,7 +90,7 @@
       <align>left</align>
       <textcolor>FFFFFFFF</textcolor>
       <font>TitanLight12</font>
-      <visible>control.isvisible(50)+!control.isvisible(17)</visible>
+      <visible>!control.isvisible(17)</visible>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
     </control>
@@ -107,7 +107,7 @@
       <align>left</align>
       <font>TitanLight12</font>
       <textcolor>000000</textcolor>
-      <visible>[facadeview.smallicons | facadeview.largeicons | facadeview.list] + control.isvisible(50)</visible>
+      <visible>[facadeview.smallicons | facadeview.largeicons | facadeview.list]</visible>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
     </control>
@@ -123,12 +123,13 @@
       <width>607</width>
       <height>506</height>
       <texture>list_lines.png</texture>
-      <visible>facadeview.list + control.isvisible(50)</visible>
+      <visible>facadeview.list</visible>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
     </control>
 
     <control>
+      <description>MediaBrowser.Facade.Default</description>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
       <type>facadeview</type>
@@ -303,5 +304,6 @@
         <cards flipY="true" diffuse="Thumb_Mask_test.png" mask="filmstrip_mask.png"></cards>
       </control>
     </control>
+   
   </controls>
 </window>

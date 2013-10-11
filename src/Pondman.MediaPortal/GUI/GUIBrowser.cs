@@ -117,6 +117,11 @@ namespace Pondman.MediaPortal.GUI
         public event Action<GUIListItem> ItemChanged;
 
         /// <summary>
+        /// Occurs when the current browser item is published.
+        /// </summary>
+        public event Action<GUIListItem> ItemPublished;
+
+        /// <summary>
         /// Occurs when the browser is requesting new items.
         /// </summary>
         public event EventHandler<ItemRequestEventArgs> ItemsRequested;
@@ -296,6 +301,12 @@ namespace Pondman.MediaPortal.GUI
             // put view in history
             _history.Push(view);
 
+            // Change current item
+            if (ItemChanged != null)
+            {
+                ItemChanged(view.Parent);
+            }
+
             // new publish, set the layout just to make sure properties are being set.
             Facade.CurrentLayout = Facade.CurrentLayout;
             Facade.ClearAll();
@@ -303,9 +314,9 @@ namespace Pondman.MediaPortal.GUI
             Populate(true);
 
             // Publish current item
-            if (ItemChanged != null)
+            if (ItemPublished != null)
             {
-                ItemChanged(view.Parent);
+                ItemPublished(view.Parent);
             }
 
             Facade.Focus();

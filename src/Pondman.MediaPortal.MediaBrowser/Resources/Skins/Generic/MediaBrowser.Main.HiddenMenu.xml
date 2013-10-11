@@ -10,7 +10,7 @@
       <width>64</width>
       <height>199</height>
       <texture>hiddenmenu_tab.png</texture>
-      <visible>[facadeview.list | facadeview.smallicons | facadeview.largeicons]+Control.HasFocus(50) + !string.contains(#Titan.HiddenMenu, false)</visible>
+      <visible>[facadeview.list | facadeview.smallicons | facadeview.largeicons]+!string.contains(#Titan.HiddenMenu, false)</visible>
       <animation effect="slide" start="-60,0" end="0,0" tween="quadratic" easing="in" time="250" delay="400">WindowOpen</animation>
       <animation effect="slide" start="0,0" end="-60,0" tween="quadratic" easing="in" time="250" delay="100">WindowClose</animation>
     </control>
@@ -21,7 +21,7 @@
       <posX>858</posX>
       <posY>0</posY>
       <texture>hiddenmenu_tab_up.png</texture>
-      <visible>[facadeview.filmstrip | facadeview.coverflow] + Control.HasFocus(50) + !string.contains(#Titan.HiddenMenu, false)</visible>
+      <visible>[facadeview.filmstrip | facadeview.coverflow] + !string.contains(#Titan.HiddenMenu, false)</visible>
       <animation effect="slide" start="0,-60" end="0,0" tween="quadratic" easing="in" time="250" delay="400">WindowOpen</animation>
       <animation effect="slide" start="0,0" end="0,-60" tween="quadratic" easing="in" time="250" delay="100">WindowClose</animation>
     </control>
@@ -43,7 +43,7 @@
         <width>1920</width>
         <height>1080</height>
         <texture>semi_trans_back_hidden_menu.png</texture>
-        <visible>!Control.HasFocus(50)+control.isvisible(50)</visible>
+        <visible>!Control.HasFocus(50) | !Control.HasFocus(51)</visible>
         <animation effect="fade" time="450">visible</animation>
         <animation effect="fade" time="400">hidden</animation>
       </control>
@@ -56,7 +56,7 @@
         <width>612</width>
         <height>1074</height>
         <texture>menu_bg.png</texture>
-        <visible>!Control.HasFocus(50)+control.isvisible(50)</visible>
+        <visible>!Control.HasFocus(50) | !Control.HasFocus(51)</visible>
         <animation effect="fade" time="0">WindowClose</animation>
         <animation effect="slide" start="-150,0" time="100">visible</animation>
         <animation effect="fade" time="50">visible</animation>
@@ -71,7 +71,7 @@
         <width>369</width>
         <height>1</height>
         <texture>hiddenmenu_separator.png</texture>
-        <visible>!Control.HasFocus(50)+control.isvisible(50)</visible>
+        <visible>!Control.HasFocus(50) | !Control.HasFocus(51)</visible>
         <animation effect="fade" time="0">WindowClose</animation>
         <animation effect="slide" start="-150,0" time="100">visible</animation>
         <animation effect="fade" time="50">visible</animation>
@@ -85,7 +85,7 @@
         <width>376</width>
         <height>1</height>
         <texture>hiddenmenu_separator.png</texture>
-        <visible>!Control.HasFocus(50)+control.isvisible(50)</visible>
+        <visible>!Control.HasFocus(50) | !Control.HasFocus(51)</visible>
         <animation effect="fade" time="0">WindowClose</animation>
         <animation effect="slide" start="-150,0" time="100">visible</animation>
         <animation effect="fade" time="50">visible</animation>
@@ -100,7 +100,7 @@
         <label>924</label>
         <font>fontB16</font>
         <textcolor>393939</textcolor>
-        <visible>!Control.HasFocus(50)+control.isvisible(50)</visible>
+        <visible>!Control.HasFocus(50) | !Control.HasFocus(51)</visible>
         <animation effect="fade" time="0">WindowClose</animation>
         <animation effect="slide" start="-150,0" time="100">visible</animation>
         <animation effect="fade" time="50">visible</animation>
@@ -115,7 +115,7 @@
         <label>100004</label>
         <font>fontB12</font>
         <textcolor>393939</textcolor>
-        <visible>!Control.HasFocus(50)+control.isvisible(50)</visible>
+        <visible>!Control.HasFocus(50) | !Control.HasFocus(51)</visible>
         <animation effect="fade" time="0">WindowClose</animation>
         <animation effect="slide" start="-150,0" time="100">visible</animation>
         <animation effect="fade" time="50">visible</animation>
@@ -130,7 +130,7 @@
         <label>1065</label>
         <font>fontB12</font>
         <textcolor>393939</textcolor>
-        <visible>!Control.HasFocus(50)+control.isvisible(50)</visible>
+        <visible>!Control.HasFocus(50) | !Control.HasFocus(51)</visible>
         <animation effect="fade" time="0">WindowClose</animation>
         <animation effect="slide" start="-150,0" time="100">visible</animation>
         <animation effect="fade" time="50">visible</animation>
@@ -139,7 +139,7 @@
       <control>
         <type>group</type>
         <description>group element</description>
-        <visible>!Control.HasFocus(50)+control.isvisible(50)</visible>
+        <visible>!Control.HasFocus(50) | !Control.HasFocus(51)</visible>
         <animation effect="fade" time="0">WindowClose</animation>
         <animation effect="slide" start="-150,0" time="100">visible</animation>
         <animation effect="fade" time="50">visible</animation>
