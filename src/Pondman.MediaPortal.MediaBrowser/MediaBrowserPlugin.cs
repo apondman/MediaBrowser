@@ -1,8 +1,10 @@
-﻿using MediaPortal.Configuration;
+﻿using System;
+using MediaPortal.Configuration;
 using MediaPortal.GUI.Library;
 using MediaPortal.Services;
 using Pondman.MediaPortal.MediaBrowser.GUI;
 using Pondman.MediaPortal.MediaBrowser.Resources.Languages;
+using System.Threading;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
@@ -12,6 +14,22 @@ namespace Pondman.MediaPortal.MediaBrowser
     [PluginIcons("Pondman.MediaPortal.MediaBrowser.Resources.Images.mblogoicon.png", "Pondman.MediaPortal.MediaBrowser.Resources.Images.mblogoicon.png")]
     public class MediaBrowserPlugin : PluginBase
     {
+        private static readonly Action<string, string> LogShit = (tag, tagValue) =>
+        {
+            if (!Settings.LogProperties || !tag.StartsWith(DefaultProperty))
+                return;
+
+            if (tagValue != " ")
+            {
+                Log.Debug("SET: \"" + tag + ": \"" + tagValue + "\"");
+            }
+            else
+            {
+                Log.Debug("UNSET: \"" + tag + "\"");
+            }
+        };
+
+        
         #region Ctor
 
         public MediaBrowserPlugin()
@@ -59,17 +77,7 @@ namespace Pondman.MediaPortal.MediaBrowser
 
         static void GUIPropertyManager_OnPropertyChanged(string tag, string tagValue)
         {
-            if (!Settings.LogProperties || !tag.StartsWith(DefaultProperty))
-                return;
-
-            if (tagValue != " ") 
-            {
-                Log.Debug("SET: \"" + tag + ": \"" + tagValue + "\"");
-            } 
-            else 
-            {
-                Log.Debug("UNSET: \"" + tag + "\"");
-            }            
+            LogShit.BeginInvoke(tag, tagValue, LogShit.EndInvoke, null);
         }
 
         #endregion

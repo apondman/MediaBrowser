@@ -111,21 +111,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             base.OnPageLoad();
 
-            if (controlList != null)
-                controlList
-                    .Where(x => x.Description.StartsWith("MediaBrowser.Image.") && x is GUIImage)
-                    .Select(x => (SmartImageControl)x)
-                    .ToList()
-                    .ForEach(x => ImageResources[x.Name] = x);
-
-
-            Log.Debug("Detected {0} smart image controls.", ImageResources.Count);
-
-            _backdrop.GUIImageOne = _backdropControl1;
-            _backdrop.GUIImageTwo = _backdropControl2;
-
-            Log.Debug("Attached backdrop controls.");
-
             // todo: move this somewhere more central? perhaps event handler on the service
             if (!GUIContext.Instance.IsServerReady)
             {
@@ -138,6 +123,32 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 // Publish Default User
                 GUIContext.Instance.PublishUser();
             }
+        }
+
+        protected override void OnWindowLoaded()
+        {
+            base.OnWindowLoaded();
+
+            if (controlList != null)
+            {
+                var detected = controlList
+                                .OfType<GUIImage>()
+                                .Where(x => x.Description.StartsWith("MediaBrowser.Image."))
+                                .Select(x =>
+                                {
+                                    var smart = (SmartImageControl) x;
+                                    ImageResources[smart.Name] = smart;
+                                    return false;
+                                })
+                                .Count();
+
+                Log.Debug("Detected {0} smart image controls.", detected);
+            }
+
+            _backdrop.GUIImageOne = _backdropControl1;
+            _backdrop.GUIImageTwo = _backdropControl2;
+
+            Log.Debug("Attached backdrop controls.");
         }
 
         protected override void OnClicked(int controlId, GUIControl control, MPGUI.Action.ActionType actionType)

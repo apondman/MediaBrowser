@@ -24,7 +24,7 @@
       <width>379</width>
       <height>563</height>
       <texture>#MediaBrowser.Image.Movie.Primary</texture>
-      <visible>!Control.HasFocus(10005)+!Control.HasFocus(20002)+string.equals(#MediaBrowser.Selected.Type,Movie)</visible>
+      <visible>string.equals(#MediaBrowser.Details.Type,Movie)</visible>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
     </control>

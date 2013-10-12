@@ -111,13 +111,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             base.OnPageLoad();
 
-            if (controlList != null)
-                controlList
-                    .Where(x => x.Description.StartsWith("MediaBrowser.Facade.") && x is GUIFacadeControl)
-                    .Select(x => new { facade = x as GUIFacadeControl, name = x.Description.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries)[2]})
-                    .ToList()
-                    .ForEach(x => _facades[x.name] = x.facade);
-
             // no facades!
             if (_facades.Count == 0)
             {
@@ -160,6 +153,19 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
 
             _browser.Reload();
+        }
+
+        protected override void OnWindowLoaded()
+        {
+            base.OnWindowLoaded();
+
+            if (controlList != null)
+                controlList
+                    .OfType<GUIFacadeControl>()
+                    .Where(x => x.Description.StartsWith("MediaBrowser.Facade."))
+                    .Select(x => new { facade = x, name = x.Description.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries)[2] })
+                    .ToList()
+                    .ForEach(x => _facades[x.name] = x.facade);
         }
 
         protected override void OnClicked(int controlId, GUIControl control, MPGui.Action.ActionType actionType)

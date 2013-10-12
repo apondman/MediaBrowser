@@ -78,7 +78,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <param name="parameters">The parameters.</param>
         public static void Window(MediaBrowserWindow window, string parameters = null)
         {
-            GUIWindowManager.ActivateWindow((int)window, parameters);
+            GUITask.MainThreadCallback(() => GUIWindowManager.ActivateWindow((int)window, parameters));  
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <param name="parameters">Parameter settings object</param>
         public static void Window<TParameters>(MediaBrowserWindow window, TParameters parameters)
         {
-            GUIWindowManager.ActivateWindow((int)window, Newtonsoft.Json.JsonConvert.SerializeObject(parameters));
+            GUITask.MainThreadCallback(() => GUIWindowManager.ActivateWindow((int)window, Newtonsoft.Json.JsonConvert.SerializeObject(parameters)));
         }
 
         /// <summary>
@@ -101,8 +101,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             if (GUIContext.Instance.HasActiveUser)
             {
-                GUIContext.Instance.Client.GetItems(
-                    MediaBrowserQueries.RandomMovie(GUIContext.Instance.ActiveUser.Id).Watched(false),
+                GUIContext.Instance.Client.GetItems(MediaBrowserQueries.RandomMovie(GUIContext.Instance.ActiveUser.Id).Watched(false),
                     result => Window(MediaBrowserWindow.Details, MediaBrowserMedia.Browse(result.Items.First().Id))
                     , ShowRequestErrorDialog);
             }

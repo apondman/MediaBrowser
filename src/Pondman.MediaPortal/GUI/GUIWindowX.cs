@@ -25,17 +25,16 @@ namespace MediaPortal.GUI.Library
         {
             base.OnPageLoad();
 
-            if (!string.IsNullOrEmpty(_loadParameter))
+            if (string.IsNullOrEmpty(_loadParameter)) return;
+            
+            try
             {
-                try
-                {
-                    _parameters = Newtonsoft.Json.JsonConvert.DeserializeObject<TParameters>(_loadParameter);
-                }
-                catch (Exception e)
-                {
-                    Log.Error("Invalid loading parameters: {0}", e);
-                    _parameters = new TParameters();
-                }
+                _parameters = Newtonsoft.Json.JsonConvert.DeserializeObject<TParameters>(_loadParameter);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Invalid loading parameters: {0}", e);
+                _parameters = new TParameters();
             }
         }
 
@@ -91,7 +90,6 @@ namespace MediaPortal.GUI.Library
         public override bool Init()
         {
             Load(GUIGraphicsContext.Skin + @"\" + _skinFile);
-     
             return base.Init();
         }
 

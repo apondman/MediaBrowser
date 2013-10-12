@@ -49,9 +49,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 return;
             }            
 
-            // Publish blank
-            Unpublish();
-
             if (String.IsNullOrEmpty(Parameters.Id))
             {
                 if (_movie != null)

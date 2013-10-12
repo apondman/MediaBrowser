@@ -127,6 +127,7 @@
         <textcolorNoFocus>ffffffff</textcolorNoFocus>
         <visible>plugin.isenabled(Trakt)</visible>
       </control>
+      
     </control>
 
     <!-- Dummy Buttons for technical infos-->
