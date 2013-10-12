@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using MediaBrowser.Model.Dto;
@@ -347,7 +348,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// </summary>
         /// <param name="dto">The dto.</param>
         /// <returns></returns>
-        public GUIListItem GetBaseListItem(BaseItemDto dto)
+        public GUIListItem GetBaseListItem(BaseItemDto dto, BaseItemDto context = null)
         {
             var item = new GUIListItem(dto.Name)
             {
@@ -361,16 +362,25 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 IsPlayed = dto.UserData != null && dto.UserData.Played,
             };
             item.OnRetrieveArt += GetItemImage;
-
+            
             switch (dto.Type)
             {
+                case "Audio":
+                    item.Label2 = dto.Artists != null ? String.Join(",", dto.Artists.ToArray()) : "Unknown";
+                    break;
                 case "Episode":
-                    item.Label = dto.IndexNumber.HasValue
-                        ? dto.IndexNumber.Value.ToString("0: " + item.Label)
-                        : string.Empty;
-                    item.Label2 = dto.PremiereDate.HasValue
-                        ? dto.PremiereDate.Value.ToString(GUIUtils.Culture.DateTimeFormat.ShortDatePattern)
-                        : string.Empty;
+
+                    if (context != null && context.Id == "tvshows-nextup")
+                    {
+                        item.Label = dto.SeriesName + String.Format(" - {0}x{1}", dto.ParentIndexNumber ?? 0, dto.IndexNumber ?? 0);
+                    }
+                    else
+                    {
+                        item.Label = String.Format("{0}: {1}", dto.IndexNumber ?? 0, item.Label);
+                    }
+                        item.Label2 = dto.PremiereDate.HasValue
+                            ? dto.PremiereDate.Value.ToString(GUIUtils.Culture.DateTimeFormat.ShortDatePattern)
+                            : string.Empty;
                     break;
                 case "Series":
                     item.Label2 = dto.ProductionYear.HasValue ? dto.ProductionYear.ToString() : string.Empty;
@@ -384,7 +394,14 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     break;
                 case "Studio":
                 case "Genre":
-                    item.Label2 = dto.MovieCount.HasValue ? dto.MovieCount.ToString() : string.Empty;
+                    if (context != null && context.Id.StartsWith("tvshows"))
+                    {
+                        item.Label2 = (dto.SeriesCount ?? 0).ToString();
+                    }
+                    else
+                    {
+                        item.Label2 = (dto.MovieCount ?? 0).ToString();
+                    }
                     break;
             }
             return item;
@@ -587,7 +604,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         private void LoadItemsAndContinue(ItemsResult result, ItemRequestEventArgs e)
         {
-            foreach (var listitem in result.Items.Select(GetBaseListItem))
+            foreach (var listitem in result.Items.Select(x => GetBaseListItem(x, e.Parent.TVTag as BaseItemDto)))
             {
                 e.List.Add(listitem);
             }
