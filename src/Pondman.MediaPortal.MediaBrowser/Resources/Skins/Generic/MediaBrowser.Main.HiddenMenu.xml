@@ -195,17 +195,15 @@
           <label>#MediaBrowser.Translation.ChangeUser.Label</label>
           <onleft>50</onleft>
           <onright>50</onright>
-          <ondown>13</ondown>
+          <ondown>19</ondown>
           <onup>11</onup>
         </control>
 
-        <!--
-        
         <control>
           <description>MediaBrowser.Command.Search</description>
           <type>button</type>
           <id>19</id>
-          <label>Searh</label>
+          <label>Search</label>
           <textureFocus>hiddenmenu_item_selected.png</textureFocus>
           <textureNoFocus>-</textureNoFocus>
           <width>499</width>
@@ -214,11 +212,26 @@
           <textYOff>16</textYOff>
           <onleft>50</onleft>
           <onright>50</onright>
-          <ondown>999</ondown>
-          <onup>4</onup>
+          <onup>12</onup>
+          <ondown>20</ondown>
         </control>
-        
-        -->
+
+        <control>
+          <description>MediaBrowser.Command.Filter</description>
+          <type>button</type>
+          <id>20</id>
+          <label>Filter</label>
+          <textureFocus>hiddenmenu_item_selected.png</textureFocus>
+          <textureNoFocus>-</textureNoFocus>
+          <width>499</width>
+          <height>69</height>
+          <textXOff>62</textXOff>
+          <textYOff>16</textYOff>
+          <onleft>50</onleft>
+          <onright>50</onright>
+          <ondown>66610</ondown>
+          <onup>19</onup>
+        </control>
 
         <control>
           <description>Empty button</description>
@@ -246,7 +259,7 @@
           <hyperlink>703</hyperlink>
           <onleft>50</onleft>
           <onright>50</onright>
-          <onup>15</onup>
+          <onup>19</onup>
           <ondown>66611</ondown>
         </control>
 

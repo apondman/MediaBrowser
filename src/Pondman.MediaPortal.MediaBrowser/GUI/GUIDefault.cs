@@ -294,7 +294,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         protected virtual string GetBackdropUrl(BaseItemDto item)
         {
             var index = _randomizer.Next(item.BackdropCount);
-            Log.Debug("Random Backdrop Index: {0}", index);
+            Log.Debug("Random Backdrop Index: {0} out of {1}", index, item.BackdropCount);
             return GUIContext.Instance.Client.GetLocalBackdropImageUrl(item, new ImageOptions { ImageType = ImageType.Backdrop, ImageIndex = index });
         }
 

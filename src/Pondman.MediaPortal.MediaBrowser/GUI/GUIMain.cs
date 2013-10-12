@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-using MediaBrowser.Model.Dto;
+﻿using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Querying;
+using MediaBrowser.Model.Search;
 using MediaPortal.GUI.Library;
-using MediaPortal.Player;
 using Pondman.MediaPortal.GUI;
 using Pondman.MediaPortal.MediaBrowser.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using MPGui = MediaPortal.GUI.Library;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
@@ -372,7 +371,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
                     if (context != null && context.Id == "tvshows-nextup")
                     {
-                        item.Label = dto.SeriesName + String.Format(" - {0}x{1}", dto.ParentIndexNumber ?? 0, dto.IndexNumber ?? 0);
+                        item.Label = dto.SeriesName + String.Format(" - {0}x{1} - {2}", dto.ParentIndexNumber ?? 0, dto.IndexNumber ?? 0, item.Label);
                     }
                     else
                     {
@@ -442,17 +441,30 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// </value>
         public BaseItemDto CurrentItem {
             get { return _currentItem; }
-            set
-            {
-                _currentItem = value;
-                if (_currentItem != null)
-                {
-                    GUIContext.Instance.Update(_currentItem); // todo: context?
-                    PublishItemDetails(_currentItem, MediaBrowserPlugin.DefaultProperty + ".Current");
-                }
-                
-            }
+            set { _currentItem = value; OnCurrentItemChanged();}
         }private BaseItemDto _currentItem;
+
+        private void OnCurrentItemChanged()
+        {
+            _filters.Clear();
+
+            if (_currentItem == null) return;
+
+            GUIContext.Instance.Update(_currentItem); // todo: context?
+            PublishItemDetails(_currentItem, MediaBrowserPlugin.DefaultProperty + ".Current");
+
+            if (_currentItem.Id.Contains("root-") || _currentItem.Type == "UserRootFolder") return;
+
+            _filters.Add(GetFilterItem(ItemFilter.IsFavorite));
+            _filters.Add(GetFilterItem(ItemFilter.Likes));
+            _filters.Add(GetFilterItem(ItemFilter.Dislikes));
+
+            if (_currentItem.Type.IsIn("Genre", "Studio")) return;
+
+            _filters.Add(GetFilterItem(ItemFilter.IsPlayed));
+            _filters.Add(GetFilterItem(ItemFilter.IsUnplayed));
+            _filters.Add(GetFilterItem(ItemFilter.IsResumable));
+        }
 
         /// <summary>
         ///     Resets the  navigation to the starting position
@@ -462,7 +474,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             GUIContext.Instance.PublishUser();
 
             _browser.Reset();
-            CurrentItem = null;
             _sortableQuery = new SortableQuery();
 
             // get root folder
@@ -496,8 +507,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 switch (item.Type)
                 {
                     case "MovieSearchResults":
-                        query = query.Movies().Search(item.Id);
-                        break;
+                        GUIContext.Instance.Client.GetSearchHints(
+                            userId, item.Id, result => LoadSearchResultsAndContinue(result, e), ShowItemsErrorAndContinue);
+                        return;
                     case "UserRootFolder":
                         LoadRootViews(e);
                         return;
@@ -610,24 +622,17 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
 
             e.TotalItems = result.TotalRecordCount;
+            _mre.Set();
+        }
 
-            if (e.Offset == 0)
+        private void LoadSearchResultsAndContinue(SearchHintResult result, ItemRequestEventArgs e)
+        {
+            foreach (var listitem in result.SearchHints.Select(x => GetBaseListItem(new BaseItemDto{Id = x.ItemId, Type = x.Type, Name = x.Name}, e.Parent.TVTag as BaseItemDto)))
             {
-                var type = result.Items.Select(x => x.Type).FirstOrDefault();
-
-                _filters.Clear();
-                _filters.Add(GetFilterItem(ItemFilter.IsFavorite));
-                _filters.Add(GetFilterItem(ItemFilter.Likes));
-                _filters.Add(GetFilterItem(ItemFilter.Dislikes));
-
-                if (type.IsIn("Movie", "Episode"))
-                {
-                    _filters.Add(GetFilterItem(ItemFilter.IsPlayed));
-                    _filters.Add(GetFilterItem(ItemFilter.IsUnplayed));
-                    _filters.Add(GetFilterItem(ItemFilter.IsResumable));
-                }
+                e.List.Add(listitem);
             }
 
+            e.TotalItems = result.TotalRecordCount;
             _mre.Set();
         }
 
@@ -687,13 +692,16 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             _mre.Set();
         }
 
+        /// <summary>
+        /// Loads the music views and continue.
+        /// </summary>
+        /// <param name="request">The <see cref="ItemRequestEventArgs"/> instance containing the event data.</param>
         protected void LoadMusicViewsAndContinue(ItemRequestEventArgs request)
         {
             request.List.Add(GetViewListItem("music-songs", MediaBrowserPlugin.UI.Resource.Songs));
             request.TotalItems = 1;
             _mre.Set();
         }
-
 
         /// <summary>
         ///     Loads the tv show views and continues the main task.
@@ -873,14 +881,13 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             var result = GUIUtils.ShowMenuDialog(T.FilterOptions, _filters);
             if (result == -1) return;
 
-            var filter = (ItemFilter) _filters[result].TVTag;
+            var filter = (ItemFilter)_filters[result].TVTag;
             if (!_sortableQuery.Filters.Remove(filter))
             {
                 _sortableQuery.Filters.Add(filter);
             }
 
             _sortableQuery.Publish(MediaBrowserPlugin.DefaultProperty + ".Sortable");
-            CurrentItem = null;
             _browser.Reload(true);
         }
 
@@ -926,17 +933,17 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         protected void ShowSearchDialog()
         {
             var term = GUIUtils.ShowKeyboard("Enter Search Term");
-            if (!term.IsNullOrWhiteSpace())
+            if (term.IsNullOrWhiteSpace()) return;
+            
+            var dto = new BaseItemDto
             {
-                var dto = new BaseItemDto
-                {
-                    Name = "Results: " + term,
-                    Id = term.ToLower(),
-                    Type = "MovieSearchResults",
-                    IsFolder = true
-                };
-                Navigate(GetBaseListItem(dto));
-            }
+                Name = "Results for '" + term + "'",
+                Type = "MovieSearchResults",
+                Id = term.ToLower(),
+                IsFolder = true
+            };
+
+            Navigate(GetBaseListItem(dto));
         }
 
         /// <summary>

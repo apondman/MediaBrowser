@@ -16,7 +16,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
     public class GUIDetails : GUIDefault<MediaBrowserMedia>
     {
         BaseItemDto _movie = null;
-        MediaPlayer _player = null;
+        readonly MediaPlayer _player = null;
         
         #region Constructors
 
