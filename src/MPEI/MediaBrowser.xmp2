@@ -142,6 +142,20 @@
               <ZipFileName>Installer{GenericSkinFile}\{c2e4f6d4-b78d-414b-aa5b-c2adada8704f}-mediabrowser.png</ZipFileName>
               <DestinationFilename>%Skin%\[DEFAULT]\Media\Logos\mediabrowser.png</DestinationFilename>
             </FileItem>
+            <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
+              <Param1 />
+              <UpdateOption>AlwaysOverwrite</UpdateOption>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Generic\MediaBrowser.Details.Episode.xml</LocalFileName>
+              <ZipFileName>Installer{GenericSkinFile}\{b1043d7c-e66e-4af0-82dc-14f1a7ef5fca}-MediaBrowser.Details.Episode.xml</ZipFileName>
+              <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Details.Episode.xml</DestinationFilename>
+            </FileItem>
+            <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
+              <Param1 />
+              <UpdateOption>AlwaysOverwrite</UpdateOption>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Generic\MediaBrowser.Details.Movie.xml</LocalFileName>
+              <ZipFileName>Installer{GenericSkinFile}\{b388f392-b7aa-4899-9470-c2c0d52739cb}-MediaBrowser.Details.Movie.xml</ZipFileName>
+              <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Details.Movie.xml</DestinationFilename>
+            </FileItem>
           </Items>
         </Files>
       </GroupItem>
@@ -302,24 +316,22 @@ Click Next to continue or Cancel to exit Setup.</Value>
       <Major>0</Major>
       <Minor>11</Minor>
       <Build>5034</Build>
-      <Revision>4794</Revision>
+      <Revision>4945</Revision>
     </Version>
     <ExtensionDescription>MediaPortal client for MediaBrowser3 server (http://www.mediabrowser3.com). </ExtensionDescription>
-    <VersionDescription>- Added "Nextup" to TV Shows listing.
-- Improved 2nd label information on listings.
-- Improved auto discovery
-- Added automatic reconnect on connection loss.
-- Added context reporting to server.
-- Removed placeholder item when background loading.
-- Implemented seperate logfile.
-- Skin: Introducing smart image controls
-- Update to latest MediaBrowser components
-- Updated translations. 
-- Improved default Titan skin (still needs more work)
-- Several other tweaks and bugfixes.</VersionDescription>
+    <VersionDescription>- Fixed: Playback for disc-based folders.
+- Fixed: Artwork for Episodes
+- Fixed: Random Movie button
+- Fixed: Filters not working.
+- Added: Initial support for music collection.
+- Added: Initial support for searching collections.
+- Added: Filter, Sort, Search button to generic skin
+- Optimized artwork loading.
+- Optimized window loading for browsing and viewing details
+- Updated to latest MediaBrowser components.</VersionDescription>
     <DevelopmentStatus>Beta</DevelopmentStatus>
     <OnlineLocation />
-    <ReleaseDate>2013-10-09T23:40:16</ReleaseDate>
+    <ReleaseDate>2013-10-13T23:40:16</ReleaseDate>
     <Tags />
     <Location>MediaBrowser-[Version].mpe1</Location>
     <Params>
@@ -468,11 +480,25 @@ Click Next to continue or Cancel to exit Setup.</Value>
         <ZipFileName>Installer{GenericSkinFile}\{c2e4f6d4-b78d-414b-aa5b-c2adada8704f}-mediabrowser.png</ZipFileName>
         <DestinationFilename>%Skin%\[DEFAULT]\Media\Logos\mediabrowser.png</DestinationFilename>
       </FileItem>
+      <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
+        <Param1 />
+        <UpdateOption>AlwaysOverwrite</UpdateOption>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Generic\MediaBrowser.Details.Episode.xml</LocalFileName>
+        <ZipFileName>Installer{GenericSkinFile}\{b1043d7c-e66e-4af0-82dc-14f1a7ef5fca}-MediaBrowser.Details.Episode.xml</ZipFileName>
+        <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Details.Episode.xml</DestinationFilename>
+      </FileItem>
+      <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
+        <Param1 />
+        <UpdateOption>AlwaysOverwrite</UpdateOption>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Generic\MediaBrowser.Details.Movie.xml</LocalFileName>
+        <ZipFileName>Installer{GenericSkinFile}\{b388f392-b7aa-4899-9470-c2c0d52739cb}-MediaBrowser.Details.Movie.xml</ZipFileName>
+        <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Details.Movie.xml</DestinationFilename>
+      </FileItem>
       <FileItem InstallType="CopyFile" SystemFile="true" Modified="true">
         <Param1 />
         <UpdateOption>OverwriteIfOlder</UpdateOption>
         <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\Resources\Images\mblogoicon.png</LocalFileName>
-        <ZipFileName>Installer{CopyFile}\{c6bbde29-bd3d-41dd-883b-030e43471c0d}-mblogoicon.png</ZipFileName>
+        <ZipFileName>Installer{CopyFile}\{0fb7eb82-8166-4543-a8c5-5fbd341263a6}-mblogoicon.png</ZipFileName>
         <DestinationFilename />
       </FileItem>
     </Items>
