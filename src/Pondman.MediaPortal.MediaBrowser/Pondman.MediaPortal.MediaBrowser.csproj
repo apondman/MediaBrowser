@@ -65,6 +65,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
@@ -82,7 +83,8 @@
     <Compile Include="GUI\GUIContext.cs" />
     <Compile Include="GUI\GUIDefault.cs" />
     <Compile Include="GUI\GUIDetails.cs" />
-    <Compile Include="MediaBrowserSettings.cs" />
+    <Compile Include="Settings\MediaBrowserProfileSettings.cs" />
+    <Compile Include="Settings\MediaBrowserSettings.cs" />
     <Compile Include="MediaBrowser\MediaBrowserQueries.cs" />
     <Compile Include="MediaBrowser\IMediaBrowserService.cs" />
     <Compile Include="MediaBrowser\MediaBrowserClient.cs" />
@@ -94,6 +96,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GUI\GUIMain.cs" />
     <Compile Include="Resources\Languages\Translations.cs" />
+    <Compile Include="Settings\MediaBrowserViewSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Pondman.MediaPortal\Pondman.MediaPortal.csproj">

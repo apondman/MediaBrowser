@@ -16,7 +16,7 @@ namespace Pondman.MediaPortal.MediaBrowser
     {
         private static readonly Action<string, string> LogShit = (tag, tagValue) =>
         {
-            if (!Settings.LogProperties || !tag.StartsWith(DefaultProperty))
+            if (!Config.Settings.LogProperties || !tag.StartsWith(DefaultProperty))
                 return;
 
             if (tagValue != " ")
@@ -63,7 +63,7 @@ namespace Pondman.MediaPortal.MediaBrowser
             UI.Publish(DefaultProperty + ".Translation");
 
             // Settings
-            Settings.Publish(DefaultProperty + ".Settings");
+            Config.Settings.Publish(DefaultProperty + ".Settings");
         }
 
         ~MediaBrowserPlugin() 
@@ -121,7 +121,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <summary>
         /// Settings
         /// </summary>
-        public static readonly MediaBrowserSettings Settings = new MediaBrowserSettings();
+        public static readonly SettingsManager<MediaBrowserSettings> Config = new SettingsManager<MediaBrowserSettings>(MediaBrowserPlugin.DefaultName, Log);
 
         #endregion
 

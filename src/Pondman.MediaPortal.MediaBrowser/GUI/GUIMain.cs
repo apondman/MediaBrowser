@@ -121,7 +121,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
 
             // update browser settings
-            _browser.Settings.Limit = MediaBrowserPlugin.Settings.DefaultItemLimit;
+            _browser.Settings.Limit = MediaBrowserPlugin.Config.Settings.DefaultItemLimit;
 
             if (!GUIContext.Instance.IsServerReady)
             {

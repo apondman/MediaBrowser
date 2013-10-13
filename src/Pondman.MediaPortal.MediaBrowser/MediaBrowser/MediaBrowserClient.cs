@@ -116,7 +116,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         {
             string url = func();
             string filename = url.ToMd5Hash();
-            string folder = MediaBrowserPlugin.Settings.MediaCacheFolder + "\\" + subtype + "\\" + options.ImageType.ToString();
+            string folder = MediaBrowserPlugin.Config.Settings.MediaCacheFolder + "\\" + subtype + "\\" + options.ImageType.ToString();
             string cachedPath = folder + "\\" + filename + ".jpg";
 
             try
