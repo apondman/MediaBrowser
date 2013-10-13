@@ -300,9 +300,9 @@ Click Next to continue or Cancel to exit Setup.</Value>
     <UpdateUrl />
     <Version>
       <Major>0</Major>
-      <Minor>10</Minor>
-      <Build>5031</Build>
-      <Revision>28038</Revision>
+      <Minor>11</Minor>
+      <Build>5034</Build>
+      <Revision>4794</Revision>
     </Version>
     <ExtensionDescription>MediaPortal client for MediaBrowser3 server (http://www.mediabrowser3.com). </ExtensionDescription>
     <VersionDescription>- Added "Nextup" to TV Shows listing.
@@ -479,7 +479,7 @@ Click Next to continue or Cancel to exit Setup.</Value>
   </UniqueFileList>
   <ProjectSettings>
     <FolderGroups />
-    <ProjectFilename>mediabrowser.xmp2</ProjectFilename>
+    <ProjectFilename>MediaBrowser.xmp2</ProjectFilename>
     <UpdatePath1 />
     <UpdatePath2 />
     <UpdatePath3 />
