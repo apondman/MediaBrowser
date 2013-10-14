@@ -107,7 +107,7 @@
       <posX>565</posX>
       <posY>387</posY>
       <height>388</height>
-      <label>#(iif(string.equals(#MediaBrowser.Current.Type,Series),#MediaBrowser.Current.Overview,#MediaBrowser.Selected.Overview))</label>
+      <label>#(iif(eq(#MediaBrowser.Current.Type,'Series'),#MediaBrowser.Current.Overview,#MediaBrowser.Selected.Overview))</label>
       <seperator>---------------------------------------------------------------------------------------------------------</seperator>
       <onleft>1026</onleft>
       <onright>1026</onright>
