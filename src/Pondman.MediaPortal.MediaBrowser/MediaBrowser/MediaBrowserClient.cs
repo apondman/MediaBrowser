@@ -194,16 +194,16 @@ namespace Pondman.MediaPortal.MediaBrowser
             switch (options.ImageType)
             {
                 case ImageType.Backdrop:
-                    return item.BackdropCount > 0 ? item.BackdropImageTags[options.ImageIndex ?? 0] : null;
+                    return item.BackdropCount > 0 ? item.BackdropImageTags[options.ImageIndex ?? 0] : (Guid?)null;
                 case ImageType.Screenshot:
-                    return item.ScreenshotCount > 0 ? item.ScreenshotImageTags[options.ImageIndex ?? 0] : null;
+                    return item.ScreenshotCount > 0 ? item.ScreenshotImageTags[options.ImageIndex ?? 0] : (Guid?)null;
                 case ImageType.Chapter:
                     return item.Chapters != null && item.Chapters.Count > 0
                         ? item.Chapters[options.ImageIndex ?? 0].ImageTag ?? null
                         : null;
                 default:
                     Guid guid;
-                    return item.ImageTags != null && item.ImageTags.TryGetValue(options.ImageType, out guid) ? guid : null;
+                    return item.ImageTags != null && item.ImageTags.TryGetValue(options.ImageType, out guid) ? guid : (Guid?)null;
             }
         }
 
