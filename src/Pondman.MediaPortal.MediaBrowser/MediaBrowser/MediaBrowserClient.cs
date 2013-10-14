@@ -8,6 +8,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Linq;
+using MediaPortal.GUI.Library;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
@@ -79,7 +80,8 @@ namespace Pondman.MediaPortal.MediaBrowser
         public virtual string GetLocalImageUrl(BaseItemDto item, ImageOptions options)
         {
             options.Tag = GetImageTag(item, options);
-            return GetCachedImageUrl("items", options, () => GetImageUrl(item, options));
+
+            return options.Tag != Guid.Empty ? GetCachedImageUrl("items", options, () => GetImageUrl(item, options)) : string.Empty;
         }
 
         /// <summary>
@@ -114,11 +116,21 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <returns></returns>
         protected string GetCachedImageUrl(string subtype, ImageOptions options, Func<string> func)
         {
-            string url = func();
+            string url = string.Empty;
+            
+            try
+            {
+                url = func();
+            }
+            catch (Exception e) 
+            {
+                Log.Error(e);
+            }
+
             string filename = url.ToMd5Hash();
             string folder = MediaBrowserPlugin.Config.Settings.MediaCacheFolder + "\\" + subtype + "\\" + options.ImageType.ToString();
             string cachedPath = folder + "\\" + filename + ".jpg";
-
+            
             try
             {
                 if (!File.Exists(cachedPath))
@@ -177,21 +189,21 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <param name="item">The item.</param>
         /// <param name="options">The options.</param>
         /// <returns></returns>
-        static Guid GetImageTag(BaseItemDto item, ImageOptions options)
+        static Guid? GetImageTag(BaseItemDto item, ImageOptions options)
         {
             switch (options.ImageType)
             {
                 case ImageType.Backdrop:
-                    return item.BackdropCount > 0 ? item.BackdropImageTags[options.ImageIndex ?? 0] : Guid.Empty;
+                    return item.BackdropCount > 0 ? item.BackdropImageTags[options.ImageIndex ?? 0] : null;
                 case ImageType.Screenshot:
-                    return item.ScreenshotCount > 0 ? item.ScreenshotImageTags[options.ImageIndex ?? 0] : Guid.Empty;
+                    return item.ScreenshotCount > 0 ? item.ScreenshotImageTags[options.ImageIndex ?? 0] : null;
                 case ImageType.Chapter:
                     return item.Chapters != null && item.Chapters.Count > 0
-                        ? item.Chapters[options.ImageIndex ?? 0].ImageTag ?? Guid.Empty
-                        : Guid.Empty;
+                        ? item.Chapters[options.ImageIndex ?? 0].ImageTag ?? null
+                        : null;
                 default:
                     Guid guid;
-                    return item.ImageTags != null && item.ImageTags.TryGetValue(options.ImageType, out guid) ? guid : Guid.Empty;
+                    return item.ImageTags != null && item.ImageTags.TryGetValue(options.ImageType, out guid) ? guid : null;
             }
         }
 
