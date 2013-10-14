@@ -111,9 +111,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 return;
             }
 
-            // update browser settings
-            _browser.Settings.Limit = MediaBrowserPlugin.Config.Settings.DefaultItemLimit;
-
             // browse to item
             if (!String.IsNullOrEmpty(Parameters.Id))
             {
@@ -447,9 +444,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 .Recursive()
                                 .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams);
 
-                if (_browser.Settings.Limit > 0)
+                if (MediaBrowserPlugin.Config.Settings.DefaultItemLimit > 0)
                 {
-                    _sortableQuery.Limit = _browser.Settings.Limit;
+                    _sortableQuery.Limit = MediaBrowserPlugin.Config.Settings.DefaultItemLimit;
                     _sortableQuery.Offset = e.Offset;
                 }
 

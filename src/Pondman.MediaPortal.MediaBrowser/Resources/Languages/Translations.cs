@@ -80,6 +80,8 @@
         public string UserProfileLogin = "Login";
         public string UserProfileLoginFailed = "Login failed.";
         public string UserProfileProvidePassword = "Please provide the password for this user.";
+        public string UserProfileRememberMe = "Remember Me";
+        public string UserProfileRememberMeText = "Remember login for MediaPortal?";
         
         // todo: add more translations
 

@@ -7,6 +7,7 @@ using Pondman.MediaPortal.MediaBrowser.Resources.Languages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Pondman.MediaPortal.MediaBrowser.Shared;
 using MPGUI = MediaPortal.GUI.Library;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
@@ -317,14 +318,27 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 if (user == null)
                     return;
 
-                var password = user.HasPassword
-                    ? GUIUtils.ShowKeyboard(string.Empty, true)
-                    : string.Empty;
+                var profile = MediaBrowserPlugin.Config.Settings.ForUser(user.Id);
+
+                var password = string.Empty;
+                if (user.HasPassword)
+                {
+                    password = (profile.RememberMe ?? false) ? DataProtection.Decrypt(profile.PasswordHash) : GUIUtils.ShowKeyboard(string.Empty, true);
+                }
 
                 GUIContext.Instance.Client.AuthenticateUser(user.Id, password, success =>
                 {
                     if (success)
                     {
+                        if (user.HasPassword && !profile.RememberMe.HasValue)
+                        {
+                            if (GUIUtils.ShowYesNoDialog(T.UserProfileRememberMe, T.UserProfileRememberMeText, true))
+                            {
+                                var encrypted = DataProtection.Encrypt(password);
+                                profile.RememberAuth(encrypted);
+                            }
+                        }
+
                         GUIContext.Instance.Client.CurrentUser = user;
                         Reset();
                         return;

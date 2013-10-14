@@ -49,7 +49,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         public string GetImageUrl(BaseItemDto item)
         {
-            return item.ImageTags == null || item.ImageTags.Count == 0 ? string.Empty : GUIContext.Instance.Client.GetLocalImageUrl(item, new ImageOptions { ImageType = ImageType, Width = Width, Height = Height });
+            return (item.ImageTags == null || item.ImageTags.Count == 0) ? string.Empty : GUIContext.Instance.Client.GetLocalImageUrl(item, new ImageOptions { ImageType = ImageType, Width = Width, Height = Height });
         }
 
         public static implicit operator SmartImageControl(GUIImage control)
