@@ -50,7 +50,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             get
             {
-                return Client.CurrentUser ?? _anonymousUser;
+                if (Client == null || Client.CurrentUser == null) return _anonymousUser;
+
+                return Client.CurrentUser;
             }
             set
             {
@@ -63,15 +65,12 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             get
             {
                 if (_service != null || !GlobalServiceProvider.IsRegistered<IMediaBrowserService>()) return _service;
-
                 _service = GlobalServiceProvider.Get<IMediaBrowserService>();
-                _service.SystemInfoChanged += OnSystemInfoChanged;
-
                 return _service;
             }
         } IMediaBrowserService _service;
 
-        static void OnSystemInfoChanged(SystemInfo info)
+        public static void OnSystemInfoChanged(SystemInfo info)
         {
             info.Publish(MediaBrowserPlugin.DefaultProperty + ".System");
         } 
@@ -122,10 +121,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             GUICommon.UserPublishWorker.BeginInvoke(GUIContext.Instance.ActiveUser, GUICommon.UserPublishWorker.EndInvoke, null);
         }
-
-        public void PublishSystemInfo()
-        {
-            OnSystemInfoChanged(Service.System);
-        }
+       
     }
 }

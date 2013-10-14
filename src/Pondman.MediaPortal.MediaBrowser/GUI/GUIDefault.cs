@@ -1,4 +1,5 @@
-﻿using MediaBrowser.Model.Dto;
+﻿using System.Threading;
+using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Entities;
 using MediaPortal.GUI.Library;
 using Pondman.MediaPortal.MediaBrowser.Models;
@@ -10,65 +11,13 @@ using MPGUI = MediaPortal.GUI.Library;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
 {
-    public class SmartImageControl
-    {
-        private readonly GUIImage _control;
-
-        public SmartImageControl(GUIImage control)
-        {
-            var tokens = control.Description.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
-
-            Name = tokens[2];
-            ImageType = ImageType.Primary;
-            _control = control;
-
-            Resource = new AsyncImageResource(MediaBrowserPlugin.Log)
-            {
-                Property = MediaBrowserPlugin.DefaultProperty + ".Image." + string.Join(".", tokens.Skip(2).ToArray()),
-                Delay = 0
-            };
-        }
-
-        public string Name { get; private set; }
-
-        public ImageType ImageType { get; private set; }
-
-        public int Width 
-        {
-            get
-            {
-                return _control.Width;
-            }
-        }
-
-        public int Height 
-        {
-            get
-            {
-                return _control.Height;
-            }
-        }
-
-        public AsyncImageResource Resource { get; private set; }
-
-        public string GetImageUrl(BaseItemDto item)
-        {
-            return item.ImageTags == null || item.ImageTags.Count == 0 ? string.Empty : GUIContext.Instance.Client.GetLocalImageUrl(item, new ImageOptions { ImageType = ImageType, Width = Width, Height = Height });
-        }
-
-        public static implicit operator SmartImageControl(GUIImage control)
-        {
-            return new SmartImageControl(control);
-        }
-    }
-    
     public abstract class GUIDefault<TParameters> : GUIWindowX<TParameters>
         where TParameters : class, new()
     {
         static readonly Random _randomizer = new Random();
 
         protected readonly Dictionary<string, SmartImageControl> ImageResources;
-
+        protected readonly ManualResetEvent _mre;
         protected ImageSwapper _backdrop = null;
         protected Dictionary<string, Action<GUIControl, MPGUI.Action.ActionType>> _commands = null;
         protected string _commandPrefix = MediaBrowserPlugin.DefaultName + ".Command.";
@@ -85,6 +34,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             MainTask = null;
             _logger = MediaBrowserPlugin.Log;
             _commands = new Dictionary<string, Action<GUIControl, MPGUI.Action.ActionType>>();
+            _mre = new ManualResetEvent(false);
+
             ImageResources = new Dictionary<string, SmartImageControl>();
 
             // create backdrop image swapper
@@ -104,6 +55,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             //    RegisterCommand(name, ???);
             //}
 
+            RegisterCommand("ChangeUser", ChangeUserCommand);
             RegisterCommand("RandomMovie", GUICommon.RandomMovieCommand);
         }
 
@@ -115,14 +67,26 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             if (!GUIContext.Instance.IsServerReady)
             {
                 GUIUtils.ShowOKDialog(MediaBrowserPlugin.UI.Resource.Error, MediaBrowserPlugin.UI.Resource.ServerNotFoundOnTheNetwork);
+                GUIWindowManager.ShowPreviousWindow();
+                return;
             }
-            else {
-                // Publish System Info
-                GUIContext.Instance.PublishSystemInfo();
 
-                // Publish Default User
-                GUIContext.Instance.PublishUser();
-            }
+            // Publish User Info
+            GUIContext.Instance.PublishUser();
+
+            // if we are already logged in we are done
+            if (GUIContext.Instance.Client.IsUserLoggedIn) return;
+
+            // if not show user dialog
+            ShowUserProfilesDialog();
+        }
+
+        protected override void OnPageDestroy(int newWindowId)
+        {
+            // todo: move later
+            MediaBrowserPlugin.Config.Save();
+
+            base.OnPageDestroy(newWindowId);
         }
 
         protected override void OnWindowLoaded()
@@ -304,6 +268,16 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         }
 
         /// <summary>
+        ///     Switch User
+        /// </summary>
+        /// <param name="control">The control.</param>
+        /// <param name="actionType">Type of the action.</param>
+        protected void ChangeUserCommand(GUIControl control, global::MediaPortal.GUI.Library.Action.ActionType actionType)
+        {
+            ShowUserProfilesDialog();
+        }
+
+        /// <summary>
         /// Shorthand for Translations
         /// </summary>
         /// <value>
@@ -315,6 +289,139 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             {
                 return MediaBrowserPlugin.UI.Resource;
             }
+        }
+
+        /// <summary>
+        ///     Shows the profile selection dialog.
+        /// </summary>
+        /// <param name="items">The items.</param>
+        protected void ShowUserProfilesDialog(List<GUIListItem> items = null)
+        {
+            if (IsMainTaskRunning)
+            {
+                return;
+            }
+
+            if (items == null)
+            {
+                MainTask = GUITask.Run(LoadUserProfiles, ShowUserProfilesDialog, MediaBrowserPlugin.Log.Error, true);
+                return;
+            }
+
+            var result = GUIUtils.ShowMenuDialog(MediaBrowserPlugin.UI.Resource.UserProfileLogin, items);
+            if (result > -1)
+            {
+                var item = items[result];
+                var user = item.TVTag as UserDto;
+
+                if (user == null)
+                    return;
+
+                var password = user.HasPassword
+                    ? GUIUtils.ShowKeyboard(string.Empty, true)
+                    : string.Empty;
+
+                GUIContext.Instance.Client.AuthenticateUser(user.Id, password, success =>
+                {
+                    if (success)
+                    {
+                        GUIContext.Instance.Client.CurrentUser = user;
+                        Reset();
+                        return;
+                    }
+                    GUIUtils.ShowOKDialog(MediaBrowserPlugin.UI.Resource.UserProfileLogin,
+                        MediaBrowserPlugin.UI.Resource.UserProfileLoginFailed);
+                    ShowUserProfilesDialog(items);
+                });
+            }
+            else if (!GUIContext.Instance.Client.IsUserLoggedIn)
+            {
+                GUIWindowManager.ShowPreviousWindow();
+            }
+        }
+
+        /// <summary>
+        ///     Loads the user profiles from the server
+        /// </summary>
+        /// <param name="task">The task.</param>
+        /// <returns></returns>
+        protected virtual List<GUIListItem> LoadUserProfiles(GUITask task = null)
+        {
+            task = task ?? GUITask.None;
+            var list = new List<GUIListItem>();
+
+            WaitFor(x => GUIContext.Instance.Client.GetUsers(users =>
+            {
+                list.AddRange(users.TakeWhile(user => !task.IsCancelled).Select(GetUserListItem));
+                x.Set();
+            }, e =>
+            {
+                // todo: show error?
+                Log.Error(e);
+                x.Set();
+            })
+                ); // todo: timeout?
+
+            return list;
+        }
+
+        /// <summary>
+        ///     Gets the user list item.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
+        protected virtual GUIListItem GetUserListItem(UserDto user)
+        {
+            var item = new GUIListItem(user.Name)
+            {
+                Path = "User/" + user.Id,
+                Label2 =
+                    user.LastLoginDate.HasValue
+                        ? String.Format("{0}: {1}", MediaBrowserPlugin.UI.Resource.LastSeen,
+                            user.LastLoginDate.Value.ToShortDateString())
+                        : string.Empty,
+                TVTag = user,
+                IconImage = "defaultPicture.png",
+                IconImageBig = "defaultPictureBig.png",
+                RetrieveArt = true
+            };
+            item.OnRetrieveArt += GetUserImage;
+
+            return item;
+        }
+
+        /// <summary>
+        ///     Gets an image for users
+        /// </summary>
+        /// <param name="item">The item.</param>
+        public static void GetUserImage(GUIListItem item)
+        {
+            GUICommon.UserImageDownloadAndAssign.BeginInvoke(item, GUICommon.UserImageDownloadAndAssign.EndInvoke, null);
+        }
+
+        /// <summary>
+        ///     Gets an image for the item
+        /// </summary>
+        /// <param name="item">The item.</param>
+        public static void GetItemImage(GUIListItem item)
+        {
+            GUICommon.ItemImageDownloadAndAssign.BeginInvoke(item, GUICommon.ItemImageDownloadAndAssign.EndInvoke, null);
+        }
+
+        /// <summary>
+        ///     Execute the given action and blocks using the ManualResetEvent.
+        /// </summary>
+        /// <param name="action">The action.</param>
+        protected virtual void WaitFor(Action<ManualResetEvent> action)
+        {
+            _mre.Reset();
+            action(_mre);
+            _mre.WaitOne();
+        }
+
+        protected virtual void Reset()
+        {
+            GUIContext.Instance.PublishUser();
         }
     }
 

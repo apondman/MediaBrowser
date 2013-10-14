@@ -209,6 +209,8 @@ namespace Pondman.MediaPortal.GUI
 
         public virtual void Reload(bool refresh = false)
         {
+            if (_history.Count == 0) return;
+            
             var view = _history.Pop();
             view.Offset = 0;
 

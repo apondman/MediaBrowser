@@ -31,7 +31,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 var dto = item.TVTag as BaseItemDto;
                 if (dto != null && dto.HasPrimaryImage)
                 {
-                    // todo: setup image options
+                    // todo: let skin define dimensions
                     string imageUrl = GUIContext.Instance.Client.GetLocalImageUrl(dto, new ImageOptions { Width = 200, Height = 300 });
 
                     if (!String.IsNullOrEmpty(imageUrl))
@@ -126,6 +126,17 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             if (!dto.Type.IsIn("Movie", "Episode", "Audio")) return;
             var parameters = new MediaBrowserItem {Id = dto.Id};
             Window(MediaBrowserWindow.Details, parameters);
+        }
+
+        /// <summary>
+        /// Gets an identifier for the context
+        /// </summary>
+        /// <param name="dto">The dto.</param>
+        /// <returns></returns>
+        public static string GetContext(this BaseItemDto dto)
+        {
+            // todo: this will have to change
+            return dto.Type + "/" + dto.Id;
         }
 
     }

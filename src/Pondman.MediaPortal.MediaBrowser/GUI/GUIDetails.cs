@@ -42,12 +42,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         protected override void OnPageLoad()
         {
             base.OnPageLoad();
-            
-            if (!GUIContext.Instance.IsServerReady) 
-            {
-                GUIWindowManager.ShowPreviousWindow();
-                return;
-            }            
+
+            if (!GUIContext.Instance.IsServerReady) return;
 
             if (String.IsNullOrEmpty(Parameters.Id))
             {

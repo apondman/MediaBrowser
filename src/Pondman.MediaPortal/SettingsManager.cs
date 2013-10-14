@@ -84,6 +84,7 @@ namespace Pondman.MediaPortal
 
             lock (Settings)
             {
+                _logger.Info("Saving settings data...");
                 if (File.Exists(_path))
                 {
                     try
@@ -103,6 +104,7 @@ namespace Pondman.MediaPortal
                     {
                         ser.WriteObject(writer, Settings);
                         writer.Close();
+                        _logger.Info("Settings saved.");
                     }
                 }
                 catch (Exception e)

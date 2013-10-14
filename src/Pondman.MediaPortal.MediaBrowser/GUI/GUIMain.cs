@@ -20,9 +20,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
     {
         private readonly GUIBrowser<string> _browser;
         private readonly List<GUIListItem> _filters;
-        private readonly ManualResetEvent _mre;
         private readonly Dictionary<string, GUIFacadeControl> _facades;
-
         private SortableQuery _sortableQuery;
 
         public GUIMain()
@@ -36,13 +34,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             _browser.ItemChanged += OnItemChanged;
             _browser.ItemsRequested += OnItemsRequested;
 
-            _mre = new ManualResetEvent(false);
             _filters = new List<GUIListItem>();
             _facades = new Dictionary<string, GUIFacadeControl>();
 
             // register commands
             RegisterCommand("CycleLayout", CycleLayoutCommand);
-            RegisterCommand("ChangeUser", ChangeUserCommand);
             RegisterCommand("Sort", SortCommand);
             RegisterCommand("Filter", FilterCommand);
             RegisterCommand("Search", SearchCommand);
@@ -65,17 +61,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             Facade.CycleLayout();
             Facade.Focus();
-            Log.Debug("Layout: {0}", Facade.CurrentLayout);
-        }
-
-        /// <summary>
-        ///     Switch User
-        /// </summary>
-        /// <param name="control">The control.</param>
-        /// <param name="actionType">Type of the action.</param>
-        protected void ChangeUserCommand(GUIControl control, MPGui.Action.ActionType actionType)
-        {
-            ShowUserProfilesDialog();
+             MediaBrowserPlugin.Config.Settings
+                    .ForUser(GUIContext.Instance.ActiveUser.Id)
+                    .ForContext(CurrentItem.GetContext())
+                    .Layout = Facade.CurrentLayout;
+            Log.Debug("Cycle Layout Result: {0}", Facade.CurrentLayout);
         }
 
         /// <summary>
@@ -111,6 +101,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             base.OnPageLoad();
 
+            if (!GUIContext.Instance.IsServerReady || !GUIContext.Instance.Client.IsUserLoggedIn) return;
+
             // no facades!
             if (_facades.Count == 0)
             {
@@ -119,22 +111,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 return;
             }
 
-
             // update browser settings
             _browser.Settings.Limit = MediaBrowserPlugin.Config.Settings.DefaultItemLimit;
-
-            if (!GUIContext.Instance.IsServerReady)
-            {
-                GUIWindowManager.ShowPreviousWindow();
-                return;
-            }
-
-            if (!GUIContext.Instance.Client.IsUserLoggedIn)
-            {
-                //show dialog
-                ShowUserProfilesDialog();
-                return;
-            }
 
             // browse to item
             if (!String.IsNullOrEmpty(Parameters.Id))
@@ -152,6 +130,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 return;
             }
 
+            // reload what we have
             _browser.Reload();
         }
 
@@ -236,24 +215,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         #region GUIListItem Handlers
 
         /// <summary>
-        ///     Gets an image for users
-        /// </summary>
-        /// <param name="item">The item.</param>
-        public static void GetUserImage(GUIListItem item)
-        {
-            GUICommon.UserImageDownloadAndAssign.BeginInvoke(item, GUICommon.UserImageDownloadAndAssign.EndInvoke, null);
-        }
-
-        /// <summary>
-        ///     Gets an image for the item
-        /// </summary>
-        /// <param name="item">The item.</param>
-        public static void GetItemImage(GUIListItem item)
-        {
-            GUICommon.ItemImageDownloadAndAssign.BeginInvoke(item, GUICommon.ItemImageDownloadAndAssign.EndInvoke, null);
-        }
-
-        /// <summary>
         ///     Handler for selected item
         /// </summary>
         /// <param name="item">The item.</param>
@@ -265,7 +226,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             var dto = item.TVTag as BaseItemDto;
             dto.IfNotNull(x => PublishItemDetails(x, MediaBrowserPlugin.DefaultProperty + ".Selected"));
         }
-
 
         /// <summary>
         /// Called when parent item is changed
@@ -288,12 +248,24 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             if (item == null || !(item.TVTag is BaseItemDto)) return;
 
-            var facade = GetTypedFacade(item.TVTag as BaseItemDto);
+            var dto = item.TVTag as BaseItemDto;
+            var facade = GetTypedFacade(dto);
+
+            // read layout from settings
+            var savedLayout = MediaBrowserPlugin.Config.Settings
+                    .ForUser(GUIContext.Instance.ActiveUser.Id)
+                    .ForContext(dto.GetContext()).Layout;
+
+            // apply layout if different
+            if (savedLayout.HasValue && facade.CurrentLayout != savedLayout)
+            {
+                facade.CurrentLayout = savedLayout.Value;
+            }
 
             // if the facade changed
             if (facade != Facade)
             {
-                Log.Debug("FacadeSwitch: {0}", facade.Description);
+                Log.Debug("Active Facade: Name={0}, Id={1}", facade.Description, facade.GetID);
                 
                 // Hide current facade (if it is not null)
                 Facade.IfNotNull(f => f.Visible(false));
@@ -305,7 +277,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 Facade.Visible(true);
             }
 
-            CurrentItem = item.TVTag as BaseItemDto;
+            CurrentItem = dto;
         }
 
         GUIFacadeControl GetTypedFacade(BaseItemDto dto)
@@ -351,7 +323,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             var item = new GUIListItem(dto.Name)
             {
-                Path = dto.Type + "/" + dto.Id,
+                Path = dto.GetContext(),
                 Year = dto.ProductionYear.GetValueOrDefault(),
                 TVTag = dto,
                 IsFolder = dto.IsFolder,
@@ -406,30 +378,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             return item;
         }
 
-        /// <summary>
-        ///     Gets the user list item.
-        /// </summary>
-        /// <param name="user">The user.</param>
-        /// <returns></returns>
-        public GUIListItem GetUserListItem(UserDto user)
-        {
-            var item = new GUIListItem(user.Name)
-            {
-                Path = "User/" + user.Id,
-                Label2 =
-                    user.LastLoginDate.HasValue
-                        ? String.Format("{0}: {1}", MediaBrowserPlugin.UI.Resource.LastSeen,
-                            user.LastLoginDate.Value.ToShortDateString())
-                        : string.Empty,
-                TVTag = user,
-                IconImage = "defaultPicture.png",
-                IconImageBig = "defaultPictureBig.png",
-                RetrieveArt = true
-            };
-            item.OnRetrieveArt += GetUserImage;
-
-            return item;
-        }
+       
 
         #endregion
 
@@ -469,10 +418,12 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <summary>
         ///     Resets the  navigation to the starting position
         /// </summary>
-        public void Reset()
+        protected override void Reset()
         {
-            GUIContext.Instance.PublishUser();
+            // execute base reset
+            base.Reset();
 
+            // execute window reset
             _browser.Reset();
             _sortableQuery = new SortableQuery();
 
@@ -759,79 +710,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             return item == null ? string.Empty : item.Path;
         }
 
-        /// <summary>
-        ///     Shows the profile selection dialog.
-        /// </summary>
-        /// <param name="items">The items.</param>
-        protected void ShowUserProfilesDialog(List<GUIListItem> items = null)
-        {
-            if (IsMainTaskRunning)
-            {
-                return;
-            }
-
-            if (items == null)
-            {
-                MainTask = GUITask.Run(LoadUserProfiles, ShowUserProfilesDialog, MediaBrowserPlugin.Log.Error, true);
-                return;
-            }
-
-            var result = GUIUtils.ShowMenuDialog(MediaBrowserPlugin.UI.Resource.UserProfileLogin, items);
-            if (result > -1)
-            {
-                var item = items[result];
-                var user = item.TVTag as UserDto;
-
-                if (user == null)
-                    return;
-
-                var password = user.HasPassword
-                    ? GUIUtils.ShowKeyboard(string.Empty, true)
-                    : string.Empty;
-
-                GUIContext.Instance.Client.AuthenticateUser(user.Id, password, success =>
-                {
-                    if (success)
-                    {
-                        GUIContext.Instance.Client.CurrentUser = user;
-                        Reset();
-                        return;
-                    }
-                    GUIUtils.ShowOKDialog(MediaBrowserPlugin.UI.Resource.UserProfileLogin,
-                        MediaBrowserPlugin.UI.Resource.UserProfileLoginFailed);
-                    ShowUserProfilesDialog(items);
-                });
-            }
-            else if (!GUIContext.Instance.Client.IsUserLoggedIn)
-            {
-                GUIWindowManager.ShowPreviousWindow();
-            }
-        }
-
-        /// <summary>
-        ///     Loads the user profiles from the server
-        /// </summary>
-        /// <param name="task">The task.</param>
-        /// <returns></returns>
-        protected List<GUIListItem> LoadUserProfiles(GUITask task = null)
-        {
-            task = task ?? GUITask.None;
-            var list = new List<GUIListItem>();
-
-            WaitFor(x => GUIContext.Instance.Client.GetUsers(users =>
-            {
-                list.AddRange(users.TakeWhile(user => !task.IsCancelled).Select(GetUserListItem));
-                x.Set();
-            }, e =>
-            {
-                // todo: show error?
-                Log.Error(e);
-                x.Set();
-            })
-                ); // todo: timeout?
-
-            return list;
-        }
+       
 
         /// <summary>
         ///     Publishes the artwork.
@@ -946,16 +825,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             Navigate(GetBaseListItem(dto));
         }
 
-        /// <summary>
-        ///     Execute the given action and blocks using the ManualResetEvent.
-        /// </summary>
-        /// <param name="action">The action.</param>
-        protected void WaitFor(Action<ManualResetEvent> action)
-        {
-            _mre.Reset();
-            action(_mre);
-            _mre.WaitOne();
-        }
 
         private static GUIListItem GetSortItem(string label, string field)
         {

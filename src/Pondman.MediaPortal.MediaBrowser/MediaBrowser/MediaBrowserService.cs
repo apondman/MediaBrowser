@@ -91,7 +91,6 @@ namespace Pondman.MediaPortal.MediaBrowser
                 Update();
             }
         } MediaBrowserClient _client;
-        
 
         public void Update()
         {

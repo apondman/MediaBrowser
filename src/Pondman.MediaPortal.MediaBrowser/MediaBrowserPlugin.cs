@@ -1,4 +1,5 @@
 ﻿using System;
+using MediaBrowser.Model.System;
 using MediaPortal.Configuration;
 using MediaPortal.GUI.Library;
 using MediaPortal.Services;
@@ -41,8 +42,17 @@ namespace Pondman.MediaPortal.MediaBrowser
             {
                 Log.Debug("Registering MediaBrowserService.");
 
+                // Publish Default System Info
+                GUIContext.OnSystemInfoChanged(new SystemInfo());
+
+                // Publish Default User
+                GUIContext.Instance.PublishUser();
+
                 // if not register it with the global service provider
                 IMediaBrowserService service = new MediaBrowserService(this, MediaBrowserPlugin.Log);
+
+                // add event handlers
+                service.SystemInfoChanged += GUIContext.OnSystemInfoChanged;
 
                 // add service to the global service provider
                 GlobalServiceProvider.Add<IMediaBrowserService>(service);
@@ -63,7 +73,8 @@ namespace Pondman.MediaPortal.MediaBrowser
             UI.Publish(DefaultProperty + ".Translation");
 
             // Settings
-            Config.Settings.Publish(DefaultProperty + ".Settings");
+            Config.Settings.Publish(DefaultProperty + ".Settings");        
+
         }
 
         ~MediaBrowserPlugin() 

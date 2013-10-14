@@ -1,4 +1,5 @@
-﻿using MediaPortal.Configuration;
+﻿using System.Linq;
+using MediaPortal.Configuration;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
@@ -11,8 +12,9 @@ namespace Pondman.MediaPortal.MediaBrowser
     [DataContract(Name = "MediaBrowserSettings", Namespace = "http://mediabrowser3.com/settings")]
     public class MediaBrowserSettings
     {
+       
         [DataMember(Name = "UserData")]
-        private List<MediaBrowserProfileSettings> _userData;
+        private HashSet<MediaBrowserUserSettings> _userData;
         
         public MediaBrowserSettings()
         {
@@ -21,7 +23,7 @@ namespace Pondman.MediaPortal.MediaBrowser
             DisplayName = MediaBrowserPlugin.DefaultName;
             DefaultItemLimit = 50;
 
-            _userData = new List<MediaBrowserProfileSettings>();
+            _userData = new HashSet<MediaBrowserUserSettings>();
         }
 
         /// <summary>
@@ -67,7 +69,26 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// The default user.
         /// </value>
         [DataMember()]
-        public string DefaultUser { get; set; }
+        public string DefaultUserId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the use default user.
+        /// </summary>
+        /// <value>
+        /// The use default user.
+        /// </value>
+        [DataMember()]
+        public bool? UseDefaultUser { get; set; }
+
+        public MediaBrowserUserSettings ForUser(string userId)
+        {
+            var settings = _userData.FirstOrDefault(x => x.UserId == userId);
+            if (settings != null) return settings;
+            settings = new MediaBrowserUserSettings(userId);
+            _userData.Add(settings);
+
+            return settings;
+        }
 
     }
 }

@@ -135,7 +135,7 @@ namespace MediaPortal.GUI.Library
             {
                 if (obj is DateTime)
                 {
-                    DateTime dt = (DateTime)obj;
+                    var dt = (DateTime)obj;
                     filter = new string[] { "Date", "DayOfWeek" };
 
                     // todo: more patterns? (overkill?) / configurable custom date format through settings?
