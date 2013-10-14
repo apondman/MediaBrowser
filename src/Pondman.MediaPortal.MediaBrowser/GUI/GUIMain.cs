@@ -811,7 +811,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         protected void ShowSearchDialog()
         {
-            var term = GUIUtils.ShowKeyboard("Enter Search Term");
+            var term = GUIUtils.ShowKeyboard("");
             if (term.IsNullOrWhiteSpace()) return;
             
             var dto = new BaseItemDto
