@@ -4,7 +4,7 @@ using MediaPortal.GUI.Library;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
-    [DataContract(Name = "ContextSettings", Namespace = "http://mediabrowser3.com/settings/context")]
+    [DataContract(Name = "ContextSettings", Namespace = "urn://mediaportal/mb3/settings/context")]
     public class MediaBrowserContextSettings : IEquatable<MediaBrowserContextSettings>
     {
         public MediaBrowserContextSettings(string contextId)

@@ -1,11 +1,10 @@
-﻿using System;
-using MediaBrowser.Model.System;
+﻿using MediaBrowser.Model.System;
 using MediaPortal.Configuration;
 using MediaPortal.GUI.Library;
 using MediaPortal.Services;
 using Pondman.MediaPortal.MediaBrowser.GUI;
 using Pondman.MediaPortal.MediaBrowser.Resources.Languages;
-using System.Threading;
+using System;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
@@ -55,7 +54,7 @@ namespace Pondman.MediaPortal.MediaBrowser
                 service.SystemInfoChanged += GUIContext.OnSystemInfoChanged;
 
                 // add service to the global service provider
-                GlobalServiceProvider.Add<IMediaBrowserService>(service);
+                GlobalServiceProvider.Add(service);
 
                 // trigger discovery so client gets loaded.
                 service.Discover();

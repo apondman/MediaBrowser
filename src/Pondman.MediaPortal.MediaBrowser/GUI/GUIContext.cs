@@ -1,4 +1,5 @@
-﻿using MediaBrowser.Model.Dto;
+﻿using System;
+using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.System;
 using MediaPortal.GUI.Library;
 using MediaPortal.Services;
@@ -91,8 +92,17 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         public void Update(string itemType, string itemId, string itemName, string context = "")
         {
-            Service.Client.WebSocketConnection.SendContextMessage(itemType, itemId, itemName, context,
-                MediaBrowserPlugin.Log.Error);
+            return; // todo: re-enable context
+
+            if (Client != null && Client.WebSocketConnection != null)
+            {
+                if (itemType == "View")
+                {
+                    itemType = "";
+                    itemId = "";
+                }
+                Client.WebSocketConnection.SendContextMessage(itemType, itemId, itemName, context, MediaBrowserPlugin.Log.Error);
+            }
         }
 
         public bool IsServerReady

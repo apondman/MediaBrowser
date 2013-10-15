@@ -6,7 +6,7 @@ using MediaPortal.Profile;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
-    [DataContract(Name = "UserSettings", Namespace = "http://mediabrowser3.com/settings/profile")]
+    [DataContract(Name = "UserSettings", Namespace = "urn://mediaportal/mb3/settings/profile")]
     public class MediaBrowserUserSettings : IEquatable<MediaBrowserUserSettings>
     {
         [DataMember(Name = "ContextData")]
@@ -23,7 +23,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         public string UserId { get; private set; }
 
         [DataMember]
-        public string PasswordHash { get; private set; }
+        public string Password { get; private set; }
 
         [DataMember]
         public bool? RememberMe { get; set; }
@@ -40,11 +40,11 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <summary>
         /// Remembers the authentication for this profile.
         /// </summary>
-        /// <param name="hash">The password hash.</param>
-        public void RememberAuth(string hash)
+        /// <param name="encryptedPassword">The encrypted password.</param>
+        public void RememberAuth(string encryptedPassword)
         {
             RememberMe = true;
-            PasswordHash = hash;
+            Password = encryptedPassword;
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         public void ForgetAuth()
         {
             RememberMe = null;
-            PasswordHash = null;
+            Password = null;
         }
 
         public MediaBrowserContextSettings ForContext(string contextId)

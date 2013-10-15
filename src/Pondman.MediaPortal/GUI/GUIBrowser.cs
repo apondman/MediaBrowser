@@ -207,9 +207,9 @@ namespace Pondman.MediaPortal.GUI
             _history.Clear();
         }
 
-        public virtual void Reload(bool refresh = false)
+        public virtual bool Reload(bool refresh = false)
         {
-            if (_history.Count == 0) return;
+            if (_history.Count == 0) return false;
             
             var view = _history.Pop();
             view.Offset = 0;
@@ -223,6 +223,8 @@ namespace Pondman.MediaPortal.GUI
             {
                 Publish(view);
             }
+
+            return true;
         }
 
         public virtual bool Back(bool refresh = false)

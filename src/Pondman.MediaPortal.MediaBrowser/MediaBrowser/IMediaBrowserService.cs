@@ -8,7 +8,7 @@ using System.Net;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
-    public interface IMediaBrowserService
+    public interface IMediaBrowserService : IDisposable
     {
         /// <summary>
         /// Occurs when the server changes.

@@ -3,6 +3,7 @@ using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Querying;
 using MediaBrowser.Model.Search;
 using MediaPortal.GUI.Library;
+using MediaPortal.Services;
 using Pondman.MediaPortal.GUI;
 using Pondman.MediaPortal.MediaBrowser.Models;
 using System;
@@ -101,8 +102,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             base.OnPageLoad();
 
-            if (!GUIContext.Instance.IsServerReady || !GUIContext.Instance.Client.IsUserLoggedIn) return;
-
             // no facades!
             if (_facades.Count == 0)
             {
@@ -111,6 +110,12 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 return;
             }
 
+            if (!GUIContext.Instance.IsServerReady || !GUIContext.Instance.Client.IsUserLoggedIn) return;
+            OnWindowStart();
+        }
+
+        protected void OnWindowStart()
+        {
             // browse to item
             if (!String.IsNullOrEmpty(Parameters.Id))
             {
@@ -121,15 +126,21 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 }
                 else
                 {
-                    GUIContext.Instance.Client.GetItem(Parameters.Id, GUIContext.Instance.Client.CurrentUserId, LoadItem,
-                        ShowItemsError);
+                    GUIContext.Instance.Client.GetItem(Parameters.Id, GUIContext.Instance.Client.CurrentUserId, LoadItem, ShowItemsError);
                 }
                 return;
             }
 
-            // reload what we have
-            _browser.Reload();
+            // Reload state
+            if (!_browser.Reload())
+            {
+                // get root folder if there's nothing to reload
+                GUIContext.Instance.Client.GetRootFolder(GUIContext.Instance.Client.CurrentUserId, LoadItem,
+                    ShowItemsError);
+            }
         }
+
+
 
         protected override void OnWindowLoaded()
         {
@@ -424,8 +435,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             _browser.Reset();
             _sortableQuery = new SortableQuery();
 
-            // get root folder
-            GUIContext.Instance.Client.GetRootFolder(GUIContext.Instance.Client.CurrentUserId, LoadItem, ShowItemsError);
+            OnWindowStart();
         }
 
         private void OnItemsRequested(object sender, ItemRequestEventArgs e)
@@ -707,8 +717,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             return item == null ? string.Empty : item.Path;
         }
 
-       
-
         /// <summary>
         ///     Publishes the artwork.
         /// </summary>
@@ -833,6 +841,14 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             var item = new GUIListItem(filter.ToString()) {TVTag = filter};
             return item;
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            // todo: weird place, move later
+            var service = GlobalServiceProvider.Get<IMediaBrowserService>();
+            service.Dispose();
         }
     }
 }

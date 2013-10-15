@@ -9,7 +9,7 @@ namespace Pondman.MediaPortal.MediaBrowser
     /// <summary>
     /// Temp class for settings to refactored later
     /// </summary>
-    [DataContract(Name = "MediaBrowserSettings", Namespace = "http://mediabrowser3.com/settings")]
+    [DataContract(Name = "MediaBrowserSettings", Namespace = "urn://mediaportal/mb3/settings")]
     public class MediaBrowserSettings
     {
        
@@ -32,7 +32,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <value>
         /// The display name.
         /// </value>
-        [DataMember()]
+        [DataMember]
         public string DisplayName { get; set; }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <value>
         /// The media cache folder.
         /// </value>
-        [DataMember()]
+        [DataMember]
         public string MediaCacheFolder { get; set; }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <value>
         ///   <c>true</c> if properties should be logged otherwise, <c>false</c>.
         /// </value>
-        [DataMember()]
+        [DataMember]
         public bool LogProperties { get; set; }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <value>
         /// The default item limit.
         /// </value>
-        [DataMember()]
+        [DataMember]
         public int DefaultItemLimit { get; set; }
 
         /// <summary>
@@ -68,8 +68,8 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <value>
         /// The default user.
         /// </value>
-        [DataMember()]
-        public string DefaultUserId { get; set; }
+        [DataMember]
+        public string DefaultUserId { get; private set; }
 
         /// <summary>
         /// Gets or sets the use default user.
@@ -77,8 +77,27 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <value>
         /// The use default user.
         /// </value>
-        [DataMember()]
+        [DataMember]
         public bool? UseDefaultUser { get; set; }
+
+        /// <summary>
+        /// Sets the default user.
+        /// </summary>
+        /// <param name="userId">The user identifier.</param>
+        public void SetDefaultUser(string userId)
+        {
+            UseDefaultUser = true;
+            DefaultUserId = userId;
+        }
+
+        /// <summary>
+        /// Resets the default user.
+        /// </summary>
+        public void ResetDefaultUser()
+        {
+            UseDefaultUser = null;
+            DefaultUserId = null;
+        }
 
         public MediaBrowserUserSettings ForUser(string userId)
         {

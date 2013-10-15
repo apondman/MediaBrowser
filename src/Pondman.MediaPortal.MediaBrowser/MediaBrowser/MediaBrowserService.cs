@@ -92,36 +92,6 @@ namespace Pondman.MediaPortal.MediaBrowser
             }
         } MediaBrowserClient _client;
 
-        public void Update()
-        {
-            if (!IsServerLocated) return;
-
-            Client.GetSystemInfo(info => System = info, MediaBrowserPlugin.Log.Error);
-            ApiWebSocket.Create(Client, OnConnecting, _logger.Error);
-        }
-
-        protected void OnConnecting(ApiWebSocket socket)
-        {
-            socket.MessageCommand += socket_MessageCommand;
-            socket.PlayCommand += OnPlayCommand;
-            socket.BrowseCommand += OnBrowseCommand;
-            socket.Connected += socket_Connected;
-            socket.Disconnected += socket_Disconnected;
-            
-            _logger.Info("Connecting to Media Browser Server.");
-            socket.Connect(true);
-        }
-
-        void socket_Connected(object sender, EventArgs e)
-        {
-            _logger.Info("Connected to Media Browser Server.");
-        }
-
-        void socket_Disconnected(object sender, EventArgs e)
-        {
-            _logger.Info("Lost connection with Media Browser Server.");
-        }
-
         public virtual void Discover()
         {
             _retryTimer = new Timer(x =>
@@ -131,9 +101,36 @@ namespace Pondman.MediaPortal.MediaBrowser
             }, null, 0, 60000);
         }
 
-        // todo: move command handlers to GUI code
+        public void Update()
+        {
+            if (!IsServerLocated) return;
+            Client.GetSystemInfo(info => System = info, MediaBrowserPlugin.Log.Error);
+            ApiWebSocket.Create(Client, OnConnecting, _logger.Error);
+        }
 
-        void socket_MessageCommand(object sender, MessageCommandEventArgs e)
+        protected void OnConnecting(ApiWebSocket socket)
+        {
+            socket.MessageCommand += OnSocketMessageCommand;
+            socket.PlayCommand += OnPlayCommand;
+            socket.BrowseCommand += OnBrowseCommand;
+            socket.Connected += OnSocketConnected;
+            socket.Disconnected += OnSocketDisconnected;
+            
+            _logger.Info("Connecting to Media Browser Server.");
+            socket.Connect(true);
+        }
+
+        void OnSocketConnected(object sender, EventArgs e)
+        {
+            _logger.Info("Connected to Media Browser Server.");
+        }
+
+        void OnSocketDisconnected(object sender, EventArgs e)
+        {
+            _logger.Info("Lost connection with Media Browser Server.");
+        }
+
+        void OnSocketMessageCommand(object sender, MessageCommandEventArgs e)
         {
             _logger.Debug("Message: {0}", e.Request.Text);
         }
@@ -166,6 +163,8 @@ namespace Pondman.MediaPortal.MediaBrowser
                 ServerChanged(endpoint);
             }
         }
+
+        // todo: move command handlers to GUI code
 
         protected void OnPlayCommand(object sender, PlayRequestEventArgs args)
         {
@@ -230,6 +229,8 @@ namespace Pondman.MediaPortal.MediaBrowser
                 
                 if (Client != null && Client.WebSocketConnection != null)
                     Client.WebSocketConnection.Dispose();
+
+                _logger.Info("MediaBrowserService shutdown.");
             }
 
             _disposed = true;

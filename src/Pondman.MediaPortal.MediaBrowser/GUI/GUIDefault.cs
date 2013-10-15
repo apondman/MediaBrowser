@@ -275,7 +275,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <param name="actionType">Type of the action.</param>
         protected void ChangeUserCommand(GUIControl control, global::MediaPortal.GUI.Library.Action.ActionType actionType)
         {
-            ShowUserProfilesDialog();
+            ShowUserProfilesDialog(forceSelect: true);
         }
 
         /// <summary>
@@ -293,10 +293,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         }
 
         /// <summary>
-        ///     Shows the profile selection dialog.
+        /// Shows the user profiles dialog.
         /// </summary>
         /// <param name="items">The items.</param>
-        protected void ShowUserProfilesDialog(List<GUIListItem> items = null)
+        /// <param name="forceSelect">if set to <c>true</c> [force select].</param>
+        protected void ShowUserProfilesDialog(List<GUIListItem> items = null, bool forceSelect = false)
         {
             if (IsMainTaskRunning)
             {
@@ -305,53 +306,91 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             if (items == null)
             {
-                MainTask = GUITask.Run(LoadUserProfiles, ShowUserProfilesDialog, MediaBrowserPlugin.Log.Error, true);
+                // Load user profiles from server
+                // todo: improve loading
+                MainTask = GUITask.Run(LoadUserProfiles, x => ShowUserProfilesDialog(x, forceSelect), MediaBrowserPlugin.Log.Error, true);
                 return;
             }
 
-            var result = GUIUtils.ShowMenuDialog(MediaBrowserPlugin.UI.Resource.UserProfileLogin, items);
-            if (result > -1)
+            // get global settings shorthand
+            var global = MediaBrowserPlugin.Config.Settings; 
+
+            UserDto user = null;
+            if (global.UseDefaultUser.HasValue && global.UseDefaultUser.Value)
             {
+                user = items.Select(i => i.TVTag as UserDto).FirstOrDefault(u => u.Id == global.DefaultUserId);
+            }
+
+            // Decide whether we should show user select
+            if (forceSelect || user == null)
+            {
+                // prompt user to make a selection
+                var result = GUIUtils.ShowMenuDialog(MediaBrowserPlugin.UI.Resource.UserProfileLogin, items);
+                
+                // choice was cancelled, return
+                if (result < 0) return;
+
+                // choice was made, set user
                 var item = items[result];
-                var user = item.TVTag as UserDto;
+                user = item.TVTag as UserDto;
+            }
 
-                if (user == null)
-                    return;
+            // if user is still null at this point return
+            if (user == null) return;
 
-                var profile = MediaBrowserPlugin.Config.Settings.ForUser(user.Id);
+            // load profile settings for user
+            var profile = MediaBrowserPlugin.Config.Settings.ForUser(user.Id);
+            var password = string.Empty;
 
-                var password = string.Empty;
-                if (user.HasPassword)
+            if (user.HasPassword)
+            {
+                // if user has a password check whether we already stored it, if not prompt the user for the password
+                password = (profile.RememberMe ?? false) ? DataProtection.Decrypt(profile.Password) : GUIUtils.ShowKeyboard(string.Empty, true);
+            }
+
+            // authenticate user with the gathered data with the media browser server
+            GUIContext.Instance.Client.AuthenticateUser(user.Id, password, success =>
+            {
+                if (success)
                 {
-                    password = (profile.RememberMe ?? false) ? DataProtection.Decrypt(profile.PasswordHash) : GUIUtils.ShowKeyboard(string.Empty, true);
+                    
+                    // if the user has a password but the remember me value has not been checked.
+                    if (user.HasPassword && !profile.RememberMe.HasValue)
+                    {
+                        // ask user to remember the login
+                        if (GUIUtils.ShowYesNoDialog(T.UserProfileRememberMe, T.UserProfileRememberMeText, true))
+                        {
+                            // store the encrypted password
+                            var encrypted = DataProtection.Encrypt(password);
+                            profile.RememberAuth(encrypted);
+                        }
+                    }
+
+                    if (!global.UseDefaultUser.HasValue)
+                    {
+                        // if we don't have a default user set, ask the user if he wants to set this profile up as the default
+                        if (GUIUtils.ShowYesNoDialog(T.UserProfileDefault, T.UserProfileDefaultText, true))
+                        {
+                            global.SetDefaultUser(user.Id);
+                        }
+                    }
+
+                    // update the user context, reset views and continue
+                    GUIContext.Instance.Client.CurrentUser = user;
+                    Reset();
+                    return;
                 }
 
-                GUIContext.Instance.Client.AuthenticateUser(user.Id, password, success =>
-                {
-                    if (success)
-                    {
-                        if (user.HasPassword && !profile.RememberMe.HasValue)
-                        {
-                            if (GUIUtils.ShowYesNoDialog(T.UserProfileRememberMe, T.UserProfileRememberMeText, true))
-                            {
-                                var encrypted = DataProtection.Encrypt(password);
-                                profile.RememberAuth(encrypted);
-                            }
-                        }
+                // show to the user that the login failed.
+                GUIUtils.ShowOKDialog(MediaBrowserPlugin.UI.Resource.UserProfileLogin, MediaBrowserPlugin.UI.Resource.UserProfileLoginFailed);
+                
+                // forget auth because it has failed.
+                profile.ForgetAuth();
 
-                        GUIContext.Instance.Client.CurrentUser = user;
-                        Reset();
-                        return;
-                    }
-                    GUIUtils.ShowOKDialog(MediaBrowserPlugin.UI.Resource.UserProfileLogin,
-                        MediaBrowserPlugin.UI.Resource.UserProfileLoginFailed);
-                    ShowUserProfilesDialog(items);
-                });
-            }
-            else if (!GUIContext.Instance.Client.IsUserLoggedIn)
-            {
-                GUIWindowManager.ShowPreviousWindow();
-            }
+                // reshow dialog
+                ShowUserProfilesDialog(items);
+            });
+            
         }
 
         /// <summary>

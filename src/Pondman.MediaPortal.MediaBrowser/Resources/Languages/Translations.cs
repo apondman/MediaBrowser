@@ -77,13 +77,16 @@
         public string Writer = "Writer";
         public string Writers = "Writers";
 
+        public string UserProfileDefault = "Default profile";
+        public string UserProfileDefaultText = "Auto logon with this profile from now on?";
         public string UserProfileLogin = "Login";
         public string UserProfileLoginFailed = "Login failed.";
         public string UserProfileProvidePassword = "Please provide the password for this user.";
         public string UserProfileRememberMe = "Remember Me";
-        public string UserProfileRememberMeText = "Remember login for MediaPortal?";
-        
+        public string UserProfileRememberMeText = "Should I remember your login for next time?";
+
         // todo: add more translations
+
 
         
     }
