@@ -314,21 +314,19 @@ Click Next to continue or Cancel to exit Setup.</Value>
     <UpdateUrl />
     <Version>
       <Major>0</Major>
-      <Minor>11</Minor>
-      <Build>5034</Build>
-      <Revision>4945</Revision>
+      <Minor>12</Minor>
+      <Build>5036</Build>
+      <Revision>42758</Revision>
     </Version>
     <ExtensionDescription>MediaPortal client for MediaBrowser3 server (http://www.mediabrowser3.com). </ExtensionDescription>
-    <VersionDescription>- Fixed: Playback for disc-based folders.
-- Fixed: Artwork for Episodes
-- Fixed: Random Movie button
-- Fixed: Filters not working.
-- Added: Initial support for music collection.
-- Added: Initial support for searching collections.
-- Added: Filter, Sort, Search button to generic skin
-- Optimized artwork loading.
-- Optimized window loading for browsing and viewing details
-- Updated to latest MediaBrowser components.</VersionDescription>
+    <VersionDescription>- Added support for user profile settings
+- Added support for profile specific layouts
+- Added "remember me" login option
+- Added support for default user.
+- Fixed exception related to websocket
+- Fixed default text in search prompt
+- Fixed exception dialog for image error
+- Improved generic skin based on Titan</VersionDescription>
     <DevelopmentStatus>Beta</DevelopmentStatus>
     <OnlineLocation />
     <ReleaseDate>2013-10-13T23:40:16</ReleaseDate>
@@ -498,7 +496,7 @@ Click Next to continue or Cancel to exit Setup.</Value>
         <Param1 />
         <UpdateOption>OverwriteIfOlder</UpdateOption>
         <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\Resources\Images\mblogoicon.png</LocalFileName>
-        <ZipFileName>Installer{CopyFile}\{0fb7eb82-8166-4543-a8c5-5fbd341263a6}-mblogoicon.png</ZipFileName>
+        <ZipFileName>Installer{CopyFile}\{0abef1a7-0954-49e8-8351-ea8fbb1c5632}-mblogoicon.png</ZipFileName>
         <DestinationFilename />
       </FileItem>
     </Items>
