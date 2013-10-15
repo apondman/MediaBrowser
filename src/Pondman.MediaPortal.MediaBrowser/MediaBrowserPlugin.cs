@@ -72,6 +72,9 @@ namespace Pondman.MediaPortal.MediaBrowser
             // Translations
             UI.Publish(DefaultProperty + ".Translation");
 
+            // Update version of settings
+            Config.Settings.Upgrade(Version);
+
             // Settings
             Config.Settings.Publish(DefaultProperty + ".Settings");        
 

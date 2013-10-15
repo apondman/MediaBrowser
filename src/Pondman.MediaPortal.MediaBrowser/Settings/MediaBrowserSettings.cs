@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using MediaPortal.Configuration;
 using System.Collections.Generic;
 using System.IO;
@@ -12,10 +13,9 @@ namespace Pondman.MediaPortal.MediaBrowser
     [DataContract(Name = "MediaBrowserSettings", Namespace = "urn://mediaportal/mb3/settings")]
     public class MediaBrowserSettings
     {
-       
-        [DataMember(Name = "UserData")]
-        private HashSet<MediaBrowserUserSettings> _userData;
-        
+        [DataMember(Name = "UserData")] private HashSet<MediaBrowserUserSettings> _userData;
+        [DataMember(Name = "Version")] private string _version;
+
         public MediaBrowserSettings()
         {
             MediaCacheFolder = Path.Combine(Config.GetFolder(Config.Dir.Thumbs), MediaBrowserPlugin.DefaultName);
@@ -107,6 +107,22 @@ namespace Pondman.MediaPortal.MediaBrowser
             _userData.Add(settings);
 
             return settings;
+        }
+
+        public void Upgrade(Version version)
+        {
+            if (_version == null)
+            {
+                _version = version.ToString();
+                return;
+            }
+            
+            var current = new Version(_version);
+
+            if (current < version)
+            {
+                _version = version.ToString();
+            }
         }
 
     }

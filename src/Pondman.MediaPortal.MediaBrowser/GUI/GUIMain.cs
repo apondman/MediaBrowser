@@ -125,6 +125,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             // browse to item
             if (!String.IsNullOrEmpty(Parameters.Id))
             {
+                _logger.Debug("OnWindowStart(): Type={0}, Id={1}", Parameters.Type, Parameters.Id);
                 if (Parameters.Type == "View")
                 {
                     var item = GetViewListItem(Parameters.Id);

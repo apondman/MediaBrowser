@@ -15,9 +15,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 {
     public class GUIDetails : GUIDefault<MediaBrowserMedia>
     {
-        BaseItemDto _movie = null;
-        readonly MediaPlayer _player = null;
-        
+        private BaseItemDto _movie = null;
+        private readonly MediaPlayer _player = null;
+
         #region Constructors
 
         public GUIDetails() : base(MediaBrowserWindow.Details)
@@ -31,9 +31,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             RegisterCommand("Play", PlayCommand);
         }
 
-        void OnPlayerProgress(TimeSpan timeSpan)
+        private void OnPlayerProgress(TimeSpan timeSpan)
         {
-            GUIContext.Instance.Client.ReportPlaybackProgress(_movie.Id, GUIContext.Instance.ActiveUser.Id, 
+            GUIContext.Instance.Client.ReportPlaybackProgress(_movie.Id, GUIContext.Instance.ActiveUser.Id,
                 timeSpan.Ticks, false, false, x => Log.Debug("PlayerProgress: {0}", timeSpan.TotalSeconds));
         }
 
@@ -43,8 +43,17 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             base.OnPageLoad();
 
-            if (!GUIContext.Instance.IsServerReady) return;
+            if (!GUIContext.Instance.IsServerReady || !GUIContext.Instance.Client.IsUserLoggedIn) return;
+            OnWindowStart();
+        }
 
+        protected override void Reset()
+        {
+             OnWindowStart();
+        }
+
+        protected void OnWindowStart()
+        {
             if (String.IsNullOrEmpty(Parameters.Id))
             {
                 if (_movie != null)
@@ -63,7 +72,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
         }
 
-        #region Commands
+    
+
+    #region Commands
 
         protected void PlayCommand(GUIControl control, MPGui.Action.ActionType actionType)
         {

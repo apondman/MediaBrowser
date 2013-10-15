@@ -12,7 +12,7 @@ using Pondman.MediaPortal.MediaBrowser.Models;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
-    public class MediaBrowserService : IMediaBrowserService, IDisposable
+    public class MediaBrowserService : IMediaBrowserService
     {
         const string MediaBrowserModelAssemblyVersion = "3.0.5021.27473";
         const string MediaBrowserModelAssembly = "MediaBrowser.Model, Version=" + MediaBrowserModelAssemblyVersion + ", Culture=neutral, PublicKeyToken=6cde51960597a7f9";
