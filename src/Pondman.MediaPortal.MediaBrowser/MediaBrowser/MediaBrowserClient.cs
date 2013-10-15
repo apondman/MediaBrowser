@@ -1,5 +1,6 @@
 ﻿using System.Net.NetworkInformation;
 using ConsoleApplication2.com.amazon.webservices;
+using MediaBrowser.ApiInteraction;
 using MediaBrowser.ApiInteraction.net35;
 using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Entities;
@@ -9,6 +10,7 @@ using System.IO;
 using System.Net;
 using System.Linq;
 using MediaPortal.GUI.Library;
+using Newtonsoft.Json;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
@@ -33,7 +35,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <param name="deviceId">The device id.</param>
         /// <param name="version">The version.</param>
         public MediaBrowserClient(string serverHostName, int serverApiPort, string deviceName, string deviceId, string version)
-            : base(serverHostName, serverApiPort, CLIENT_NAME, deviceName, deviceId, version)
+            : base(new MediaBrowserLogger(MediaBrowserPlugin.Log), new NewtonsoftJsonSerializer(), serverHostName, serverApiPort, CLIENT_NAME, deviceName, deviceId, version)
         {
             // todo: logging
         }
@@ -81,7 +83,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         {
             options.Tag = GetImageTag(item, options);
 
-            return options.Tag != Guid.Empty ? GetCachedImageUrl("items", options, () => GetImageUrl(item, options)) : string.Empty;
+            return options.Tag != null ? GetCachedImageUrl("items", options, () => GetImageUrl(item, options)) : string.Empty;
         }
 
         /// <summary>
@@ -94,7 +96,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         {
             options.Tag = user.PrimaryImageTag;
 
-            return GetCachedImageUrl("users", options, () => GetUserImageUrl(user, options));
+            return options.Tag != null ? GetCachedImageUrl("users", options, () => GetUserImageUrl(user, options)) : string.Empty;
         }
 
         public virtual string GetLocalBackdropImageUrl(BaseItemDto item, ImageOptions options)
@@ -105,7 +107,6 @@ namespace Pondman.MediaPortal.MediaBrowser
 
             return GetCachedImageUrl("items", options, () => urls[options.ImageIndex ?? 0]);
         }
-
 
         /// <summary>
         /// Gets the cached image URL.

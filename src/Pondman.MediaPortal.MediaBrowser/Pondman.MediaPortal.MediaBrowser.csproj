@@ -85,6 +85,7 @@
     <Compile Include="GUI\GUIDefault.cs" />
     <Compile Include="GUI\GUIDetails.cs" />
     <Compile Include="GUI\SmartImageControl.cs" />
+    <Compile Include="MediaBrowser\MediaBrowserLogger.cs" />
     <Compile Include="Settings\MediaBrowserUserSettings.cs" />
     <Compile Include="Settings\MediaBrowserSettings.cs" />
     <Compile Include="MediaBrowser\MediaBrowserQueries.cs" />

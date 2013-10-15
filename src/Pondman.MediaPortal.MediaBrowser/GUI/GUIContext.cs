@@ -92,8 +92,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         public void Update(string itemType, string itemId, string itemName, string context = "")
         {
-            return; // todo: re-enable context
-
             if (Client != null && Client.WebSocketConnection != null)
             {
                 if (itemType == "View")
@@ -101,6 +99,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     itemType = "";
                     itemId = "";
                 }
+
                 Client.WebSocketConnection.SendContextMessage(itemType, itemId, itemName, context, MediaBrowserPlugin.Log.Error);
             }
         }

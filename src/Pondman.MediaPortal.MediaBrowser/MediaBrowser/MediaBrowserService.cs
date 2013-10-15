@@ -104,20 +104,19 @@ namespace Pondman.MediaPortal.MediaBrowser
         public void Update()
         {
             if (!IsServerLocated) return;
-            Client.GetSystemInfo(info => System = info, MediaBrowserPlugin.Log.Error);
+            Client.GetSystemInfo(info => System = info, _logger.Error);
             ApiWebSocket.Create(Client, OnConnecting, _logger.Error);
         }
 
         protected void OnConnecting(ApiWebSocket socket)
         {
+            _logger.Info("Connecting to Media Browser Server.");
+
             socket.MessageCommand += OnSocketMessageCommand;
             socket.PlayCommand += OnPlayCommand;
             socket.BrowseCommand += OnBrowseCommand;
             socket.Connected += OnSocketConnected;
             socket.Disconnected += OnSocketDisconnected;
-            
-            _logger.Info("Connecting to Media Browser Server.");
-            socket.Connect(true);
         }
 
         void OnSocketConnected(object sender, EventArgs e)

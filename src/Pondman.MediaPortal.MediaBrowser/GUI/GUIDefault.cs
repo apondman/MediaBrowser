@@ -82,14 +82,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             ShowUserProfilesDialog();
         }
 
-        protected override void OnPageDestroy(int newWindowId)
-        {
-            // todo: move later
-            MediaBrowserPlugin.Config.Save();
-
-            base.OnPageDestroy(newWindowId);
-        }
-
         protected override void OnWindowLoaded()
         {
             base.OnWindowLoaded();

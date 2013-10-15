@@ -98,6 +98,12 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         #region Window overrides
 
+        public override void DeInit()
+        {
+            MediaBrowserPlugin.Shutdown();
+            base.DeInit();
+        }
+
         protected override void OnPageLoad()
         {
             base.OnPageLoad();
@@ -139,8 +145,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     ShowItemsError);
             }
         }
-
-
 
         protected override void OnWindowLoaded()
         {
@@ -830,7 +834,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             Navigate(GetBaseListItem(dto));
         }
 
-
         private static GUIListItem GetSortItem(string label, string field)
         {
             var item = new GUIListItem(label) {Path = field};
@@ -842,13 +845,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             var item = new GUIListItem(filter.ToString()) {TVTag = filter};
             return item;
         }
-
-        public override void Dispose()
-        {
-            base.Dispose();
-            // todo: weird place, move later
-            var service = GlobalServiceProvider.Get<IMediaBrowserService>();
-            service.Dispose();
-        }
+        
     }
 }

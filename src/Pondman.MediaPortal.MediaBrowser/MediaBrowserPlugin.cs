@@ -1,4 +1,5 @@
-﻿using MediaBrowser.Model.System;
+﻿using System.Net.Sockets;
+using MediaBrowser.Model.System;
 using MediaPortal.Configuration;
 using MediaPortal.GUI.Library;
 using MediaPortal.Services;
@@ -12,9 +13,9 @@ namespace Pondman.MediaPortal.MediaBrowser
     /// The MediaBrowser Plugin for MediaPortal
     /// </summary>
     [PluginIcons("Pondman.MediaPortal.MediaBrowser.Resources.Images.mblogoicon.png", "Pondman.MediaPortal.MediaBrowser.Resources.Images.mblogoicon.png")]
-    public class MediaBrowserPlugin : PluginBase
+    public class MediaBrowserPlugin : PluginBase, IDisposable
     {
-        private static readonly Action<string, string> LogShit = (tag, tagValue) =>
+        private static readonly Action<string, string> DeferredLog = (tag, tagValue) =>
         {
             if (!Config.Settings.LogProperties || !tag.StartsWith(DefaultProperty))
                 return;
@@ -76,18 +77,13 @@ namespace Pondman.MediaPortal.MediaBrowser
 
         }
 
-        ~MediaBrowserPlugin() 
-        {
-            GUIPropertyManager.OnPropertyChanged -= GUIPropertyManager_OnPropertyChanged;
-        }
-
         #endregion
 
         #region Handlers
 
         static void GUIPropertyManager_OnPropertyChanged(string tag, string tagValue)
         {
-            LogShit.BeginInvoke(tag, tagValue, LogShit.EndInvoke, null);
+            DeferredLog.BeginInvoke(tag, tagValue, DeferredLog.EndInvoke, null);
         }
 
         #endregion
@@ -133,7 +129,39 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// </summary>
         public static readonly SettingsManager<MediaBrowserSettings> Config = new SettingsManager<MediaBrowserSettings>(MediaBrowserPlugin.DefaultName, Log);
 
+        /// <summary>
+        /// Shutdowns the MediaBrowser plugin.
+        /// </summary>
+        public static void Shutdown()
+        {
+            // saving settings
+            MediaBrowserPlugin.Config.Save();
+
+            // disposing service
+            var service = GlobalServiceProvider.Get<IMediaBrowserService>();
+            service.Dispose();
+        }
+
         #endregion
 
+        private bool _disposed;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+
+            if (disposing)
+            {
+                Shutdown();
+            }
+
+            _disposed = true;
+        }
     }
 }
