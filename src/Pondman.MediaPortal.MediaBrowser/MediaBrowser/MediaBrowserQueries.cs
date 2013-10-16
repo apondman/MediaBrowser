@@ -59,7 +59,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         {
            get 
             {
-                return new ItemsByNameQuery();
+                return new ItemsByNameQuery().Recursive();
             }  
         }
 
@@ -67,7 +67,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         {
             get
             {
-                return new PersonsQuery();
+                return new PersonsQuery().Recursive();
             }
         }
 
@@ -259,12 +259,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <returns></returns>
         public static TNamedQuery Include<TNamedQuery>(this TNamedQuery query, params string[] includeItemTypes) where TNamedQuery : ItemsByNameQuery
         {
-            query.SortBy = new[] {ItemSortBy.SortName};
-            query.SortOrder = SortOrder.Ascending;
             query.IncludeItemTypes = includeItemTypes;
-            query.Recursive = true;
-            query.Fields = new[] { ItemFields.DateCreated};
-
             return query;
         }
 
@@ -299,6 +294,18 @@ namespace Pondman.MediaPortal.MediaBrowser
         public static TNamedQuery SortBy<TNamedQuery>(this TNamedQuery query, params string[] fields) where TNamedQuery : ItemsByNameQuery
         {
             query.SortBy = query.SortBy.Concat(fields).ToArray();
+            return query;
+        }
+
+        /// <summary>
+        /// Makes the query resursive
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="value">if set to <c>true</c> [value].</param>
+        /// <returns></returns>
+        public static TNamedQuery Recursive<TNamedQuery>(this TNamedQuery query, bool value = true) where TNamedQuery : ItemsByNameQuery
+        {
+            query.Recursive = value;
             return query;
         }
 

@@ -388,7 +388,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             return item;
         }
 
-
         #endregion
 
         /// <summary>
@@ -516,7 +515,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 GUIContext.Instance.Client.GetPeople(
                                     MediaBrowserQueries.Persons.User(userId).Include(MediaBrowserType.Movie).Apply(_sortableQuery),
                                     result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
-                                break;
+                                return;
                             case "movies-all":
                                 query = query.Movies();
                                 break;
@@ -560,7 +559,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 GUIContext.Instance.Client.GetPeople(
                                     MediaBrowserQueries.Persons.User(userId).Include(MediaBrowserType.Series).Apply(_sortableQuery),
                                     result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
-                                break;
+                                return;
                         }
                         break;
                     case MediaBrowserType.Genre:

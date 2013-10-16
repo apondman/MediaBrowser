@@ -30,6 +30,7 @@
     <import>MediaBrowser.Details.MediaInfo.xml</import>
     <import>MediaBrowser.Details.Movie.xml</import>
     <import>MediaBrowser.Details.Episode.xml</import>
+    <import>MediaBrowser.Details.Person.xml</import>
 
     <control>
       <description>Button group</description>
