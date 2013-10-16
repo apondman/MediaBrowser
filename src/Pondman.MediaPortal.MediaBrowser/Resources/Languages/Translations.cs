@@ -25,6 +25,7 @@
         public string Error = "Error";
         public string ErrorMakingRequest = "An error occured while making the request";
 
+        public string Filter = "Filter";
         public string FilterOptions = "Filter Options";
 
         public string Genre = "Genre";
@@ -58,8 +59,8 @@
         public string Server = "Server";
 
         public string Shows = "Shows";
-
         public string Songs = "Songs";
+        public string Sort = "Sort";
 
         public string SortByName = "Name";
         public string SortByBudget = "Budget";
