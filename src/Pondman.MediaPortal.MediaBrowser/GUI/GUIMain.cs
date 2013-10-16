@@ -459,9 +459,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 .Recursive()
                                 .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams);
 
-                if (MediaBrowserPlugin.Config.Settings.DefaultItemLimit > 0)
+                if (_browser.Settings.Limit > 0)
                 {
-                    _sortableQuery.Limit = MediaBrowserPlugin.Config.Settings.DefaultItemLimit;
+                    _sortableQuery.Limit = _browser.Settings.Limit;
                     _sortableQuery.Offset = e.Offset;
                 }
 
@@ -615,6 +615,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
             else
             {
+                _browser.Settings.Limit = MediaBrowserPlugin.Config.Settings.DefaultItemLimit;
                 _browser.Browse(item, null);
             }
         }

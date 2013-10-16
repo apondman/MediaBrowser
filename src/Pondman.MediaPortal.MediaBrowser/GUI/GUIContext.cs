@@ -1,5 +1,4 @@
-﻿using System;
-using MediaBrowser.Model.Dto;
+﻿using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.System;
 using MediaPortal.GUI.Library;
 using MediaPortal.Services;

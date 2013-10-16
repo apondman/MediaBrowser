@@ -315,8 +315,8 @@ Click Next to continue or Cancel to exit Setup.</Value>
     <Version>
       <Major>0</Major>
       <Minor>12</Minor>
-      <Build>5036</Build>
-      <Revision>42758</Revision>
+      <Build>5037</Build>
+      <Revision>3547</Revision>
     </Version>
     <ExtensionDescription>MediaPortal client for MediaBrowser3 server (http://www.mediabrowser3.com). </ExtensionDescription>
     <VersionDescription>- Added support for user profile settings
