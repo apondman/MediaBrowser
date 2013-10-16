@@ -55,12 +55,20 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <value>
         /// The name of the item by.
         /// </value>
-        public static ItemsByNameQuery ItemByName
+        public static ItemsByNameQuery Named
         {
            get 
             {
                 return new ItemsByNameQuery();
             }  
+        }
+
+        public static PersonsQuery Persons
+        {
+            get
+            {
+                return new PersonsQuery();
+            }
         }
 
         /// <summary>
@@ -78,12 +86,17 @@ namespace Pondman.MediaPortal.MediaBrowser
             return query.IncludeItemTypes("Audio");
         }
 
+        public static ItemQuery MusicAlbum(this ItemQuery query)
+        {
+            return query.IncludeItemTypes("MusicAlbum");
+        }
+
         /// <summary>
         /// Include TVShows in the current query
         /// </summary>
         /// <param name="query">The query.</param>
         /// <returns></returns>
-        public static ItemQuery TvShows(this ItemQuery query)
+        public static ItemQuery Series(this ItemQuery query)
         {
             return query.IncludeItemTypes("Series");
         }
@@ -191,18 +204,6 @@ namespace Pondman.MediaPortal.MediaBrowser
         }
 
         /// <summary>
-        /// Sorts the by.
-        /// </summary>
-        /// <param name="query">The query.</param>
-        /// <param name="fields">The fields.</param>
-        /// <returns></returns>
-        public static ItemsByNameQuery SortBy(this ItemsByNameQuery query, params string[] fields)
-        {
-            query.SortBy = query.SortBy.Concat(fields).ToArray();
-            return query;
-        }
-
-        /// <summary>
         /// Add filters to the query
         /// </summary>
         /// <param name="query">The query.</param>
@@ -237,11 +238,42 @@ namespace Pondman.MediaPortal.MediaBrowser
         }
 
         /// <summary>
+        /// Users the specified query.
+        /// </summary>
+        /// <typeparam name="TNamedQuery">The type of the named query.</typeparam>
+        /// <param name="query">The query.</param>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns></returns>
+        public static TNamedQuery User<TNamedQuery>(this TNamedQuery query, string userId) where TNamedQuery : ItemsByNameQuery
+        {
+            query.UserId = userId;
+            return query;
+        }
+
+        /// <summary>
+        /// Includes the specified query.
+        /// </summary>
+        /// <typeparam name="TNamedQuery">The type of the named query.</typeparam>
+        /// <param name="query">The query.</param>
+        /// <param name="includeItemTypes">The include item types.</param>
+        /// <returns></returns>
+        public static TNamedQuery Include<TNamedQuery>(this TNamedQuery query, params string[] includeItemTypes) where TNamedQuery : ItemsByNameQuery
+        {
+            query.SortBy = new[] {ItemSortBy.SortName};
+            query.SortOrder = SortOrder.Ascending;
+            query.IncludeItemTypes = includeItemTypes;
+            query.Recursive = true;
+            query.Fields = new[] { ItemFields.DateCreated};
+
+            return query;
+        }
+
+        /// <summary>
         /// Sort ascending.
         /// </summary>
         /// <param name="query">The query.</param>
         /// <returns></returns>
-        public static ItemsByNameQuery Ascending(this ItemsByNameQuery query)
+        public static TNamedQuery Ascending<TNamedQuery>(this TNamedQuery query) where TNamedQuery : ItemsByNameQuery
         {
             query.SortOrder = SortOrder.Ascending;
             return query;
@@ -252,9 +284,21 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// </summary>
         /// <param name="query">The query.</param>
         /// <returns></returns>
-        public static ItemsByNameQuery Descending(this ItemsByNameQuery query)
+        public static TNamedQuery Descending<TNamedQuery>(this TNamedQuery query) where TNamedQuery : ItemsByNameQuery
         {
             query.SortOrder = SortOrder.Descending;
+            return query;
+        }
+
+        /// <summary>
+        /// Sorts the by.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="fields">The fields.</param>
+        /// <returns></returns>
+        public static TNamedQuery SortBy<TNamedQuery>(this TNamedQuery query, params string[] fields) where TNamedQuery : ItemsByNameQuery
+        {
+            query.SortBy = query.SortBy.Concat(fields).ToArray();
             return query;
         }
 
@@ -356,7 +400,7 @@ namespace Pondman.MediaPortal.MediaBrowser
             return query;
         }
 
-        public static ItemsByNameQuery Apply(this ItemsByNameQuery query, SortableQuery options)
+        public static TNamedQuery Apply<TNamedQuery>(this TNamedQuery query, SortableQuery options) where TNamedQuery : ItemsByNameQuery
         {
             query.StartIndex = options.Offset;
             query.Limit = options.Limit;

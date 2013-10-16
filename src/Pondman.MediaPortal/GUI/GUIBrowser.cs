@@ -1,5 +1,6 @@
 ﻿using System.Net.Configuration;
 using System.Windows.Forms;
+using ConsoleApplication2.com.amazon.webservices;
 using MediaPortal.GUI.Library;
 using System;
 using System.Collections.Generic;
@@ -346,6 +347,12 @@ namespace Pondman.MediaPortal.GUI
             if (_settings.Limit > 0 && Current.HasMore && !IsBusy &&  Facade.SelectedListItemIndex > Current.List.Count - (int)(_settings.Limit / 2))
                 Continue(Current);
 
+            if (Current.HasMore && Facade.SelectedListItemIndex == Current.List.Count)
+            {
+                Facade.SelectIndex(Facade.SelectedListItemIndex-1);
+                return;
+            }
+
             Current.Selected = GetKeyForItem(item);
             DelayedItemHandler(item);
         }
@@ -356,11 +363,30 @@ namespace Pondman.MediaPortal.GUI
             for (var i = Current.Offset; i < list.Count; i++)
             {
                 var item = list[i];
-                Facade.Add(item);
+                if (Current.Offset > 0)
+                {
+                    Facade.Insert(i, item);
+                }
+                else
+                {
+                    Facade.Add(item);
+                }
 
                 if (!reselect || !GetKeyForItem(item).Equals(Current.Selected)) continue;
                 Facade.SelectIndex(i);
                 reselect = false;
+            }
+
+            // Add loading item 
+            if (Current.Offset == 0 && Current.HasMore)
+            {
+                Facade.Add(LoadingPlaceholderItem());
+            }
+
+            // Clear placeholder text when at the end of the list
+            if (Current.Offset > 0 && !Current.HasMore)
+            {
+                Facade[Current.List.Count].Label = string.Empty;
             }
 
             if (reselect)
@@ -407,6 +433,19 @@ namespace Pondman.MediaPortal.GUI
                 _publishTimer.Change(_settings.Delay, Timeout.Infinite);
             }
         }
+
+        GUIListItem LoadingPlaceholderItem()
+        {
+            var item = new GUIListItem(Settings.LoadingPlaceholderLabel);
+            item.OnItemSelected += OnItemSelected;
+
+            //todo: image?
+
+            return item;
+        }
+        
+        
+
 
     }
 }

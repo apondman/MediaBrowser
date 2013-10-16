@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Diagnostics;
+using System.Linq;
 using MediaBrowser.Model.Dto;
 using MediaPortal.Dialogs;
 using MediaPortal.GUI.Library;
@@ -123,7 +124,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <param name="dto">The dto.</param>
         public static void ViewDetails(BaseItemDto dto)
         {
-            if (!dto.Type.IsIn("Movie", "Episode", "Audio")) return;
+            if (!dto.Type.IsIn(MediaBrowserType.Movie, MediaBrowserType.Episode,MediaBrowserType.Audio,MediaBrowserType.Person)) return;
             var parameters = new MediaBrowserItem {Id = dto.Id};
             Window(MediaBrowserWindow.Details, parameters);
         }
@@ -136,7 +137,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         public static string GetContext(this BaseItemDto dto)
         {
             // todo: this will have to change
-            return dto.Type + "/" + dto.Id;
+            return dto.Type == "View" ? dto.Type + "/" + dto.Id : dto.Type;
         }
 
     }

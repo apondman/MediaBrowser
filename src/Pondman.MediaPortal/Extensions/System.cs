@@ -44,9 +44,19 @@ namespace System
             return str.IsNull() || String.IsNullOrEmpty(str.Trim());
         }
 
+        public static bool IsIn(this Enum num, params string[] args)
+        {
+            return num.ToString().IsIn(args);
+        }
+
         public static bool IsIn(this string str, params string[] args)
         {
             return args.Contains(str);
+        }
+
+        public static bool IsIn(this string str, params Enum[] args)
+        {
+            return args.Select(x => x.ToString()).Contains(str);
         }
 
         public static void SafeInvoke<T1>(this Action<T1> obj, T1 arg)

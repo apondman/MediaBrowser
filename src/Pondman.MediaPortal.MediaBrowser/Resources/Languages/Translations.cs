@@ -5,6 +5,8 @@
     /// </summary>
     public class Translations
     {
+        public string Album = "Album";
+        public string Albums = "Albums";
         public string Anonymous = "Anonymous";
         public string AllMovies = "All Movies";
 
@@ -43,6 +45,9 @@
 
         public string Networks = "Networks";
         public string NextUp = "Next Up";
+
+        public string Person = "Person";
+        public string People = "People";
 
         public string RandomMovie = "Random Movie";
         public string ResumableMovies = "Resumable Movies";
@@ -87,7 +92,5 @@
 
         // todo: add more translations
 
-
-        
     }
 }

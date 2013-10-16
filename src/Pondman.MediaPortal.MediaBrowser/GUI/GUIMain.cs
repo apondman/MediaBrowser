@@ -366,12 +366,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                             ? dto.PremiereDate.Value.ToString(GUIUtils.Culture.DateTimeFormat.ShortDatePattern)
                             : string.Empty;
                     break;
-                case "Series":
-                    item.Label2 = dto.ProductionYear.HasValue ? dto.ProductionYear.ToString() : string.Empty;
-                    break;
-                case "Movie":
-                    item.Label2 = dto.ProductionYear.HasValue ? dto.ProductionYear.ToString() : string.Empty;
-                    break;
                 case "Season":
                 case "BoxSet":
                     item.Label2 = dto.ChildCount.HasValue ? dto.ChildCount.ToString() : string.Empty;
@@ -387,11 +381,13 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                         item.Label2 = (dto.MovieCount ?? 0).ToString();
                     }
                     break;
+                default:
+                    item.Label2 = dto.ProductionYear.HasValue ? dto.ProductionYear.ToString() : string.Empty;
+                    break;
             }
             return item;
         }
 
-       
 
         #endregion
 
@@ -421,7 +417,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             _filters.Add(GetFilterItem(ItemFilter.Likes));
             _filters.Add(GetFilterItem(ItemFilter.Dislikes));
 
-            if (_currentItem.Type.IsIn("Genre", "Studio")) return;
+            if (_currentItem.Type.IsIn(MediaBrowserType.Genre, MediaBrowserType.Studio)) return;
 
             _filters.Add(GetFilterItem(ItemFilter.IsPlayed));
             _filters.Add(GetFilterItem(ItemFilter.IsUnplayed));
@@ -489,11 +485,13 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 LoadTvShowsViewsAndContinue(e);
                                 return;
                             case "movies-genres":
-                                GUIContext.Instance.Client.GetGenres(GetItemsByNameQuery("Movie"),
+                                GUIContext.Instance.Client.GetGenres(
+                                    MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Movie).Apply(_sortableQuery),
                                     result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
                                 return;
                             case "movies-studios":
-                                GUIContext.Instance.Client.GetStudios(GetItemsByNameQuery("Movie"),
+                                GUIContext.Instance.Client.GetStudios(
+                                    MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Movie).Apply(_sortableQuery),
                                     result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
                                 return;
                             case "movies-boxset":
@@ -514,23 +512,32 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                     .Filters(ItemFilter.IsResumable)
                                     .Descending();
                                 break;
+                            case "movies-people":
+                                GUIContext.Instance.Client.GetPeople(
+                                    MediaBrowserQueries.Persons.User(userId).Include(MediaBrowserType.Movie).Apply(_sortableQuery),
+                                    result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
+                                break;
                             case "movies-all":
-                                query = query
-                                    .Movies()
-                                    .SortBy(ItemSortBy.SortName);
+                                query = query.Movies();
                                 break;
                             case "music-songs":
                                 query = query
                                     .Audio()
                                     .SortBy(ItemSortBy.Album, ItemSortBy.SortName);
                                 break;
+                            case "music-albums":
+                                query = query
+                                    .MusicAlbum()
+                                    .SortBy(ItemSortBy.AlbumArtist, ItemSortBy.SortName);
+                                break;
                             case "tvshows-networks":
-                                GUIContext.Instance.Client.GetStudios(GetItemsByNameQuery("Series"),
+                                GUIContext.Instance.Client.GetStudios(
+                                    MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Series).Apply(_sortableQuery),
                                     result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
                                 return;
                             case "tvshows-all":
                                 query = query
-                                    .TvShows();
+                                    .Series();
                                 break;
                             case "tvshows-nextup":
                                 var next = new NextUpQuery { UserId = userId, Limit = 24 };
@@ -545,28 +552,34 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                     .Descending();
                                 break;
                             case "tvshows-genres":
-                                GUIContext.Instance.Client.GetGenres(GetItemsByNameQuery("Series"),
+                                GUIContext.Instance.Client.GetGenres(
+                                    MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Series).Apply(_sortableQuery),
                                     result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
                                 return;
+                            case "tvshows-people":
+                                GUIContext.Instance.Client.GetPeople(
+                                    MediaBrowserQueries.Persons.User(userId).Include(MediaBrowserType.Series).Apply(_sortableQuery),
+                                    result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
+                                break;
                         }
                         break;
-                    case "Genre":
+                    case MediaBrowserType.Genre:
                         query = query.Genres(item.Name).SortBy(ItemSortBy.SortName);
-                        query = CurrentItem.Id == "tvshows-genres" ? query.TvShows() : query.Movies();
+                        query = CurrentItem.Id == "tvshows-genres" ? query.Series() : query.Movies();
                         break;
-                    case "Studio":
+                    case MediaBrowserType.Studio:
                         query = query.Studios(item.Name).SortBy(ItemSortBy.SortName);
-                        query = CurrentItem.Id == "tvshows-networks" ? query.TvShows() : query.Movies();
+                        query = CurrentItem.Id == "tvshows-networks" ? query.Series() : query.Movies();
                         break;
-                    case "Series":
+                    case MediaBrowserType.Series:
                         query = item.SeasonCount > 0 ? query.Season().ParentId(item.Id).SortBy(ItemSortBy.SortName) : query.ParentId(item.Id);
                         break;
-                    case "Season":
-                        query = query.Episode().ParentId(item.Id).SortBy(ItemSortBy.SortName);
-                        break;
+                    //case MediaBrowserType.Season:
+                    //    query = query.Episode().ParentId(item.Id).SortBy(ItemSortBy.SortName);
+                    //    break;
                     default:
-                        // get movies by parent id
-                        query = query.Movies().ParentId(item.Id).SortBy(ItemSortBy.SortName);
+                        // get by parent id
+                        query = query.ParentId(item.Id).SortBy(ItemSortBy.SortName);
                         break;
                 }
 
@@ -609,7 +622,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 return;
 
             var dto = item.TVTag as BaseItemDto;
-            if (dto.Type.IsIn("Movie", "Episode", "Audio"))
+            if (dto.Type.IsIn(MediaBrowserType.Movie, MediaBrowserType.Episode, MediaBrowserType.Audio, MediaBrowserType.Person))
             {
                 ShowDetails(item);
             }
@@ -635,7 +648,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             request.List.Add(GetViewListItem("root-movies", MediaBrowserPlugin.UI.Resource.Movies));
             request.List.Add(GetViewListItem("root-tvshows", MediaBrowserPlugin.UI.Resource.TVShows));
             request.List.Add(GetViewListItem("root-music", MediaBrowserPlugin.UI.Resource.Music));
-            request.TotalItems = 3;
+            request.TotalItems = request.List.Count;
 
             _mre.Set();
         }
@@ -651,7 +664,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             request.List.Add(GetViewListItem("movies-boxset", MediaBrowserPlugin.UI.Resource.BoxSets));
             request.List.Add(GetViewListItem("movies-genres", MediaBrowserPlugin.UI.Resource.Genres));
             request.List.Add(GetViewListItem("movies-studios", MediaBrowserPlugin.UI.Resource.Studios));
-            request.TotalItems = 6;
+            request.List.Add(GetViewListItem("movies-people", MediaBrowserPlugin.UI.Resource.People));
+            request.TotalItems = request.List.Count;
 
             _mre.Set();
         }
@@ -663,7 +677,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         protected void LoadMusicViewsAndContinue(ItemRequestEventArgs request)
         {
             request.List.Add(GetViewListItem("music-songs", MediaBrowserPlugin.UI.Resource.Songs));
-            request.TotalItems = 1;
+            request.List.Add(GetViewListItem("music-albums", MediaBrowserPlugin.UI.Resource.Albums));
+            request.TotalItems =  request.List.Count;
             _mre.Set();
         }
 
@@ -677,24 +692,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             request.List.Add(GetViewListItem("tvshows-all", MediaBrowserPlugin.UI.Resource.Shows));
             request.List.Add(GetViewListItem("tvshows-genres", MediaBrowserPlugin.UI.Resource.Genres));
             request.List.Add(GetViewListItem("tvshows-networks", MediaBrowserPlugin.UI.Resource.Networks));
-            request.TotalItems = 5;
+            request.List.Add(GetViewListItem("tvshows-people", MediaBrowserPlugin.UI.Resource.People));
+            request.TotalItems = request.List.Count;
 
             _mre.Set();
-        }
-
-        protected ItemsByNameQuery GetItemsByNameQuery(params string[] includeItemTypes)
-        {
-            var query = new ItemsByNameQuery
-            {
-                SortBy = new[] {ItemSortBy.SortName},
-                SortOrder = SortOrder.Ascending,
-                IncludeItemTypes = includeItemTypes,
-                Recursive = true,
-                Fields = new[] {ItemFields.DateCreated},
-                UserId = GUIContext.Instance.Client.CurrentUserId
-            };
-
-            return query.Apply(_sortableQuery);
         }
 
         protected void ShowItemsErrorAndContinue(Exception e)
