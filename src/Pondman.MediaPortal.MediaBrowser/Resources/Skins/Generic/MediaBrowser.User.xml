@@ -75,14 +75,14 @@
     </control>
     
     <control>
-      <description>User Image</description>
+      <description>MediaBrowser.Image.User</description>
       <type>image</type>
       <id>201</id>
       <posX>1788</posX>
       <posY>156</posY>
       <width>60</width>
       <height>60</height>
-      <texture>#MediaBrowser.User.Avatar</texture>
+      <texture>#MediaBrowser.Image.User</texture>
       <keepaspectratio>no</keepaspectratio>
       <visible>string.equals(#MediaBrowser.User.HasPrimaryImage,True)</visible>
       <animation effect="fade" time="250">WindowOpen</animation>

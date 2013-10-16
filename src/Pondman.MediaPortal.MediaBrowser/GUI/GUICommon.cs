@@ -43,18 +43,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 }
             };
 
-        public static readonly Action<UserDto> UserPublishWorker = (user) =>
-        {
-            string prefix = MediaBrowserPlugin.DefaultProperty + ".User";
-            string avatar = string.Empty;
-            user.Publish(prefix);
-            if (user.HasPrimaryImage)
-            {
-                // todo: let skin define dimensions
-                avatar = GUIContext.Instance.Client.GetLocalUserImageUrl(user, new ImageOptions { Width = 60, Height = 60 });
-            }
-            GUIUtils.Publish(prefix + ".Avatar", avatar);
-        };
+        public static readonly Action<UserDto> UserPublishWorker = (user) => user.Publish(MediaBrowserPlugin.DefaultProperty + ".User");
 
         public static readonly Action<MPGui.GUIListItem> UserImageDownloadAndAssign =
             (item) =>

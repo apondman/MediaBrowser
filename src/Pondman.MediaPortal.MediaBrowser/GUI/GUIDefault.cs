@@ -369,6 +369,13 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
                     // update the user context, reset views and continue
                     GUIContext.Instance.Client.CurrentUser = user;
+
+                    if (user.HasPrimaryImage)
+                    {
+                        var avatar = ImageResources["User"];
+                        avatar.Resource.Filename = GUIContext.Instance.Client.GetLocalUserImageUrl(user, new ImageOptions { Width = avatar.Width, Height = avatar.Height });
+                    }
+
                     Reset();
                     return;
                 }
