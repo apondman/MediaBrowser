@@ -78,11 +78,14 @@
     <Compile Include="Extensions\GUIWindow.cs" />
     <Compile Include="Extensions\Stream.cs" />
     <Compile Include="Extensions\System.cs" />
+    <Compile Include="GUI\BrowserPublishSettings.cs" />
+    <Compile Include="GUI\BrowserView.cs" />
     <Compile Include="GUI\GUIBrowser.cs" />
     <Compile Include="GUI\GUIWindowX.cs" />
     <Compile Include="Extensions\GUIFacadeControl.cs" />
     <Compile Include="GUI\GUITask.cs" />
     <Compile Include="GUI\GUIUtils.cs" />
+    <Compile Include="GUI\ItemRequestEventArgs.cs" />
     <Compile Include="i18n.cs" />
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Logger\Log4NetLogger.cs" />

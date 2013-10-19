@@ -12,69 +12,6 @@ using System.ComponentModel;
 
 namespace Pondman.MediaPortal.GUI
 {
-    public class BrowserPublishSettings
-    {
-        public BrowserPublishSettings()
-        {
-            Prefix = "#";
-            Delay = 250;
-            LoadingPlaceholderLabel = "Loading ...";
-        }
-        
-        public string Prefix { get; set; }
-        
-        public int Delay { get; set; }
-
-        public int Limit { get; set; }
-
-        public string LoadingPlaceholderLabel { get; set; }
-
-    }
-
-    public class BrowserView<TIdentifier>
-    {
-        public BrowserView()
-        {
-            List = new List<GUIListItem>();
-        } 
-        
-        public GUIListItem Parent { get; set; }
-
-        public List<GUIListItem> List { get; set; }
-
-        public int Offset { get; set; }
-
-        public int Total { get; set; }
-
-        public TIdentifier Selected { get; set; }
-
-        public bool HasMore
-        {
-            get
-            {
-                return (List.Count < Total);
-            }
-        }
-    }
-
-    public class ItemRequestEventArgs : EventArgs
-    {
-        public ItemRequestEventArgs(GUIListItem parent, int offset)
-        {
-            Parent = parent;
-            List = new List<GUIListItem>();
-            Offset = offset;
-        }
-
-        public GUIListItem Parent { get; private set; }
-
-        public List<GUIListItem> List { get; private set; }
-
-        public int Offset { get; private set; }
-
-        public int TotalItems { get; set; }
-    }
-
     public class GUIBrowser : GUIBrowser<int>
     {
         public GUIBrowser(ILogger logger = null)
@@ -249,6 +186,7 @@ namespace Pondman.MediaPortal.GUI
             if (!IsBusy || _worker.CancellationPending) return false;
 
             _worker.CancelAsync();
+            GUIWaitCursor.Hide();
             return true;
         }
 
