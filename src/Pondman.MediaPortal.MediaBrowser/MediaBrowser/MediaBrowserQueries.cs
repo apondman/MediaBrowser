@@ -71,6 +71,14 @@ namespace Pondman.MediaPortal.MediaBrowser
             }
         }
 
+        public static NextUpQuery NextUp
+        {
+            get
+            {
+                return new NextUpQuery();
+            }
+        }
+
         /// <summary>
         /// Include Box Sets in the current query
         /// </summary>
@@ -108,7 +116,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <returns></returns>
         public static ItemQuery Movies(this ItemQuery query)
         {
-            return query.IncludeItemTypes("Movie");
+            return query.IncludeItemTypes(MediaBrowserType.Movie);
         }
 
         /// <summary>
@@ -234,6 +242,24 @@ namespace Pondman.MediaPortal.MediaBrowser
         public static ItemQuery Descending(this ItemQuery query)
         {
             query.SortOrder = SortOrder.Descending;
+            return query;
+        }
+
+        public static NextUpQuery User(this NextUpQuery query, string userId)
+        {
+            query.UserId = userId;
+            return query;
+        }
+
+        public static NextUpQuery Limit(this NextUpQuery query, int? limit)
+        {
+            query.Limit = limit;
+            return query;
+        }
+
+        public static NextUpQuery Fields(this NextUpQuery query, params ItemFields[] fields)
+        {
+            query.Fields = (query.Fields ?? new ItemFields[]{}).Concat(fields).ToArray();
             return query;
         }
 
@@ -402,6 +428,11 @@ namespace Pondman.MediaPortal.MediaBrowser
             if (options.Filters.Count > 0)
             {
                 options.Filters.ToList().ForEach(x => query.Filters(x));
+            }
+
+            if (!options.StartsWith.IsIn(null, "#"))
+            {
+                query.NameStartsWithOrGreater = options.StartsWith;
             }
 
             return query;

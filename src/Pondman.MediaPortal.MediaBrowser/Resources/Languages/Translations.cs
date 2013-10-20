@@ -51,6 +51,11 @@
         public string People = "People";
 
         public string RandomMovie = "Random Movie";
+        public string RandomEpisode = "Random Episode";
+        public string RandomUnseenMovie = "Random Unseen Movie";
+        public string RandomUnseenEpisode = "Random Unseen Episode";
+        public string RecentlyAddedEpisodes = "Recently Added Episodes";
+        public string RecentlyAddedMovies = "Recently Added Movies";
         public string ResumableMovies = "Resumable Movies";
         public string ResumeFrom = "Resume from:";
         public string ResumeFromLast = "Resume last session?";
@@ -74,6 +79,7 @@
         public string SortByRevenue = "Revenue";
         public string SortByRuntime = "Runtime";
         public string SortOptions = "Sort Options";
+        public string StartsWith = "Starts With";
         public string Studio = "Studio";
         public string Studios = "Studios";
 
@@ -93,5 +99,7 @@
 
         // todo: add more translations
 
+
+        
     }
 }

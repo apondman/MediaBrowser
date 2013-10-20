@@ -14,6 +14,8 @@ namespace Pondman.MediaPortal.MediaBrowser.Models
 
         public int? Offset { get; set; }
 
+        public string StartsWith { get; set; }
+
         public string SortBy { get; set; }
 
         public bool? Descending { get; set; }

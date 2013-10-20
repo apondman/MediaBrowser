@@ -146,6 +146,7 @@
     </Content>
     <Content Include="Resources\Skins\Generic\MediaBrowser.Main.HiddenMenu.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Resources\Skins\Generic\MediaBrowser.Main.Views.xml">
       <SubType>Designer</SubType>

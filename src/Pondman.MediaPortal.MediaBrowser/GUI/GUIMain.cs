@@ -1,15 +1,12 @@
 ﻿using MediaBrowser.Model.Dto;
-using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Querying;
 using MediaBrowser.Model.Search;
 using MediaPortal.GUI.Library;
-using MediaPortal.Services;
 using Pondman.MediaPortal.GUI;
 using Pondman.MediaPortal.MediaBrowser.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using MPGui = MediaPortal.GUI.Library;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
@@ -43,6 +40,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             RegisterCommand("Sort", SortCommand);
             RegisterCommand("Filter", FilterCommand);
             RegisterCommand("Search", SearchCommand);
+            RegisterCommand("StartsWith", StartsWithCommand);
         }
 
         #region Controls
@@ -92,6 +90,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         protected void SearchCommand(GUIControl control, MPGui.Action.ActionType actionType)
         {
             ShowSearchDialog();
+        }
+
+        protected void StartsWithCommand(GUIControl control, MPGui.Action.ActionType actionType)
+        {
+            ShowAlphabetDialog();
         }
 
         #endregion
@@ -192,8 +195,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             {
                 case MPGui.Action.ActionType.ACTION_PARENT_DIR:
                     // reset sortable query
-                    // todo: bad place
-                    _sortableQuery = new SortableQuery();
                     OnPreviousWindow();
                     break;
                 default:
@@ -206,8 +207,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             // show the profile selection dialog for now
             // ShowUserProfilesDialog();
-            //ShowSortMenuDialog();
-            //ShowSearchDialog();
+            // ShowSortMenuDialog();
+            // ShowSearchDialog();
             ShowFilterMenuDialog();
         }
 
@@ -216,6 +217,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// </summary>
         protected override void OnPreviousWindow()
         {
+            // reset sortable query
+            _sortableQuery = new SortableQuery();
             // if we are in the root go to the previous window
             if (!_browser.Back())
             {
@@ -274,7 +277,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             {
                 facade.CurrentLayout = savedLayout.Value;
             }
-
+            
             // if the facade changed
             if (facade != Facade)
             {
@@ -354,7 +357,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     break;
                 case "Episode":
 
-                    if (context != null && context.Id == "tvshows-nextup")
+                    if (context != null && context.Id.IsIn("tvshows-nextup", "tvshows-unwatched", "tvshows-latest"))
                     {
                         item.Label = dto.SeriesName + String.Format(" - {0}x{1} - {2}", dto.ParentIndexNumber ?? 0, dto.IndexNumber ?? 0, item.Label);
                     }
@@ -421,6 +424,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             _filters.Add(GetFilterItem(ItemFilter.IsPlayed));
             _filters.Add(GetFilterItem(ItemFilter.IsUnplayed));
             _filters.Add(GetFilterItem(ItemFilter.IsResumable));
+
         }
 
         /// <summary>
@@ -497,17 +501,23 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 query = query
                                     .BoxSets();
                                 break;
+                            case "movies-unwatched":
+                                query = query
+                                    .Movies()
+                                    .SortBy(ItemSortBy.DateCreated, ItemSortBy.SortName)
+                                    .Filters(ItemFilter.IsUnplayed)
+                                    .Descending();
+                                break;
                             case "movies-latest":
                                 query = query
                                     .Movies()
-                                    .SortBy(ItemSortBy.DateCreated)
-                                    .Filters(ItemFilter.IsUnplayed)
+                                    .SortBy(ItemSortBy.DateCreated, ItemSortBy.SortName)
                                     .Descending();
                                 break;
                             case "movies-resume":
                                 query = query
                                     .Movies()
-                                    .SortBy(ItemSortBy.DatePlayed)
+                                    .SortBy(ItemSortBy.DatePlayed, ItemSortBy.SortName)
                                     .Filters(ItemFilter.IsResumable)
                                     .Descending();
                                 break;
@@ -539,11 +549,17 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                     .Series();
                                 break;
                             case "tvshows-nextup":
-                                var next = new NextUpQuery { UserId = userId, Limit = 24 };
-                                GUIContext.Instance.Client.GetNextUp(next,
+                                GUIContext.Instance.Client.GetNextUp(
+                                    MediaBrowserQueries.NextUp.User(userId).Fields(ItemFields.Overview).Limit(24),
                                     result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
                                 return;
                             case "tvshows-latest":
+                                query = query
+                                    .Episode()
+                                    .SortBy(ItemSortBy.DateCreated, ItemSortBy.SortName)
+                                    .Descending();
+                                break;
+                            case "tvshows-unwatched":
                                 query = query
                                     .Episode()
                                     .SortBy(ItemSortBy.DateCreated, ItemSortBy.SortName)
@@ -657,7 +673,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// </summary>
         protected void LoadMovieViewsAndContinue(ItemRequestEventArgs request)
         {
-            request.List.Add(GetViewListItem("movies-latest", MediaBrowserPlugin.UI.Resource.LatestUnwatchedMovies));
+            request.List.Add(GetViewListItem("movies-latest", MediaBrowserPlugin.UI.Resource.RecentlyAddedMovies));
+            request.List.Add(GetViewListItem("movies-unwatched", MediaBrowserPlugin.UI.Resource.LatestUnwatchedMovies));
             request.List.Add(GetViewListItem("movies-resume", MediaBrowserPlugin.UI.Resource.ResumableMovies));
             request.List.Add(GetViewListItem("movies-all", MediaBrowserPlugin.UI.Resource.AllMovies));
             request.List.Add(GetViewListItem("movies-boxset", MediaBrowserPlugin.UI.Resource.BoxSets));
@@ -677,6 +694,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             request.List.Add(GetViewListItem("music-songs", MediaBrowserPlugin.UI.Resource.Songs));
             request.List.Add(GetViewListItem("music-albums", MediaBrowserPlugin.UI.Resource.Albums));
+            //request.List.Add(GetViewListItem("music-genres", MediaBrowserPlugin.UI.Resource.Genres));
             request.TotalItems =  request.List.Count;
             _mre.Set();
         }
@@ -686,8 +704,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// </summary>
         protected void LoadTvShowsViewsAndContinue(ItemRequestEventArgs request)
         {
-            request.List.Add(GetViewListItem("tvshows-latest", MediaBrowserPlugin.UI.Resource.LatestUnwatchedEpisodes));
             request.List.Add(GetViewListItem("tvshows-nextup", MediaBrowserPlugin.UI.Resource.NextUp));
+            request.List.Add(GetViewListItem("tvshows-latest", MediaBrowserPlugin.UI.Resource.RecentlyAddedEpisodes));
+            request.List.Add(GetViewListItem("tvshows-unwatched", MediaBrowserPlugin.UI.Resource.LatestUnwatchedEpisodes));
             request.List.Add(GetViewListItem("tvshows-all", MediaBrowserPlugin.UI.Resource.Shows));
             request.List.Add(GetViewListItem("tvshows-genres", MediaBrowserPlugin.UI.Resource.Genres));
             request.List.Add(GetViewListItem("tvshows-networks", MediaBrowserPlugin.UI.Resource.Networks));
@@ -815,6 +834,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             _sortableQuery.SortBy = field;
             _sortableQuery.Publish(MediaBrowserPlugin.DefaultProperty + ".Sortable");
 
+            // todo: not needed
             CurrentItem = null;
 
             _browser.Reload(true);
@@ -834,6 +854,22 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             };
 
             Navigate(GetBaseListItem(dto));
+        }
+
+        protected void ShowAlphabetDialog()
+        {
+            var list =
+                "#ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray()
+                    .Select(x => new GUIListItem {Label = x.ToString(), Path = x.ToString()});
+            var items = new List<GUIListItem>(list);
+            
+            var result = GUIUtils.ShowMenuDialog(T.StartsWith, items, items.FindIndex(x => x.Path == _sortableQuery.StartsWith));
+            if (result == -1) return;
+
+            _sortableQuery.StartsWith = items[result].Path;
+            _sortableQuery.Publish(MediaBrowserPlugin.DefaultProperty + ".Sortable");
+
+            _browser.Reload(true);
         }
 
         private static GUIListItem GetSortItem(string label, string field)

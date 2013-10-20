@@ -188,8 +188,25 @@
           <textYOff>16</textYOff>
           <onleft>50</onleft>
           <onright>50</onright>
-          <ondown>66611</ondown>
+          <ondown>16</ondown>
           <onup>14</onup>
+        </control>
+
+        <control>
+          <description>MediaBrowser.Command.StartsWith</description>
+          <type>button</type>
+          <id>16</id>
+          <label>#MediaBrowser.Translation.StartsWith.Label</label>
+          <textureFocus>hiddenmenu_item_selected.png</textureFocus>
+          <textureNoFocus>-</textureNoFocus>
+          <width>499</width>
+          <height>69</height>
+          <textXOff>62</textXOff>
+          <textYOff>16</textYOff>
+          <onup>15</onup>
+          <onleft>50</onleft>
+          <onright>50</onright>
+          <ondown>66611</ondown>
         </control>
 
         <control>
@@ -207,7 +224,7 @@
           <visible>plugin.isenabled(SubCentral)</visible>
           <onleft>50</onleft>
           <onright>50</onright>
-          <onup>14</onup>
+          <onup>16</onup>
           <ondown>66661</ondown>
         </control>
 
