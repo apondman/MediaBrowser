@@ -328,14 +328,14 @@
       <posY>635</posY>
       <width>790</width>
       <height>205</height>
-      <label>#MediaBrowser.Selected.Overview</label>
+      <label>#(iif(eq(#MediaBrowser.Current.Type,'Series'),#MediaBrowser.Current.Overview,#MediaBrowser.Selected.Overview))</label>
       <seperator>---------------------------------------------------------------------------------------------------------</seperator>
       <onleft>1026</onleft>
       <onright>1026</onright>
       <onup>1026</onup>
       <ondown>1026</ondown>
       <lineSpacing>0.92</lineSpacing>
-      <visible>[facadeview.smallicons | facadeview.largeicons]+string.equals(#MediaBrowser.Selected.Type,BoxSet)</visible>
+      <visible>[facadeview.smallicons | facadeview.largeicons]</visible>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
     </control>
@@ -460,25 +460,7 @@
       <animation effect="fade" time="250">WindowClose</animation>
     </control>
 
-    <control>
-      <description>Summary (list)</description>
-      <type>textboxscrollup</type>
-      <id>1025</id>
-      <posX>1040</posX>
-      <posY>635</posY>
-      <width>790</width>
-      <height>205</height>
-      <label>#MediaBrowser.Selected.Overview</label>
-      <seperator>---------------------------------------------------------------------------------------------------------</seperator>
-      <onleft>1026</onleft>
-      <onright>1026</onright>
-      <onup>1026</onup>
-      <ondown>1026</ondown>
-      <lineSpacing>0.92</lineSpacing>
-      <visible>Control.IsVisible(5)</visible>
-      <animation effect="fade" time="250">WindowOpen</animation>
-      <animation effect="fade" time="250">WindowClose</animation>
-    </control>
+    
 
     <control>
       <description>Logo frame</description>
