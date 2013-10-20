@@ -101,7 +101,7 @@
     <Compile Include="GUI\GUIMain.cs" />
     <Compile Include="Resources\Languages\Translations.cs" />
     <Compile Include="Settings\MediaBrowserContextSettings.cs" />
-    <Compile Include="Shared\StringCipher.cs" />
+    <Compile Include="Shared\DataProtection.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Pondman.MediaPortal\Pondman.MediaPortal.csproj">
