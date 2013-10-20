@@ -118,7 +118,7 @@ namespace Pondman.MediaPortal
             }
             else
             {
-                if (_property != null)
+                if (_property != null && GUIPropertyManager.GetProperty(_property) == string.Empty)
                 {
                     GUIPropertyManager.SetProperty(_property, "-");
                 }
