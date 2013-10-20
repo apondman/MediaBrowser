@@ -289,6 +289,12 @@ namespace Pondman.MediaPortal.MediaBrowser
             return query;
         }
 
+        public static TNamedQuery Fields<TNamedQuery>(this TNamedQuery query, params ItemFields[] fields) where TNamedQuery : ItemsByNameQuery
+        {
+            query.Fields = (query.Fields ?? new ItemFields[] { }).Concat(fields).ToArray();
+            return query;
+        }
+
         /// <summary>
         /// Sort ascending.
         /// </summary>
@@ -343,7 +349,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <returns></returns>
         public static ItemQuery Fields(this ItemQuery query, params ItemFields[] fields)
         {
-            query.Fields = query.Fields.Concat(fields).ToArray();
+            query.Fields = (query.Fields ?? new ItemFields[]{}).Concat(fields).ToArray();
             return query;
         }
 
