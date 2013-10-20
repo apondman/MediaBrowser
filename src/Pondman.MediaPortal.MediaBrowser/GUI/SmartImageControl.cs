@@ -20,8 +20,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             Resource = new AsyncImageResource(MediaBrowserPlugin.Log)
             {
-                Property = MediaBrowserPlugin.DefaultProperty + ".Image." + string.Join(".", tokens.Skip(2).ToArray()),
-                Delay = 0
+                Property = control.FileName,
+                Delay = 0,
             };
         }
 
