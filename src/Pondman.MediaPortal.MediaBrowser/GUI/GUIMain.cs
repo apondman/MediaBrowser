@@ -16,7 +16,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
     /// </summary>
     public class GUIMain : GUIDefault
     {
-        private readonly GUIBrowser<string> _browser;
+        private readonly GUIBrowser _browser;
         private readonly List<GUIListItem> _filters;
         private readonly Dictionary<string, GUIFacadeControl> _facades;
         private SortableQuery _sortableQuery;
@@ -24,7 +24,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         public GUIMain()
             : base(MediaBrowserWindow.Main)
         {
-            _browser = new GUIBrowser<string>(GetIdentifier, MediaBrowserPlugin.Log);
+            _browser = new GUIBrowser(MediaBrowserPlugin.Log);
             _browser.Settings.Prefix = MediaBrowserPlugin.DefaultProperty;
             _browser.Settings.LoadingPlaceholderLabel = MediaBrowserPlugin.UI.Resource.LoadingMoreItems;
             _browser.ItemSelected += OnBaseItemSelected;
@@ -339,6 +339,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             var item = new GUIListItem(dto.Name)
             {
+                ItemId = (dto.Type + "/" + dto.Id).GetHashCode(),
                 Path = dto.GetContext(),
                 Year = dto.ProductionYear.GetValueOrDefault(),
                 TVTag = dto,
@@ -523,7 +524,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 break;
                             case "movies-people":
                                 GUIContext.Instance.Client.GetPeople(
-                                    MediaBrowserQueries.Persons.User(userId).Include(MediaBrowserType.Movie).Apply(_sortableQuery),
+                                    MediaBrowserQueries.Persons.User(userId).Fields(ItemFields.Overview).Include(MediaBrowserType.Movie).Apply(_sortableQuery),
                                     result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
                                 return;
                             case "movies-all":
@@ -573,7 +574,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 return;
                             case "tvshows-people":
                                 GUIContext.Instance.Client.GetPeople(
-                                    MediaBrowserQueries.Persons.User(userId).Include(MediaBrowserType.Series).Apply(_sortableQuery),
+                                    MediaBrowserQueries.Persons.User(userId).Fields(ItemFields.Overview).Include(MediaBrowserType.Series).Apply(_sortableQuery),
                                     result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
                                 return;
                         }
@@ -644,7 +645,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             else
             {
                 _browser.Settings.Limit = MediaBrowserPlugin.Config.Settings.DefaultItemLimit;
-                _browser.Browse(item, null);
+                _browser.Browse(item, -1);
             }
         }
 
@@ -730,16 +731,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             var details = item.TVTag as BaseItemDto;
             details.IfNotNull(GUICommon.ViewDetails);
-        }
-
-        /// <summary>
-        ///     Gets the unique identifier for the list item
-        /// </summary>
-        /// <param name="item">The item.</param>
-        /// <returns></returns>
-        protected string GetIdentifier(GUIListItem item)
-        {
-            return item == null ? string.Empty : item.Path;
         }
 
         /// <summary>

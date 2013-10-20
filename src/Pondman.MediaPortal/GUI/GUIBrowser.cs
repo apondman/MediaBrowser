@@ -254,7 +254,7 @@ namespace Pondman.MediaPortal.GUI
             Facade.CurrentLayout = Facade.CurrentLayout;
             Facade.ClearAll();
 
-            Populate(true);
+            Populate();
 
             // Publish current item
             if (ItemPublished != null)
@@ -341,7 +341,6 @@ namespace Pondman.MediaPortal.GUI
 
             list.Count.Publish(_settings.Prefix + ".Browser.Items.Current");
             Current.Total.Publish(_settings.Prefix + ".Browser.Items.Total");
-            // todo: add filtered count
         }
 
         protected TIdentifier GetKeyForItem(GUIListItem item)
@@ -381,9 +380,6 @@ namespace Pondman.MediaPortal.GUI
 
             return item;
         }
-        
-        
-
 
     }
 }

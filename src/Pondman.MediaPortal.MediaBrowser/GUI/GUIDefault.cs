@@ -73,9 +73,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 return;
             }
 
-            // Publish User Info
-            GUIContext.Instance.PublishUser();
-
             // if we are already logged in we are done
             if (GUIContext.Instance.Client.IsUserLoggedIn) return;
 
@@ -102,6 +99,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
                 Log.Debug("Detected {0} smart image controls.", detected);
             }
+
+            // Publish User Info
+            GUIContext.Instance.PublishUser();
 
             _backdrop.GUIImageOne = _backdropControl1;
             _backdrop.GUIImageTwo = _backdropControl2;
@@ -191,27 +191,33 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             // Streams
             string streamPrefix = prefix + ".MediaStreams";
-            //GUIUtils.Unpublish(streamPrefix);
             if (movie.MediaStreams != null && movie.MediaStreams.Count > 0)
             {
                 movie.MediaStreams.GroupBy(p => p.Type)
                     .ToDictionary(x => x.Key)
                     .Publish(streamPrefix);
             }
+            else
+            {
+                GUIUtils.Unpublish(streamPrefix);
+            }
 
             // People
             string peoplePrefix = prefix + ".People";
-            //GUIUtils.Unpublish(peoplePrefix);
             if (movie.People != null && movie.People.Length > 0)
             {
-                movie.People.GroupBy(p => p.Type)
-                    .ToDictionary(x => x.Key)
-                    .Publish(peoplePrefix);
+                //movie.People.GroupBy(p => p.Type)
+                //    .ToDictionary(x => x.Key)
+                //    .Publish(peoplePrefix);
 
                 // People lists
                 movie.People.GroupBy(p => p.Type)
                     .ToDictionary(x => x.Key + ".List", x => x.ToDelimited(s => s.Name))
                     .Publish(peoplePrefix);
+            }
+            else
+            {
+                GUIUtils.Unpublish(peoplePrefix);
             }
 
             // Lists
@@ -476,6 +482,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             GUIContext.Instance.PublishUser();
         }
+
     }
 
     public abstract class GUIDefault : GUIDefault<MediaBrowserItem>
