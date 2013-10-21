@@ -114,10 +114,6 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Images\mblogoicon.png" />
-    <Content Include="Resources\Skins\Generic\MediaBrowser.Details.Person.xml">
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Resources\Skins\Generic\MediaBrowser.Details.Episode.xml">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

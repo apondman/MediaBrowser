@@ -1,5 +1,4 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<!--version="1.0" encoding="utf-8"-->
 <window>
   <id>201306032</id>
   <defaultcontrol>10</defaultcontrol>
@@ -30,7 +29,6 @@
     <import>MediaBrowser.Details.MediaInfo.xml</import>
     <import>MediaBrowser.Details.Movie.xml</import>
     <import>MediaBrowser.Details.Episode.xml</import>
-    <import>MediaBrowser.Details.Person.xml</import>
 
     <control>
       <description>Button group</description>
@@ -162,6 +160,7 @@
         <label>207</label>
         <textcolor>FF000000</textcolor>
         <textcolorNoFocus>ffffffff</textcolorNoFocus>
+        <visible>!string.equals(#MediaBrowser.Details.Type,Audio)</visible>
       </control>
 
       <control>
@@ -175,6 +174,7 @@
         <ondown>10003</ondown>
         <textcolor>FF000000</textcolor>
         <textcolorNoFocus>ffffffff</textcolorNoFocus>
+        <visible>!string.equals(#MediaBrowser.Details.Type,Audio)</visible>
       </control>
 
       <control>
@@ -186,7 +186,7 @@
         <textcolorNoFocus>ffffffff</textcolorNoFocus>
         <onup>20002</onup>
         <ondown>20004</ondown>
-        <visible>plugin.isenabled(OnlineVideos)</visible>
+        <visible>plugin.isenabled(OnlineVideos)+!string.equals(#MediaBrowser.Details.Type,Audio)</visible>
       </control>
 
       <control>
@@ -198,7 +198,7 @@
         <textcolorNoFocus>ffffffff</textcolorNoFocus>
         <onup>20003</onup>
         <ondown>27270</ondown>
-        <visible>plugin.isenabled(SubCentral)</visible>
+        <visible>plugin.isenabled(SubCentral)+!string.equals(#MediaBrowser.Details.Type,Audio)</visible>
       </control>
 
       <control>
@@ -210,7 +210,7 @@
         <textcolorNoFocus>ffffffff</textcolorNoFocus>
         <onup>20004</onup>
         <ondown>6</ondown>
-        <visible>plugin.isenabled(Trakt)</visible>
+        <visible>plugin.isenabled(Trakt)+!string.equals(#MediaBrowser.Details.Type,'Audio')</visible>
       </control>
     </control>
 
