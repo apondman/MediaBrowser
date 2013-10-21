@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Querying;
 
 namespace Pondman.MediaPortal.MediaBrowser.Models
@@ -8,8 +9,9 @@ namespace Pondman.MediaPortal.MediaBrowser.Models
         public SortableQuery()
         {
             Filters = new HashSet<ItemFilter>();
+            PersonTypes = new HashSet<string>();
         }
-        
+
         public int? Limit { get; set; }
 
         public int? Offset { get; set; }
@@ -21,5 +23,7 @@ namespace Pondman.MediaPortal.MediaBrowser.Models
         public bool? Descending { get; set; }
 
         public HashSet<ItemFilter> Filters { get; set; }
+
+        public HashSet<string> PersonTypes { get; set; }
     }
 }

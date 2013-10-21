@@ -12,6 +12,8 @@
 
         public string Actor = "Actor";
         public string Actors = "Actors";
+        public string Artist = "Artist";
+        public string Artists = "Artists";
 
         public string BoxSets = "Box Sets";
 
@@ -98,8 +100,6 @@
         public string UserProfileRememberMeText = "Should I remember your login for next time?";
 
         // todo: add more translations
-
-
         
     }
 }

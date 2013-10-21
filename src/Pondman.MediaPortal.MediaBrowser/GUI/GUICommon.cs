@@ -113,7 +113,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <param name="dto">The dto.</param>
         public static void ViewDetails(BaseItemDto dto)
         {
-            if (!dto.Type.IsIn(MediaBrowserType.Movie, MediaBrowserType.Episode,MediaBrowserType.Audio,MediaBrowserType.Person)) return;
+            if (!dto.Type.IsIn(MediaBrowserType.Movie, MediaBrowserType.Episode,MediaBrowserType.Audio)) return;
             var parameters = new MediaBrowserItem {Id = dto.Id};
             Window(MediaBrowserWindow.Details, parameters);
         }

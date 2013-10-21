@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading;
-using MediaBrowser.Model.Dto;
+﻿using MediaBrowser.Model.Dto;
 using MediaPortal.GUI.Library;
-using MPGui = MediaPortal.GUI.Library;
-using MediaBrowser.Model.Entities;
 using Pondman.MediaPortal.MediaBrowser.Models;
+using System;
+using System.Linq;
+using System.Threading;
+using MPGui = MediaPortal.GUI.Library;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
 {
@@ -58,7 +53,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             {
                 if (_movie != null)
                 {
-                    PublishMovieDetails(_movie);
+                    PublishItemDetails(_movie);
                 }
                 else
                 {
@@ -72,9 +67,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
         }
 
-    
-
-    #region Commands
+        #region Commands
 
         protected void PlayCommand(GUIControl control, MPGui.Action.ActionType actionType)
         {
@@ -147,11 +140,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         protected void PublishMovieDetailsTask(BaseItemDto movie)
         {
             PublishItemDetails(movie);
-        }
-
-        protected override void PublishMovieDetails(BaseItemDto movie, string prefix = null)
-        {
-            base.PublishMovieDetails(movie, prefix);
             if (!Parameters.Playback) return;
             Parameters.Playback = false;
             GUITask.MainThreadCallback(() => Play(Parameters.ResumeFrom));

@@ -1,14 +1,13 @@
-﻿using System.Net.Sockets;
-using System.Threading;
-using MediaBrowser.Model.Dto;
+﻿using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Entities;
 using MediaPortal.GUI.Library;
 using Pondman.MediaPortal.MediaBrowser.Models;
 using Pondman.MediaPortal.MediaBrowser.Resources.Languages;
+using Pondman.MediaPortal.MediaBrowser.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Pondman.MediaPortal.MediaBrowser.Shared;
+using System.Threading;
 using MPGUI = MediaPortal.GUI.Library;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
@@ -173,27 +172,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             // Publish all properties
             item.Publish(prefix, "People", "MediaStreams");
 
-            PublishMovieDetails(item, prefix);
-
-            // Artwork
-            PublishArtwork(item);
-        }
-
-        /// <summary>
-        /// Publishes the movie details.
-        /// </summary>
-        /// <param name="movie">The movie.</param>
-        /// <param name="prefix">The prefix.</param>
-        protected virtual void PublishMovieDetails(BaseItemDto movie, string prefix = null)
-        {
-            // Check for prefix
-            prefix = prefix ?? _publishPrefix;
-
             // Streams
             string streamPrefix = prefix + ".MediaStreams";
-            if (movie.MediaStreams != null && movie.MediaStreams.Count > 0)
+            if (item.MediaStreams != null && item.MediaStreams.Count > 0)
             {
-                movie.MediaStreams.GroupBy(p => p.Type)
+                item.MediaStreams.GroupBy(p => p.Type)
                     .ToDictionary(x => x.Key)
                     .Publish(streamPrefix);
             }
@@ -204,14 +187,14 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             // People
             string peoplePrefix = prefix + ".People";
-            if (movie.People != null && movie.People.Length > 0)
+            if (item.People != null && item.People.Length > 0)
             {
                 //movie.People.GroupBy(p => p.Type)
                 //    .ToDictionary(x => x.Key)
                 //    .Publish(peoplePrefix);
 
                 // People lists
-                movie.People.GroupBy(p => p.Type)
+                item.People.GroupBy(p => p.Type)
                     .ToDictionary(x => x.Key + ".List", x => x.ToDelimited(s => s.Name))
                     .Publish(peoplePrefix);
             }
@@ -221,13 +204,16 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
 
             // Lists
-            (movie.Tags ?? Enumerable.Empty<string>()).ToDelimited().Publish(prefix + ".Tags.List");
-            (movie.Genres ?? Enumerable.Empty<string>()).ToDelimited().Publish(prefix + ".Genres.List");
-            (movie.Studios ?? Enumerable.Empty<StudioDto>()).ToDelimited(x => x.Name).Publish(prefix + ".Studios.List");
+            (item.Tags ?? Enumerable.Empty<string>()).ToDelimited().Publish(prefix + ".Tags.List");
+            (item.Genres ?? Enumerable.Empty<string>()).ToDelimited().Publish(prefix + ".Genres.List");
+            (item.Studios ?? Enumerable.Empty<StudioDto>()).ToDelimited(x => x.Name).Publish(prefix + ".Studios.List");
 
             // Runtime
-            TimeSpan.FromTicks(movie.OriginalRunTimeTicks ?? 0).Publish(prefix + ".OriginalRuntime");
-            TimeSpan.FromTicks(movie.RunTimeTicks ?? 0).Publish(prefix + ".Runtime");
+            TimeSpan.FromTicks(item.OriginalRunTimeTicks ?? 0).Publish(prefix + ".OriginalRuntime");
+            TimeSpan.FromTicks(item.RunTimeTicks ?? 0).Publish(prefix + ".Runtime");
+
+            // Artwork
+            PublishArtwork(item);
         }
 
         /// <summary>

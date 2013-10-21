@@ -402,6 +402,30 @@ namespace Pondman.MediaPortal.MediaBrowser
         }
 
         /// <summary>
+        /// Filters the query by artists.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="artists">The artists.</param>
+        /// <returns></returns>
+        public static ItemQuery Artists(this ItemQuery query, params string[] artists)
+        {
+            query.Artists = (query.Artists ?? new string[]{}).Concat(artists).ToArray();
+            return query;
+        }
+
+        /// <summary>
+        /// Filters the query by person.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <param name="person">The person.</param>
+        /// <returns></returns>
+        public static ItemQuery Person(this ItemQuery query, string person)
+        {
+            query.Person = person;
+            return query;
+        }
+
+        /// <summary>
         /// Filters the query by watched items.
         /// </summary>
         /// <param name="query">The query.</param>
@@ -462,6 +486,22 @@ namespace Pondman.MediaPortal.MediaBrowser
                 query.SortBy(ItemSortBy.SortName).Ascending();
             }
 
+            return query;
+        }
+
+        public static PersonsQuery Apply(this PersonsQuery query, SortableQuery options)
+        {
+            if (options.PersonTypes.Count > 0)
+            {
+                options.PersonTypes.ToList().ForEach(x => query.PersonTypes(x));
+            }
+
+            return query.Apply<PersonsQuery>(options);
+        }
+
+        public static PersonsQuery PersonTypes(this PersonsQuery query, params string[] types)
+        {
+            query.PersonTypes = query.PersonTypes.Concat(types).ToArray();
             return query;
         }
 

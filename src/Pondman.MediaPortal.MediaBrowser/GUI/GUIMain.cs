@@ -1,4 +1,5 @@
 ﻿using MediaBrowser.Model.Dto;
+using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Querying;
 using MediaBrowser.Model.Search;
 using MediaPortal.GUI.Library;
@@ -17,7 +18,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
     public class GUIMain : GUIDefault
     {
         private readonly GUIBrowser _browser;
-        private readonly List<GUIListItem> _filters;
         private readonly Dictionary<string, GUIFacadeControl> _facades;
         private SortableQuery _sortableQuery;
 
@@ -32,7 +32,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             _browser.ItemChanged += OnItemChanged;
             _browser.ItemsRequested += OnItemsRequested;
 
-            _filters = new List<GUIListItem>();
             _facades = new Dictionary<string, GUIFacadeControl>();
 
             // register commands
@@ -357,8 +356,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     item.Label2 = dto.Artists != null ? String.Join(",", dto.Artists.ToArray()) : "Unknown";
                     break;
                 case "Episode":
-
-                    if (context != null && context.Id.IsIn("tvshows-nextup", "tvshows-unwatched", "tvshows-latest"))
+                    if (context != null && context.Type.IsIn(MediaBrowserType.View))
                     {
                         item.Label = dto.SeriesName + String.Format(" - {0}x{1} - {2}", dto.ParentIndexNumber ?? 0, dto.IndexNumber ?? 0, item.Label);
                     }
@@ -374,6 +372,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 case "BoxSet":
                     item.Label2 = dto.ChildCount.HasValue ? dto.ChildCount.ToString() : string.Empty;
                     break;
+                case "Artist":
+                    item.Label2 = String.Format("{0}/{1}", (dto.AlbumCount ?? 0), (dto.SongCount ?? 0));
+                    break;
+                case "Person":
                 case "Studio":
                 case "Genre":
                     if (context != null && context.Id.StartsWith("tvshows"))
@@ -407,25 +409,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         private void OnCurrentItemChanged()
         {
-            _filters.Clear();
 
             if (_currentItem == null) return;
 
             GUIContext.Instance.Update(_currentItem); // todo: context?
             PublishItemDetails(_currentItem, MediaBrowserPlugin.DefaultProperty + ".Current");
-
-            if (_currentItem.Id.Contains("root-") || _currentItem.Type == "UserRootFolder") return;
-
-            _filters.Add(GetFilterItem(ItemFilter.IsFavorite));
-            _filters.Add(GetFilterItem(ItemFilter.Likes));
-            _filters.Add(GetFilterItem(ItemFilter.Dislikes));
-
-            if (_currentItem.Type.IsIn(MediaBrowserType.Genre, MediaBrowserType.Studio)) return;
-
-            _filters.Add(GetFilterItem(ItemFilter.IsPlayed));
-            _filters.Add(GetFilterItem(ItemFilter.IsUnplayed));
-            _filters.Add(GetFilterItem(ItemFilter.IsResumable));
-
         }
 
         /// <summary>
@@ -540,6 +528,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                     .MusicAlbum()
                                     .SortBy(ItemSortBy.AlbumArtist, ItemSortBy.SortName);
                                 break;
+                            case "music-artists":
+                                GUIContext.Instance.Client.GetItemsByName("Artists",
+                                    MediaBrowserQueries.Named.User(userId).Apply(_sortableQuery),
+                                    result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
+                                return;
                             case "tvshows-networks":
                                 GUIContext.Instance.Client.GetStudios(
                                     MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Series).Apply(_sortableQuery),
@@ -579,20 +572,26 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 return;
                         }
                         break;
+                    case MediaBrowserType.Artist:
+                        query = query.Artists(item.Name)
+                                .MusicAlbum().Audio()
+                                .SortBy(ItemSortBy.ProductionYear, ItemSortBy.SortName);
+                        break;
                     case MediaBrowserType.Genre:
                         query = query.Genres(item.Name).SortBy(ItemSortBy.SortName);
-                        query = CurrentItem.Id == "tvshows-genres" ? query.Series() : query.Movies();
+                        query = CurrentItem.Id.Contains("tvshows") ? query.Series() : query.Movies();
                         break;
                     case MediaBrowserType.Studio:
                         query = query.Studios(item.Name).SortBy(ItemSortBy.SortName);
-                        query = CurrentItem.Id == "tvshows-networks" ? query.Series() : query.Movies();
+                        query = CurrentItem.Id.Contains("tvshows") ? query.Series() : query.Movies();
                         break;
                     case MediaBrowserType.Series:
                         query = item.SeasonCount > 0 ? query.Season().ParentId(item.Id).SortBy(ItemSortBy.SortName) : query.ParentId(item.Id);
                         break;
-                    //case MediaBrowserType.Season:
-                    //    query = query.Episode().ParentId(item.Id).SortBy(ItemSortBy.SortName);
-                    //    break;
+                    case MediaBrowserType.Person:
+                        query.Person(item.Name).SortBy(ItemSortBy.SortName);
+                        query = CurrentItem.Id.Contains("movies") ? query.Movies() : query.Series();
+                        break;
                     default:
                         // get by parent id
                         query = query.ParentId(item.Id).SortBy(ItemSortBy.SortName);
@@ -638,7 +637,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 return;
 
             var dto = item.TVTag as BaseItemDto;
-            if (dto.Type.IsIn(MediaBrowserType.Movie, MediaBrowserType.Episode, MediaBrowserType.Audio, MediaBrowserType.Person))
+            if (dto.Type.IsIn(MediaBrowserType.Movie, MediaBrowserType.Episode, MediaBrowserType.Audio))
             {
                 ShowDetails(item);
             }
@@ -696,6 +695,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             request.List.Add(GetViewListItem("music-songs", MediaBrowserPlugin.UI.Resource.Songs));
             request.List.Add(GetViewListItem("music-albums", MediaBrowserPlugin.UI.Resource.Albums));
             //request.List.Add(GetViewListItem("music-genres", MediaBrowserPlugin.UI.Resource.Genres));
+            request.List.Add(GetViewListItem("music-artists", MediaBrowserPlugin.UI.Resource.Artists));
             request.TotalItems =  request.List.Count;
             _mre.Set();
         }
@@ -778,13 +778,54 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         protected void ShowFilterMenuDialog()
         {
-            var result = GUIUtils.ShowMenuDialog(T.FilterOptions, _filters);
+            // root and root views don't have filter options
+            if (Facade.Count == 0 || _currentItem.Id.Contains("root-") || _currentItem.Type == "UserRootFolder") return;
+            
+            var filters = new List<GUIListItem>
+            {
+                GetFilterItem(ItemFilter.IsFavorite),
+                GetFilterItem(ItemFilter.Likes),
+                GetFilterItem(ItemFilter.Dislikes)
+            };
+
+            // todo: look at first item for now
+            var item = Facade[0].TVTag as BaseItemDto;
+            if (item == null) return;
+
+            if (item.Type.IsIn(MediaBrowserType.Movie, MediaBrowserType.Episode, MediaBrowserType.Video, MediaBrowserType.Audio))
+            {
+                filters.Add(GetFilterItem(ItemFilter.IsPlayed));
+                filters.Add(GetFilterItem(ItemFilter.IsUnplayed));
+                filters.Add(GetFilterItem(ItemFilter.IsResumable));
+            }
+
+            if (item.Type == MediaBrowserType.Person)
+            {
+                filters.Add(GetSortItem(PersonType.Actor));
+                filters.Add(GetSortItem(PersonType.Composer));
+                filters.Add(GetSortItem(PersonType.Director));
+                filters.Add(GetSortItem(PersonType.GuestStar));
+                filters.Add(GetSortItem(PersonType.Producer));
+                filters.Add(GetSortItem(PersonType.Writer));
+            }
+
+            var result = GUIUtils.ShowMenuDialog(T.FilterOptions, filters);
             if (result == -1) return;
 
-            var filter = (ItemFilter)_filters[result].TVTag;
-            if (!_sortableQuery.Filters.Remove(filter))
+            var filter = filters[result].TVTag;
+            if (filter is ItemFilter)
             {
-                _sortableQuery.Filters.Add(filter);
+                if (!_sortableQuery.Filters.Remove((ItemFilter) filter))
+                {
+                    _sortableQuery.Filters.Add((ItemFilter) filter);
+                }
+            }
+            else
+            {
+                if (!_sortableQuery.PersonTypes.Remove(filters[result].Path))
+                {
+                    _sortableQuery.PersonTypes.Add(filters[result].Path);
+                }
             }
 
             _sortableQuery.Publish(MediaBrowserPlugin.DefaultProperty + ".Sortable");
@@ -863,9 +904,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             _browser.Reload(true);
         }
 
-        private static GUIListItem GetSortItem(string label, string field)
+        private static GUIListItem GetSortItem(string label, string field = null)
         {
-            var item = new GUIListItem(label) {Path = field};
+            var item = new GUIListItem(label) {Path = field ?? label};
             return item;
         }
 
