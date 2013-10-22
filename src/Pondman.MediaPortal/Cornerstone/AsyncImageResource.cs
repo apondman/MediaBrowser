@@ -104,8 +104,10 @@ namespace Pondman.MediaPortal
             set
             {
                 _property = value;
-
-                writeProperty();
+                if (GUIPropertyManager.GetProperty(_property) == string.Empty)
+                {
+                    writeProperty();
+                }
             }
         }
         private string _property = null;
@@ -116,12 +118,9 @@ namespace Pondman.MediaPortal
             {
                 GUIPropertyManager.SetProperty(_property, _identifier);
             }
-            else
+            else if (_property != null)
             {
-                if (_property != null && GUIPropertyManager.GetProperty(_property) == string.Empty)
-                {
-                    GUIPropertyManager.SetProperty(_property, "-");
-                }
+                GUIPropertyManager.SetProperty(_property, "-");
             }
         }
 
