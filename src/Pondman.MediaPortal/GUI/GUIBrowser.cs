@@ -45,6 +45,11 @@ namespace Pondman.MediaPortal.GUI
         }
 
         /// <summary>
+        /// Occurs when [loading status changed].
+        /// </summary>
+        public event Action<bool> LoadingStatusChanged;
+
+        /// <summary>
         /// Occurs when a browser item is selected.
         /// </summary>
         public event Action<GUIListItem> ItemSelected;
@@ -184,16 +189,14 @@ namespace Pondman.MediaPortal.GUI
         public virtual bool Cancel()
         {
             if (!IsBusy || _worker.CancellationPending) return false;
-
             _worker.CancelAsync();
-            GUIWaitCursor.Hide();
+            LoadingStatusChanged.SafeInvoke(false);
             return true;
         }
 
         protected virtual void Load(object sender, DoWorkEventArgs e)
         {
-            GUIWaitCursor.Init();
-            GUIWaitCursor.Show();
+            LoadingStatusChanged.SafeInvoke(true);
 
             var worker = sender as BackgroundWorker;
             var view = e.Argument as BrowserView<TIdentifier>;
@@ -219,7 +222,7 @@ namespace Pondman.MediaPortal.GUI
             view.Total = data.TotalItems;
             e.Result = view;
 
-            GUIWaitCursor.Hide();
+            LoadingStatusChanged.SafeInvoke(false);
         }
 
         protected virtual BrowserView<TIdentifier> Current

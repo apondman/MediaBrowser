@@ -444,14 +444,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             GUICommon.UserImageDownloadAndAssign.BeginInvoke(item, GUICommon.UserImageDownloadAndAssign.EndInvoke, null);
         }
 
-        /// <summary>
-        ///     Gets an image for the item
-        /// </summary>
-        /// <param name="item">The item.</param>
-        public static void GetItemImage(GUIListItem item)
-        {
-            GUICommon.ItemImageDownloadAndAssign.BeginInvoke(item, GUICommon.ItemImageDownloadAndAssign.EndInvoke, null);
-        }
+        
 
         /// <summary>
         ///     Execute the given action and blocks using the ManualResetEvent.
@@ -468,7 +461,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             GUIContext.Instance.PublishUser();
         }
-
     }
 
     public abstract class GUIDefault : GUIDefault<MediaBrowserItem>

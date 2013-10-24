@@ -2,6 +2,7 @@
 using MediaBrowser.Model.System;
 using MediaPortal.GUI.Library;
 using MediaPortal.Services;
+using Pondman.MediaPortal.MediaBrowser.Events;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
 {
@@ -70,9 +71,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
         } IMediaBrowserService _service;
 
-        public static void OnSystemInfoChanged(SystemInfo info)
+        public static void OnSystemInfoChanged(object sender, SystemInfoChangedEventArgs changed)
         {
-            info.Publish(MediaBrowserPlugin.DefaultProperty + ".System");
+            changed.SystemInfo.Publish(MediaBrowserPlugin.DefaultProperty + ".System");
         } 
 
         public MediaBrowserClient Client

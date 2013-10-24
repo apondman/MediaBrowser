@@ -80,13 +80,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Events\ServerChangedEventArgs.cs" />
+    <Compile Include="Events\SystemInfoChangedEventArgs.cs" />
     <Compile Include="GUI\GUICommon.cs" />
     <Compile Include="GUI\GUIContext.cs" />
     <Compile Include="GUI\GUIDefault.cs" />
     <Compile Include="GUI\GUIDetails.cs" />
+    <Compile Include="GUI\MediaBrowserListItem.cs" />
     <Compile Include="GUI\SmartImageControl.cs" />
     <Compile Include="MediaBrowser\MediaBrowserLogger.cs" />
     <Compile Include="MediaBrowser\MediaBrowserType.cs" />
+    <Compile Include="Models\MediaBrowserView.cs" />
     <Compile Include="Settings\MediaBrowserUserSettings.cs" />
     <Compile Include="Settings\MediaBrowserSettings.cs" />
     <Compile Include="MediaBrowser\MediaBrowserQueries.cs" />
@@ -114,6 +118,10 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Images\mblogoicon.png" />
+    <Content Include="Resources\Skins\Generic\MediaBrowser.Main.Views.Thumb.xml">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\Skins\Generic\MediaBrowser.Details.Episode.xml">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

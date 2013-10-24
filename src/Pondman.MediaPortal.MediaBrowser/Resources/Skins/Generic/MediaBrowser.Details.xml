@@ -12,13 +12,13 @@
     <control>
       <description>Vignette background</description>
       <type>image</type>
-      <id>0</id>
+      <id>30001</id>
       <posX>10</posX>
       <posY>252</posY>
       <width>1903</width>
       <height>790</height>
       <texture>panel_thumbs_noinfo.png</texture>
-      <visible>!Control.HasFocus(10005)</visible>
+      <visible>string.equals(#MediaBrowser.Details.Loading,False)</visible>
       <animation effect="fade" time="0">Visible</animation>
       <animation effect="fade" time="0">WindowClose</animation>
     </control>
@@ -39,15 +39,13 @@
       <posY>364</posY>
       <dimColor>ffffffff</dimColor>
       <layout>StackLayout(7, Vertical, true)</layout>
-      <visible>!Control.HasFocus(20002) + !Control.HasFocus(10005)</visible>
+      <visible>control.isvisible(30001)</visible>
 
       <control>
         <description>MediaBrowser.Command.Play</description>
         <type>button</type>
         <id>10</id>
         <label>208</label>
-        <onleft>10005</onleft>
-        <onright>10005</onright>
         <onup>97270</onup>
         <ondown>10001</ondown>
         <textureFocus>myvideos_play_focus.png</textureFocus>
@@ -61,8 +59,6 @@
         <type>button</type>
         <id>10001</id>
         <label>207</label>
-        <onleft>10005</onleft>
-        <onright>10005</onright>
         <onup>10</onup>
         <ondown>20002</ondown>
         <textcolor>FF000000</textcolor>
@@ -74,8 +70,6 @@
         <type>button</type>
         <id>10002</id>
         <label>Technical Details</label>
-        <onleft>10005</onleft>
-        <onright>10005</onright>
         <onup>10001</onup>
         <ondown>10003</ondown>
         <textcolor>FF000000</textcolor>
@@ -89,8 +83,6 @@
         <label>Trailer</label>
         <onup>20002</onup>
         <ondown>10004</ondown>
-        <onleft>10005</onleft>
-        <onright>10005</onright>
         <hyperlink>4755</hyperlink>
         <hyperlinkParameter>site:IMDb Movie Trailers|search:#(iif(neq(#MediaBrowser.Details.ProviderIds.Imdb,''),#MediaBrowser.Details.ProviderIds.Imdb,#MediaBrowser.Details.Name))|return:Locked</hyperlinkParameter>
         <textcolor>FF000000</textcolor>
@@ -105,8 +97,6 @@
         <label>Subtitle</label>
         <onup>10003</onup>
         <ondown>97270</ondown>
-        <onleft>10005</onleft>
-        <onright>10005</onright>
         <hyperlink>84623</hyperlink>
         <textcolor>FF000000</textcolor>
         <textcolorNoFocus>ffffffff</textcolorNoFocus>
@@ -118,8 +108,6 @@
         <type>button</type>
         <id>97270</id>
         <label>Trakt</label>
-        <onleft>10005</onleft>
-        <onright>10005</onright>
         <onup>10004</onup>
         <ondown>6</ondown>
         <textcolor>FF000000</textcolor>
@@ -139,7 +127,7 @@
       <posX>119</posX>
       <posY>364</posY>
       <dimColor>ffffffff</dimColor>
-      <visible>Control.HasFocus(20002) + !Control.HasFocus(10005)</visible>
+      <visible>Control.HasFocus(20002)</visible>
       <layout>StackLayout(7, Vertical, true)</layout>
 
       <control>
@@ -168,13 +156,11 @@
         <type>button</type>
         <id>20002</id>
         <label>Technical Details</label>
-        <onleft>10005</onleft>
-        <onright>10005</onright>
         <onup>10001</onup>
         <ondown>10003</ondown>
         <textcolor>FF000000</textcolor>
         <textcolorNoFocus>ffffffff</textcolorNoFocus>
-        <visible>!string.equals(#MediaBrowser.Details.Type,Audio)</visible>
+        <visible allowhiddenfocus="true">!string.equals(#MediaBrowser.Details.Type,Audio)</visible>
       </control>
 
       <control>
@@ -223,7 +209,7 @@
       <width>114</width>
       <height>114</height>
       <texture>unwatched_flag_big.png</texture>
-      <visible>!Control.HasFocus(10005) + Control.HasThumb(60) + string.equals(#MediaBrowser.Details.UserData.Played,False) + !Control.HasFocus(20002)</visible>
+      <visible>Control.HasThumb(60) + string.equals(#MediaBrowser.Details.UserData.Played,False) + !Control.HasFocus(20002)</visible>
       <animation effect="fade" time="0">Visible</animation>
       <animation effect="fade" time="0">WindowClose</animation>
     </control>
@@ -231,7 +217,7 @@
     <control>
       <description>Movie Title</description>
       <type>fadelabel</type>
-      <id>0</id>
+      <id>30002</id>
       <posX>1020</posX>
       <posY>352</posY>
       <width>800</width>
@@ -241,7 +227,7 @@
       <shadowDistance>2</shadowDistance>
       <shadowColor>FF000000</shadowColor>
       <label>#MediaBrowser.Details.Name</label>
-      <visible>!Control.HasFocus(10001)+ !Control.HasFocus(20002) + !Control.HasFocus(10005)</visible>
+      <visible>!Control.HasFocus(10001) + !Control.HasFocus(20002) + control.isvisible(30001)</visible>
       <animation effect="fade" time="250">Visible</animation>
       <animation effect="fade" time="0">WindowClose</animation>
     </control>
@@ -253,7 +239,7 @@
       <id>0</id>
       <posX>1020</posX>
       <posY>467</posY>
-      <visible>!Control.HasFocus(10001)+ !Control.HasFocus(20002) + !Control.HasFocus(10005)</visible>
+      <visible>control.isvisible(30002)</visible>
       <animation effect="fade" time="250">Visible</animation>
       <animation effect="fade" time="0">WindowClose</animation>
     </control>
@@ -265,7 +251,7 @@
       <id>0</id>
       <posX>1273</posX>
       <posY>467</posY>
-      <visible>!Control.HasFocus(10001)+ !Control.HasFocus(20002) + !Control.HasFocus(10005)</visible>
+      <visible>control.isvisible(30002)</visible>
       <animation effect="fade" time="250">Visible</animation>
       <animation effect="fade" time="0">WindowClose</animation>
     </control>
@@ -276,7 +262,7 @@
       <id>0</id>
       <posX>1020</posX>
       <posY>499</posY>
-      <visible>!Control.HasFocus(10001)+ !Control.HasFocus(20002) + !Control.HasFocus(10005)</visible>
+      <visible>control.isvisible(30002)</visible>
       <animation effect="fade" time="250">Visible</animation>
       <animation effect="fade" time="0">WindowClose</animation>
     </control>
@@ -288,7 +274,7 @@
       <id>0</id>
       <posX>1273</posX>
       <posY>499</posY>
-      <visible>!Control.HasFocus(10001)+ !Control.HasFocus(20002) + !Control.HasFocus(10005)</visible>
+      <visible>control.isvisible(30002)</visible>
       <animation effect="fade" time="250">Visible</animation>
       <animation effect="fade" time="0">WindowClose</animation>
     </control>
@@ -300,7 +286,7 @@
       <id>0</id>
       <posX>1020</posX>
       <posY>531</posY>
-      <visible>!Control.HasFocus(10001)+ !Control.HasFocus(20002) + !Control.HasFocus(10005)</visible>
+      <visible>control.isvisible(30002)</visible>
       <animation effect="fade" time="250">Visible</animation>
       <animation effect="fade" time="0">WindowClose</animation>
     </control>
@@ -312,7 +298,7 @@
       <id>0</id>
       <posX>1273</posX>
       <posY>531</posY>
-      <visible>!Control.HasFocus(10001)+ !Control.HasFocus(20002) + !Control.HasFocus(10005)</visible>
+      <visible>control.isvisible(30002)</visible>
       <animation effect="fade" time="250">Visible</animation>
       <animation effect="fade" time="0">WindowClose</animation>
     </control>
@@ -324,7 +310,7 @@
       <id>0</id>
       <posX>1020</posX>
       <posY>563</posY>
-      <visible>!Control.HasFocus(10001)+ !Control.HasFocus(20002) + !Control.HasFocus(10005)</visible>
+      <visible>control.isvisible(30002)</visible>
       <animation effect="fade" time="250">Visible</animation>
       <animation effect="fade" time="0">WindowClose</animation>
     </control>
@@ -336,7 +322,7 @@
       <id>0</id>
       <posX>1273</posX>
       <posY>563</posY>
-      <visible>!Control.HasFocus(10001)+ !Control.HasFocus(20002) + !Control.HasFocus(10005)</visible>
+      <visible>control.isvisible(30002)</visible>
       <animation effect="fade" time="250">Visible</animation>
       <animation effect="fade" time="0">WindowClose</animation>
     </control>
@@ -348,7 +334,7 @@
       <id>0</id>
       <posX>1020</posX>
       <posY>595</posY>
-      <visible>!Control.HasFocus(10001)+ !Control.HasFocus(20002) + !Control.HasFocus(10005)</visible>
+      <visible>control.isvisible(30002)</visible>
       <animation effect="fade" time="250">Visible</animation>
       <animation effect="fade" time="0">WindowClose</animation>
     </control>
@@ -360,7 +346,7 @@
       <id>0</id>
       <posX>1273</posX>
       <posY>595</posY>
-      <visible>!Control.HasFocus(10001)+ !Control.HasFocus(20002) + !Control.HasFocus(10005)</visible>
+      <visible>control.isvisible(30002)</visible>
       <animation effect="fade" time="250">Visible</animation>
       <animation effect="fade" time="0">WindowClose</animation>
     </control>
@@ -380,7 +366,7 @@
       <onup>1026</onup>
       <ondown>1026</ondown>
       <lineSpacing>0.92</lineSpacing>
-      <visible>!Control.HasFocus(10001) + !Control.HasFocus(20002) + !Control.HasFocus(10005)</visible>
+      <visible>control.isvisible(30002)</visible>
       <animation effect="fade" time="250">Visible</animation>
       <animation effect="fade" time="0">WindowClose</animation>
     </control>
@@ -394,7 +380,7 @@
       <width>550</width>
       <height>73</height>
       <texture>logoframe.png</texture>
-      <visible>!Control.HasFocus(10001)+ !Control.HasFocus(20002) + !Control.HasFocus(10005)</visible>
+      <visible>control.isvisible(30002)</visible>
       <animation effect="fade" time="250">Visible</animation>
       <animation effect="fade" time="0">WindowClose</animation>
     </control>
@@ -410,7 +396,7 @@
       <keepaspectratio>yes</keepaspectratio>
       <centered>yes</centered>
       <texture>certification\#MediaBrowser.Details.OfficialRating.png</texture>
-      <visible>!Control.HasFocus(10001)+ !Control.HasFocus(20002) + !Control.HasFocus(10005)</visible>
+      <visible>control.isvisible(30002)</visible>
       <animation effect="fade" time="250">Visible</animation>
       <animation effect="fade" time="0">WindowClose</animation>
     </control>
@@ -432,7 +418,7 @@
       <align>left</align>
       <imagesToDraw>10</imagesToDraw>
       <percentage>#MediaBrowser.Details.CommunityRating.Localized</percentage>
-      <visible>!Control.HasFocus(10001)+ !Control.HasFocus(20002) + !Control.HasFocus(10005)</visible>
+      <visible>control.isvisible(30002)</visible>
       <animation effect="fade" time="250">Visible</animation>
       <animation effect="fade" time="0">WindowClose</animation>
     </control>
@@ -448,7 +434,7 @@
       <align>left</align>
       <font>fontB12</font>
       <textcolor>FF00b7ff</textcolor>
-      <visible>!Control.HasFocus(10001)+ !Control.HasFocus(20002) + !Control.HasFocus(10005)</visible>
+      <visible>control.isvisible(30002)</visible>
       <animation effect="fade" time="250">Visible</animation>
       <animation effect="fade" time="0">WindowClose</animation>
     </control>
@@ -465,7 +451,7 @@
       <width>800</width>
       <lineSpacing>0.90</lineSpacing>
       <label>#MediaBrowser.Details.Overview</label>
-      <visible>Control.HasFocus(10001)</visible>
+      <visible>Control.HasFocus(10001) + control.isvisible(30001)</visible>
       <animation effect="fade" time="250">Visible</animation>
       <animation effect="fade" time="0">WindowClose</animation>
     </control>
@@ -800,8 +786,5 @@
       <animation effect="fade" time="250">Visible</animation>
       <animation effect="fade" time="0">WindowClose</animation>
     </control>
-
-    
-
   </controls>
 </window>

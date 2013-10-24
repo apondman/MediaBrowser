@@ -5,6 +5,7 @@ using System.Text;
 using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.System;
 using System.Net;
+using Pondman.MediaPortal.MediaBrowser.Events;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
@@ -13,13 +14,13 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <summary>
         /// Occurs when the server changes.
         /// </summary>
-        event Action<IPEndPoint> ServerChanged;
+        event EventHandler<ServerChangedEventArgs> ServerChanged;
 
         /// <summary>
         /// Occurs when system information changes.
         /// </summary>
-        event Action<SystemInfo> SystemInfoChanged;
-        
+        event  EventHandler<SystemInfoChangedEventArgs> SystemInfoChanged;
+
         /// <summary>
         /// Gets the plugin associated with this service.
         /// </summary>
@@ -61,13 +62,16 @@ namespace Pondman.MediaPortal.MediaBrowser
         SystemInfo System { get; }
 
         /// <summary>
-        /// Locate Media Browser server on the network.
+        /// Locates the MediaBrowser server on the network.
         /// </summary>
-        void Discover();
+        /// <param name="retryIntervalMs">retry interval in milliseconds.</param>
+        void Discover(int retryIntervalMs = 60000);
 
         /// <summary>
         /// Updates the media browser system info.
         /// </summary>
         void Update();
     }
+
+    
 }

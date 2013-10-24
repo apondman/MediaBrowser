@@ -1,8 +1,11 @@
-﻿using System.Net.Sockets;
+﻿using System.Linq;
+using System.Net.Sockets;
+using System.Threading;
 using MediaBrowser.Model.System;
 using MediaPortal.Configuration;
 using MediaPortal.GUI.Library;
 using MediaPortal.Services;
+using Pondman.MediaPortal.MediaBrowser.Events;
 using Pondman.MediaPortal.MediaBrowser.GUI;
 using Pondman.MediaPortal.MediaBrowser.Resources.Languages;
 using System;
@@ -15,6 +18,16 @@ namespace Pondman.MediaPortal.MediaBrowser
     [PluginIcons("Pondman.MediaPortal.MediaBrowser.Resources.Images.mblogoicon.png", "Pondman.MediaPortal.MediaBrowser.Resources.Images.mblogoicon.png")]
     public class MediaBrowserPlugin : PluginBase, IDisposable
     {
+        #region Public Static Readonly Values
+
+        public static readonly string DefaultProperty = "#MediaBrowser";
+
+        public static readonly string DefaultName = "MediaBrowser";
+
+        #endregion
+
+        #region Private Static Readonly Values
+
         private static readonly Action<string, string> DeferredLog = (tag, tagValue) =>
         {
             if (!Config.Settings.LogProperties || !tag.StartsWith(DefaultProperty))
@@ -30,7 +43,8 @@ namespace Pondman.MediaPortal.MediaBrowser
             }
         };
 
-        
+        #endregion
+
         #region Ctor
 
         public MediaBrowserPlugin()
@@ -43,7 +57,7 @@ namespace Pondman.MediaPortal.MediaBrowser
                 Log.Debug("Registering MediaBrowserService.");
 
                 // Publish Default System Info
-                GUIContext.OnSystemInfoChanged(new SystemInfo());
+                GUIContext.OnSystemInfoChanged(null, new SystemInfoChangedEventArgs(new SystemInfo()));
 
                 // Publish Default User
                 GUIContext.Instance.PublishUser();
@@ -61,8 +75,11 @@ namespace Pondman.MediaPortal.MediaBrowser
                 service.Discover();
             }
 
+            // setup window listener
+            GUIWindowManager.OnActivateWindow += OnActivateWindow;
+
             // setup property management
-            GUIPropertyManager.OnPropertyChanged += GUIPropertyManager_OnPropertyChanged;
+            GUIPropertyManager.OnPropertyChanged += OnPropertyChanged;
             
             // version information
             Version.Publish(MediaBrowserPlugin.DefaultProperty + ".Version");
@@ -76,17 +93,22 @@ namespace Pondman.MediaPortal.MediaBrowser
             Config.Settings.Upgrade(Version);
 
             // Settings
-            Config.Settings.Publish(DefaultProperty + ".Settings");        
-
+            Config.Settings.Publish(DefaultProperty + ".Settings");
         }
 
         #endregion
 
         #region Handlers
 
-        static void GUIPropertyManager_OnPropertyChanged(string tag, string tagValue)
+        static void OnPropertyChanged(string tag, string tagValue)
         {
             DeferredLog.BeginInvoke(tag, tagValue, DeferredLog.EndInvoke, null);
+        }
+
+        static void OnActivateWindow(int windowId)
+        {
+            var window = GUIWindowManager.GetWindow(windowId);
+            GUICommon.HandleSmartControls.BeginInvoke(window, GUICommon.HandleSmartControls.EndInvoke, null);
         }
 
         #endregion
@@ -112,10 +134,6 @@ namespace Pondman.MediaPortal.MediaBrowser
         #endregion        
 
         #region Core 
-
-        public static readonly string DefaultProperty = "#MediaBrowser";
-
-        public static readonly string DefaultName = "MediaBrowser";
 
         /// <summary>
         /// Wrapper for log4net
@@ -147,6 +165,8 @@ namespace Pondman.MediaPortal.MediaBrowser
 
         #endregion
 
+        #region IDisposable
+
         private bool _disposed;
 
         public void Dispose()
@@ -166,5 +186,8 @@ namespace Pondman.MediaPortal.MediaBrowser
 
             _disposed = true;
         }
+
+        #endregion
+
     }
 }

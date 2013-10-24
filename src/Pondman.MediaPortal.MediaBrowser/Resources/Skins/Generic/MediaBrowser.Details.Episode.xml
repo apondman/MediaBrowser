@@ -27,6 +27,7 @@
       <visible>string.equals(#MediaBrowser.Details.Type,Episode)</visible>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
+      <animation effect="fade" time="250">Visible</animation>
     </control>
 
   </controls>

@@ -27,6 +27,7 @@
     <import>MediaBrowser.User.xml</import>
     <import>MediaBrowser.Main.HiddenMenu.xml</import>
     <import>MediaBrowser.Main.Views.xml</import>
+    <import>MediaBrowser.Main.Views.Thumb.xml</import>
     <import>MediaBrowser.Main.MediaInfo.xml</import>
 
     <!--            :: List Scrolling Popup ::            -->

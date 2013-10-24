@@ -7,6 +7,7 @@ using MediaBrowser.ApiInteraction.WebSocket;
 using MediaBrowser.Model.ApiClient;
 using MediaBrowser.Model.System;
 using MediaPortal.ExtensionMethods;
+using Pondman.MediaPortal.MediaBrowser.Events;
 using Pondman.MediaPortal.MediaBrowser.GUI;
 using Pondman.MediaPortal.MediaBrowser.Models;
 
@@ -14,8 +15,6 @@ namespace Pondman.MediaPortal.MediaBrowser
 {
     public class MediaBrowserService : IMediaBrowserService
     {
-        const string MediaBrowserModelAssemblyVersion = "3.0.5021.27473";
-        const string MediaBrowserModelAssembly = "MediaBrowser.Model, Version=" + MediaBrowserModelAssemblyVersion + ", Culture=neutral, PublicKeyToken=6cde51960597a7f9";
         
         #region Private variables
 
@@ -23,25 +22,25 @@ namespace Pondman.MediaPortal.MediaBrowser
         private readonly ILogger _logger;
         private readonly MediaBrowserPlugin _plugin;
         private bool _disposed;
-
-        Timer _retryTimer;
+        private Timer _retryTimer;
 
         #endregion
 
         public MediaBrowserService(MediaBrowserPlugin plugin, ILogger logger = null)
         {
-            // Assembly rebinding for Media Browser
-            // AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
-            
             _locator = new ServerLocator();
             _logger = logger ?? NullLogger.Instance;
             _plugin = plugin;
             _logger.Info("MediaBrowserService initialized.");
         }
 
-        public event Action<IPEndPoint> ServerChanged;
+        #region Events
 
-        public event Action<SystemInfo> SystemInfoChanged;
+        public event EventHandler<ServerChangedEventArgs> ServerChanged;
+
+        public event EventHandler<SystemInfoChangedEventArgs> SystemInfoChanged;
+
+        #endregion
 
         public MediaBrowserPlugin Plugin
         {
@@ -75,10 +74,7 @@ namespace Pondman.MediaPortal.MediaBrowser
             internal set
             {
                 _systemInfo = value;
-                if (SystemInfoChanged != null)
-                {
-                    SystemInfoChanged(value);
-                }
+                SystemInfoChanged.FireEvent(this, new SystemInfoChangedEventArgs(_systemInfo));
             } 
         } SystemInfo _systemInfo;
 
@@ -88,25 +84,32 @@ namespace Pondman.MediaPortal.MediaBrowser
             internal set
             {
                 _client = value;
+                ApiWebSocket.Create(_client, OnConnecting, _logger.Error);
                 Update();
             }
         } MediaBrowserClient _client;
 
-        public virtual void Discover()
+        public void Discover(int retryIntervalMs = 60000)
         {
+            if (_retryTimer != null)
+            {
+                _retryTimer.Dispose();
+            }
+
             _retryTimer = new Timer(x =>
             {
                 _logger.Info("Discovering Media Browser Server.");
                 _locator.FindServer(OnServerDiscovered);
-            }, null, 0, 60000);
+            }, null, 0, retryIntervalMs);
         }
 
         public void Update()
         {
             if (!IsServerLocated) return;
             Client.GetSystemInfo(info => System = info, _logger.Error);
-            ApiWebSocket.Create(Client, OnConnecting, _logger.Error);
         }
+
+        #region internal event handlers
 
         protected void OnConnecting(ApiWebSocket socket)
         {
@@ -149,18 +152,14 @@ namespace Pondman.MediaPortal.MediaBrowser
         {
             _logger.Debug("Creating Media Browser client.");
             var client = new MediaBrowserClient(
-                            endpoint.Address.ToString(), 
+                            endpoint.Address.ToString(),
                             endpoint.Port,
-                            Environment.OSVersion.VersionString, 
-                            Environment.MachineName, 
+                            Environment.OSVersion.VersionString,
+                            Environment.MachineName,
                             Plugin.Version.ToString()
                             );
             Client = client;
-
-            if (ServerChanged != null)
-            {
-                ServerChanged(endpoint);
-            }
+            ServerChanged.FireEvent(this, new ServerChangedEventArgs(endpoint));
         }
 
         // todo: move command handlers to GUI code
@@ -197,19 +196,9 @@ namespace Pondman.MediaPortal.MediaBrowser
             }
         }
 
-        private Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
-        {
-            // this is a work around to load the expected assembly
-            var requestedName = new AssemblyName(args.Name);
-            if (requestedName.Name == "MediaBrowser.Model" && requestedName.Version.ToString() != MediaBrowserModelAssemblyVersion)
-            {
-                return Assembly.Load(MediaBrowserModelAssembly);
-            }
-            else
-            {
-                return null;
-            }
-        }
+        #endregion
+
+        #region IDisposable
 
         public void Dispose()
         {
@@ -234,6 +223,8 @@ namespace Pondman.MediaPortal.MediaBrowser
 
             _disposed = true;
         }
+
+        #endregion
 
     }
 }

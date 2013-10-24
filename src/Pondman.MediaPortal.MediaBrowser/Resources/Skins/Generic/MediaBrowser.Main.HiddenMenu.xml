@@ -245,6 +245,9 @@
           <onright>50</onright>
           <visible>plugin.isenabled(Trakt)</visible>
         </control>
+
+        
+        
       </control>
     </control>
   </controls>

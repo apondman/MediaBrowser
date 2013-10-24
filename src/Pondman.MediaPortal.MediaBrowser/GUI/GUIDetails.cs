@@ -62,6 +62,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
             else
             {
+                // Clear details
+                GUIUtils.Unpublish(_publishPrefix);
+                
                 // Load movie 
                 GUITask.Run(LoadMovieDetails, PublishMovieDetailsTask, Log.Error);
             }
@@ -118,7 +121,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         protected BaseItemDto LoadMovieDetails(GUITask task)
         {
             Log.Debug("Loading movie details for: {0}", Parameters.Id);
-
+            
+            Publish(".Loading", "True");
             var mre = new ManualResetEvent(false);
 
             GUIContext.Instance.Client.GetItem(Parameters.Id, GUIContext.Instance.Client.CurrentUserId, (result) =>
@@ -133,6 +137,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             });
 
             mre.WaitOne(); // todo: timeout?
+            Publish(".Loading", "False");
 
             return _movie;
         }

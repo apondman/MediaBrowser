@@ -8,14 +8,18 @@ using System.Runtime.Serialization;
 namespace Pondman.MediaPortal.MediaBrowser
 {
     /// <summary>
-    /// Temp class for settings to refactored later
+    /// Global and User specific settings.
     /// </summary>
     [DataContract(Name = "MediaBrowserSettings", Namespace = "urn://mediaportal/mb3/settings")]
     public class MediaBrowserSettings
     {
+
         [DataMember(Name = "UserData")] private HashSet<MediaBrowserUserSettings> _userData;
         [DataMember(Name = "Version")] private string _version;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MediaBrowserSettings"/> class.
+        /// </summary>
         public MediaBrowserSettings()
         {
             MediaCacheFolder = Path.Combine(Config.GetFolder(Config.Dir.Thumbs), MediaBrowserPlugin.DefaultName);
@@ -99,6 +103,11 @@ namespace Pondman.MediaPortal.MediaBrowser
             DefaultUserId = null;
         }
 
+        /// <summary>
+        /// Get user specific settings
+        /// </summary>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns></returns>
         public MediaBrowserUserSettings ForUser(string userId)
         {
             var settings = _userData.FirstOrDefault(x => x.UserId == userId);
@@ -109,6 +118,10 @@ namespace Pondman.MediaPortal.MediaBrowser
             return settings;
         }
 
+        /// <summary>
+        /// Performs an upgrade if needed when encountering a new version
+        /// </summary>
+        /// <param name="version">The version.</param>
         public void Upgrade(Version version)
         {
             if (_version == null)

@@ -1,16 +1,11 @@
-﻿using System.Net.NetworkInformation;
-using ConsoleApplication2.com.amazon.webservices;
-using MediaBrowser.ApiInteraction;
+﻿using MediaBrowser.ApiInteraction;
 using MediaBrowser.ApiInteraction.net35;
 using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Entities;
-using MediaBrowser.Model.Querying;
+using MediaPortal.GUI.Library;
 using System;
 using System.IO;
 using System.Net;
-using System.Linq;
-using MediaPortal.GUI.Library;
-using Newtonsoft.Json;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
@@ -99,6 +94,12 @@ namespace Pondman.MediaPortal.MediaBrowser
             return options.Tag != null ? GetCachedImageUrl("users", options, () => GetUserImageUrl(user, options)) : string.Empty;
         }
 
+        /// <summary>
+        /// Gets the local backdrop image URL.
+        /// </summary>
+        /// <param name="item">The item.</param>
+        /// <param name="options">The options.</param>
+        /// <returns></returns>
         public virtual string GetLocalBackdropImageUrl(BaseItemDto item, ImageOptions options)
         {
             string[] urls = GetBackdropImageUrls(item, options);

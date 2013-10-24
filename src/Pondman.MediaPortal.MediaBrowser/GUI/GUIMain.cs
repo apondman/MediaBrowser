@@ -1,4 +1,5 @@
-﻿using MediaBrowser.Model.Dto;
+﻿using System.Runtime.Remoting.Channels;
+using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Querying;
 using MediaBrowser.Model.Search;
@@ -31,6 +32,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             _browser.ItemPublished += OnItemPublished;
             _browser.ItemChanged += OnItemChanged;
             _browser.ItemsRequested += OnItemsRequested;
+            _browser.LoadingStatusChanged += OnLoadingStatusChanged;
 
             _facades = new Dictionary<string, GUIFacadeControl>();
 
@@ -295,6 +297,20 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             CurrentItem = dto;
         }
 
+        protected void OnLoadingStatusChanged(bool isLoading)
+        {
+            Publish(".Loading", isLoading.ToString());
+            // todo: setting to disable wait cursor
+            if (isLoading)
+            {
+                GUIWaitCursor.Init();
+                GUIWaitCursor.Show();
+                return;
+            }
+
+            GUIWaitCursor.Hide();
+        }
+
         GUIFacadeControl GetTypedFacade(BaseItemDto dto)
         {
             GUIFacadeControl facade;
@@ -326,72 +342,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             var view = new BaseItemDto {Name = label ?? id, Id = id, Type = "View", IsFolder = true};
 
-            return GetBaseListItem(view);
-        }
-
-        /// <summary>
-        ///     Gets the base list item.
-        /// </summary>
-        /// <param name="dto">The dto.</param>
-        /// <returns></returns>
-        public GUIListItem GetBaseListItem(BaseItemDto dto, BaseItemDto context = null)
-        {
-            var item = new GUIListItem(dto.Name)
-            {
-                ItemId = (dto.Type + "/" + dto.Id).GetHashCode(),
-                Path = dto.GetContext(),
-                Year = dto.ProductionYear.GetValueOrDefault(),
-                TVTag = dto,
-                IsFolder = dto.IsFolder,
-                IconImage = "defaultVideo.png",
-                IconImageBig = "defaultVideoBig.png",
-                RetrieveArt = true,
-                IsPlayed = dto.UserData != null && dto.UserData.Played,
-            };
-            item.OnRetrieveArt += GetItemImage;
-            
-            switch (dto.Type)
-            {
-                case "Audio":
-                    item.Label2 = dto.Artists != null ? String.Join(",", dto.Artists.ToArray()) : "Unknown";
-                    break;
-                case "Episode":
-                    if (context != null && context.Type.IsIn(MediaBrowserType.View))
-                    {
-                        item.Label = dto.SeriesName + String.Format(" - {0}x{1} - {2}", dto.ParentIndexNumber ?? 0, dto.IndexNumber ?? 0, item.Label);
-                    }
-                    else
-                    {
-                        item.Label = String.Format("{0}: {1}", dto.IndexNumber ?? 0, item.Label);
-                    }
-                        item.Label2 = dto.PremiereDate.HasValue
-                            ? dto.PremiereDate.Value.ToString(GUIUtils.Culture.DateTimeFormat.ShortDatePattern)
-                            : string.Empty;
-                    break;
-                case "Season":
-                case "BoxSet":
-                    item.Label2 = dto.ChildCount.HasValue ? dto.ChildCount.ToString() : string.Empty;
-                    break;
-                case "Artist":
-                    item.Label2 = String.Format("{0}/{1}", (dto.AlbumCount ?? 0), (dto.SongCount ?? 0));
-                    break;
-                case "Person":
-                case "Studio":
-                case "Genre":
-                    if (context != null && context.Id.StartsWith("tvshows"))
-                    {
-                        item.Label2 = (dto.SeriesCount ?? 0).ToString();
-                    }
-                    else
-                    {
-                        item.Label2 = (dto.MovieCount ?? 0).ToString();
-                    }
-                    break;
-                default:
-                    item.Label2 = dto.ProductionYear.HasValue ? dto.ProductionYear.ToString() : string.Empty;
-                    break;
-            }
-            return item;
+            return GUICommon.GetBaseListItem(view);
         }
 
         #endregion
@@ -461,10 +412,13 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                         GUIContext.Instance.Client.GetSearchHints(
                             userId, item.Id, result => LoadSearchResultsAndContinue(result, e), ShowItemsErrorAndContinue);
                         return;
-                    case "UserRootFolder":
-                        LoadRootViews(e);
-                        return;
-                    case "View":
+                    case MediaBrowserType.Folder:
+                        query = query.Recursive(false);
+                        break;
+                    case MediaBrowserType.UserRootFolder:
+                        query = query.Recursive(false).Fields(ItemFields.MetadataSettings);
+                        break;
+                    case MediaBrowserType.View:
                         switch (item.Id)
                         {
                             case "root-music":
@@ -607,18 +561,27 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         private void LoadItemsAndContinue(ItemsResult result, ItemRequestEventArgs e)
         {
-            foreach (var listitem in result.Items.Select(x => GetBaseListItem(x, e.Parent.TVTag as BaseItemDto)))
-            {
-                e.List.Add(listitem);
-            }
+            var dto = e.Parent.TVTag as BaseItemDto;
 
-            e.TotalItems = result.TotalRecordCount;
+            if (dto.Type == MediaBrowserType.UserRootFolder)
+            {
+                LoadRootViews(e);
+            }
+            else
+            {
+                foreach (var listitem in result.Items.Select(x => GUICommon.GetBaseListItem(x, dto)))
+                {
+                    e.List.Add(listitem);
+                }
+
+                e.TotalItems = result.TotalRecordCount;
+            }
             _mre.Set();
         }
 
         private void LoadSearchResultsAndContinue(SearchHintResult result, ItemRequestEventArgs e)
         {
-            foreach (var listitem in result.SearchHints.Select(x => GetBaseListItem(new BaseItemDto{Id = x.ItemId, Type = x.Type, Name = x.Name}, e.Parent.TVTag as BaseItemDto)))
+            foreach (var listitem in result.SearchHints.Select(x => GUICommon.GetBaseListItem(new BaseItemDto { Id = x.ItemId, Type = x.Type, Name = x.Name }, e.Parent.TVTag as BaseItemDto)))
             {
                 e.List.Add(listitem);
             }
@@ -654,7 +617,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <param name="dto">The dto.</param>
         protected void LoadItem(BaseItemDto dto)
         {
-            var listitem = GetBaseListItem(dto);
+            var listitem = GUICommon.GetBaseListItem(dto);
             Navigate(listitem);
         }
 
@@ -885,7 +848,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 IsFolder = true
             };
 
-            Navigate(GetBaseListItem(dto));
+            Navigate(GUICommon.GetBaseListItem(dto));
         }
 
         protected void ShowAlphabetDialog()

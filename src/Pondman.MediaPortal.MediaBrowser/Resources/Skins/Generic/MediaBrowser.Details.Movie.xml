@@ -10,7 +10,7 @@
       <width>429</width>
       <height>613</height>
       <texture>list_poster_shadow.png</texture>
-      <visible>Control.IsVisible(50001)</visible>
+      <visible>control.isvisible(50001)</visible>
       <animation effect="fade" time="0">Visible</animation>
       <animation effect="fade" time="0">WindowClose</animation>
     </control>
@@ -27,7 +27,13 @@
       <visible>string.equals(#MediaBrowser.Details.Type,Movie)</visible>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
+      <animation effect="fade" time="250">Visible</animation>
     </control>
+
     
+
+    
+
+
   </controls>
 </window>
