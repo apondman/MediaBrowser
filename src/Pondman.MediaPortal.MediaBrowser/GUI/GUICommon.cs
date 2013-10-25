@@ -1,4 +1,6 @@
-﻿using MediaBrowser.Model.Dto;
+﻿using System.Collections.Generic;
+using System.Windows.Media.Animation;
+using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Querying;
 using MediaPortal.GUI.Library;
 using Newtonsoft.Json;
@@ -19,11 +21,78 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         Details = 201306032,
     }
 
+    public class FacadeItemHandler
+    {
+        private readonly Action<GUIListItem> _itemSelected;
+        private Timer _timer;
+        private double _lastPublishedTicks;
+        private readonly GUIFacadeControl _facade;
+
+        public FacadeItemHandler(GUIFacadeControl facade)
+        {
+            _facade = facade;
+            _itemSelected = OnItemSelected;
+        }
+
+        /// <summary>
+        /// Gets or sets the skin property.
+        /// </summary>
+        /// <value>
+        /// The property.
+        /// </value>
+        public string Property { get; set; }
+
+        public void SetLoading(bool isLoading)
+        {
+            isLoading.Publish(Property + ".Loading");
+        }
+
+        public void DelayedItemHandler(GUIListItem item, GUIControl parent)
+        {
+            double tickCount = AnimationTimer.TickCount;
+            int delay = MediaBrowserPlugin.Config.Settings.PublishDelayMs;
+
+            // Publish instantly when previous request has passed the required delay
+            if (delay < (int)(tickCount - _lastPublishedTicks))
+            {
+                _lastPublishedTicks = tickCount;
+                _itemSelected.BeginInvoke(item, _itemSelected.EndInvoke, null);
+                return;
+            }
+
+            _lastPublishedTicks = tickCount;
+            if (_timer == null)
+            {
+                _timer = new Timer(x => _itemSelected(_facade.SelectedListItem), null, delay, Timeout.Infinite);
+            }
+            else
+            {
+                _timer.Change(delay, Timeout.Infinite);
+            }
+        }
+
+        void OnItemSelected(GUIListItem item)
+        {
+            if (item == null) return;
+
+            var dto = item.TVTag as BaseItemDto;
+            dto.IfNotNull(x => x.Publish(Property + ".Selected"));
+        }
+    }
+
     /// <summary>
     /// Collection of common methods used by all the GUIWindows
     /// </summary>
-    public static class GUICommon 
+    public static class GUICommon
     {
+        private static readonly Dictionary<GUIControl, FacadeItemHandler> _itemHandlers;
+        private static bool _notifyDisabledSmartControls = true;
+
+        static GUICommon()
+        {
+            _itemHandlers = new Dictionary<GUIControl, FacadeItemHandler>();
+        }
+
         /// <summary>
         /// Delegate to perform an image download  and assign it to a gui listitem
         /// </summary>
@@ -132,18 +201,32 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         internal static readonly Action<GUIWindow> HandleSmartControls = SmartControlHandler;
 
+        /// <summary>
+        /// Scans for "smart" controls in the active window and initiates the handlers.
+        /// </summary>
+        /// <param name="window">The window.</param>
         internal static void SmartControlHandler(GUIWindow window)
         {
+            if (!(MediaBrowserPlugin.Config.Settings.UseDefaultUser ?? false))
+            {
+                if (!_notifyDisabledSmartControls)
+                {
+                    MediaBrowserPlugin.Log.Warn("Smart controls are disabled because there is no default user active.");
+                    _notifyDisabledSmartControls = false;
+                }
+                return;
+            }
+            
+            // clearing old handlers
+            _itemHandlers.Clear();
+
             if (RetryUntilSuccessOrTimeout(() => window.WindowLoaded, TimeSpan.FromSeconds(5)))
             {
                 var facades = window.Children
                     .OfType<GUIFacadeControl>()
                     .Where(x => x.Description.StartsWith("MediaBrowser.Query."))
-                    .Select(x =>
-                    {
-                        var tokens = x.Description.Split(new string[] {"."}, StringSplitOptions.RemoveEmptyEntries);
-                        return ProcessQuery(x, tokens);
-                    }).Count();
+                    .Select(HandleFacade)
+                    .Count();
 
                 MediaBrowserPlugin.Log.Debug("Detected {0} smart facade controls.", facades);
             }
@@ -153,60 +236,91 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
         }
 
-        internal static bool ProcessQuery(GUIFacadeControl facade, string[] tokens)
+        /// <summary>
+        /// Reads  metadata, executes and populates a facade marked as smart control, 
+        /// </summary>
+        /// <param name="facade">The facade.</param>
+        /// <returns></returns>
+        internal static bool HandleFacade(GUIFacadeControl facade)
         {
-            var userId = MediaBrowserPlugin.Config.Settings.DefaultUserId; //GUIContext.Instance.Client.CurrentUserId;
-            var index = 2;
-            ItemQuery query = null;
+            // break the facade description down into tokens
+            var tokens = facade.Description.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
+            
+            // if we have less than 4 segments there is not enough to be able to build a query
+            if (tokens.Length < 4) return false;
 
-            while (true)
+            // skin proerty
+            var skinProperty = "#" + String.Join(".", tokens.Take(3).ToArray());
+
+            // store custom identifier for skin properties
+            var identifier = tokens[2];
+
+            // create handler for this facade
+            var handler = CreateFacadeHandler(facade);
+            handler.Property = skinProperty;
+
+            // publish loading message
+            handler.SetLoading(true);
+
+            // grab the default user id
+            var userId = MediaBrowserPlugin.Config.Settings.DefaultUserId; //GUIContext.Instance.Client.CurrentUserId;
+
+            // create default query
+            var query = MediaBrowserQueries.Item.UserId(userId).Recursive();
+
+            // build query, start with 4th token (token[3])
+            var index = 3; var limit = 5;
+            while (index < tokens.Length)
             {
-                // MediaBrowser.Query.Type.Query.Limit // SortBy.Direction.Limit
-                // MediaBrowser.Query.Movie.RecentlyAdded.5 // DateAdded.Descending
+                // MediaBrowser.Query.CustomIdentifier.Parameter1.Parameter2(.Limit)
 
                 switch (tokens[index])
                 {
-                    case "Movie":
-                        query = MediaBrowserQueries.Item.UserId(userId).Movies().Recursive();
+                    case MediaBrowserType.MusicAlbum:
+                        query = query.MusicAlbum();
+                        break;
+                    case MediaBrowserType.Audio:
+                        query = query.Audio();
+                        break;
+                    case MediaBrowserType.Episode:
+                        query = query.Episode();
+                        break;
+                    case MediaBrowserType.Movie:
+                        query = query.Movies();
                         break;
                     case "RecentlyAdded":
                         query = query.SortBy(ItemSortBy.DateCreated, ItemSortBy.SortName).Descending();
                         break;
+                    default:
+                        Int32.TryParse(tokens[index], out limit);
+                        break;
                 }
 
-                if (index < 3)
-                {
-                    index++;
-                    continue;
-                }
-               
-                int limit = 10;
-                if (tokens.Length == 5) Int32.TryParse(tokens[4], out limit);
-                query = query.Limit(limit);
-
-                GUIContext.Instance.Client.GetItems(query, result => 
-                {
-                    facade.CycleLayout();
-
-                    MediaBrowserPlugin.Log.Debug("DASHBOARD LAYOUT: {0}", facade.CurrentLayout);
-
-                    facade.ClearAll();
-
-                    foreach (var dto in result.Items)
-                    {
-                        var item = dto.ToListItem();
-                        facade.Add(item);
-                    }
-
-                    facade.SelectIndex(0);
-                    //facade.Visible(true);
-                    //facade.Focus();
-
-                    MediaBrowserPlugin.Log.Debug("DASHBOARD LOADED: {0}", facade.Visible);
-                }, MediaBrowserPlugin.Log.Error);
-
-                return true;
+                index++;
             }
+
+            // set limit
+            query = query.Limit(limit);
+
+            // execute query
+            GUIContext.Instance.Client.GetItems(query, result =>
+            {
+                facade.CycleLayout();   // pick first available layout
+                facade.ClearAll();      // clear items;
+
+                foreach (var item in result.Items.Select(dto => dto.ToListItem()))
+                {
+                    item.OnItemSelected += handler.DelayedItemHandler;
+                    facade.Add(item);
+                }
+
+                facade.SelectIndex(0);
+                handler.SetLoading(false);
+
+                MediaBrowserPlugin.Log.Debug("Loaded Smart Control: {0}, Items: {1}", identifier, result.Items.Length);
+            }, MediaBrowserPlugin.Log.Error);
+
+            return true;
         }
 
         internal static bool RetryUntilSuccessOrTimeout(Func<bool> task, TimeSpan timeSpan)
@@ -292,5 +406,14 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
             return item;
         }
+
+        internal static FacadeItemHandler CreateFacadeHandler(GUIFacadeControl facade)
+        {
+            var handler = new FacadeItemHandler(facade);
+            _itemHandlers[facade] = handler;
+
+            return handler;
+        }
+
     }
 }

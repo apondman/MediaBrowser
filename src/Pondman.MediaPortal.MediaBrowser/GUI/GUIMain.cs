@@ -259,6 +259,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 // Attach the facade to the browser
                 _browser.Attach(facade);
             }
+
+            // update publish delay ms
+            _browser.Settings.Delay = MediaBrowserPlugin.Config.Settings.PublishDelayMs;
         }
 
         protected void OnItemPublished(GUIListItem item)
@@ -299,10 +302,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         protected void OnLoadingStatusChanged(bool isLoading)
         {
-            Publish(".Loading", isLoading.ToString());
-            // todo: setting to disable wait cursor
+            isLoading.Publish(".Loading");
+
             if (isLoading)
             {
+                // todo: setting to disable wait cursor
                 GUIWaitCursor.Init();
                 GUIWaitCursor.Show();
                 return;

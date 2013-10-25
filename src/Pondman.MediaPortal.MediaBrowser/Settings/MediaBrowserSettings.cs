@@ -26,6 +26,7 @@ namespace Pondman.MediaPortal.MediaBrowser
             LogProperties = true; // todo: change to false on release
             DisplayName = MediaBrowserPlugin.DefaultName;
             DefaultItemLimit = 50;
+            PublishDelayMs = 250;
 
             _userData = new HashSet<MediaBrowserUserSettings>();
         }
@@ -74,6 +75,15 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// </value>
         [DataMember]
         public string DefaultUserId { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the publish delay in milliseconds when traversing a list of items.
+        /// </summary>
+        /// <value>
+        /// publish delay in milliseconds.
+        /// </value>
+        [DataMember]
+        public int PublishDelayMs { get; set; }
 
         /// <summary>
         /// Gets or sets the use default user.
@@ -134,6 +144,12 @@ namespace Pondman.MediaPortal.MediaBrowser
 
             if (current < version)
             {
+                // upgrade from 0.13
+                if (current.Major == 0 && current.Minor == 13)
+                {
+                    PublishDelayMs = 250;
+                }
+
                 _version = version.ToString();
             }
         }
