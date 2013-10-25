@@ -194,6 +194,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             switch (action.wID)
             {
+                case MPGui.Action.ActionType.ACTION_PREVIOUS_MENU:
+                    base.OnPreviousWindow();
+                    break;
                 case MPGui.Action.ActionType.ACTION_PARENT_DIR:
                     // reset sortable query
                     OnPreviousWindow();
