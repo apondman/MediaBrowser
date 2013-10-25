@@ -276,11 +276,18 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
                 switch (tokens[index])
                 {
+                    // Item Types
                     case MediaBrowserType.MusicAlbum:
                         query = query.MusicAlbum();
                         break;
                     case MediaBrowserType.Audio:
                         query = query.Audio();
+                        break;
+                    case MediaBrowserType.Series:
+                        query = query.Series();
+                        break;
+                    case MediaBrowserType.Season:
+                        query = query.Season();
                         break;
                     case MediaBrowserType.Episode:
                         query = query.Episode();
@@ -288,8 +295,46 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     case MediaBrowserType.Movie:
                         query = query.Movies();
                         break;
+                    // Item Filters
+                    case "Dislikes":
+                        query = query.Filters(ItemFilter.Dislikes);
+                        break;
+                    case "Likes":
+                        query = query.Filters(ItemFilter.Likes);
+                        break;
+                    case "Favorite":
+                        query = query.Filters(ItemFilter.IsFavorite);
+                        break;
+                    case "Resumable":
+                        query = query.Filters(ItemFilter.IsResumable);
+                        break;
+                    case "Watched":
+                        query = query.Filters(ItemFilter.IsPlayed);
+                        break;
+                    case "Unwatched":
+                        query = query.Filters(ItemFilter.IsUnplayed);
+                        break;
+                    // Presets and sorting
+                    case "RecentlyPlayed":
+                        query = query.SortBy(ItemSortBy.DatePlayed, ItemSortBy.SortName).Descending();
+                        break;
                     case "RecentlyAdded":
                         query = query.SortBy(ItemSortBy.DateCreated, ItemSortBy.SortName).Descending();
+                        break;
+                    case "Random":
+                        query = query.SortBy(ItemSortBy.Random);
+                        break;
+                    case "SortName":
+                        query = query.SortBy(ItemSortBy.SortName);
+                        break;
+                    case "DatePlayed":
+                        query = query.SortBy(ItemSortBy.DatePlayed);
+                        break;
+                    case "Ascending":
+                        query = query.Ascending();
+                        break;
+                    case "Descending":
+                        query = query.Descending();
                         break;
                     default:
                         Int32.TryParse(tokens[index], out limit);
