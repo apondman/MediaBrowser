@@ -222,7 +222,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <param name="item">The item.</param>
         protected virtual void PublishArtwork(BaseItemDto item)
         {
-            _backdrop.Filename = GetBackdropUrl(item);
+            var backdrop = GetBackdropUrl(item);
+            if (backdrop != _backdrop.Filename)
+            {
+                _backdrop.Filename = GetBackdropUrl(item);
+            }
 
             if (ImageResources.Count == 0) return;
 

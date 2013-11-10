@@ -730,7 +730,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             // the selection could be changed so we quickly check whether the image is still relevant
             if (!Facade.IsNull() && !Facade.SelectedListItem.IsNull() && Facade.SelectedListItem.TVTag == item)
             {
-                _backdrop.Filename = backdrop ?? String.Empty;
+                if (backdrop != _backdrop.Filename)
+                {
+                    _backdrop.Filename = backdrop ?? String.Empty;
+                }
 
                 if (ImageResources.TryGetValue(item.Type, out resource))
                 {

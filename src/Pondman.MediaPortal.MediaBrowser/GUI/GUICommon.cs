@@ -272,7 +272,13 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             var index = 3; var limit = 5;
             while (index < tokens.Length)
             {
-                // MediaBrowser.Query.CustomIdentifier.Parameter1.Parameter2(.Limit)
+                // MediaBrowser.Query.CustomIdentifier.Parameter1.Parameter2.Etc (.Limit as int)
+                // Skin properties published are prefixed with: #MediaBrowser.Query.CustomIdentifier (.Loading, .Selected)
+                //
+                // examples: 
+                // MediaBrowser.Query.MyDashboardQuery.RecentlyAdded.Movie.3  (shows 3 movies that were recently added)
+                // MediaBrowser.Query.MyDashboardQuery.Random.Movie.5  (shows 5 random movies)
+                // MediaBrowser.Query.MyDashboardQuery.RecentlyAdded.Episode.Unwatched.8  (shows 8 episodes that were recently added and unwatched)
 
                 switch (tokens[index])
                 {
