@@ -1,11 +1,16 @@
 ﻿using MediaBrowser.ApiInteraction;
-using MediaBrowser.ApiInteraction.net35;
+using MediaBrowser.ApiInteraction.WebSocket;
 using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Entities;
+using MediaBrowser.Model.Querying;
+using MediaBrowser.Model.Users;
 using MediaPortal.GUI.Library;
 using System;
 using System.IO;
 using System.Net;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
@@ -30,7 +35,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <param name="deviceId">The device id.</param>
         /// <param name="version">The version.</param>
         public MediaBrowserClient(string serverHostName, int serverApiPort, string deviceName, string deviceId, string version)
-            : base(new MediaBrowserLogger(MediaBrowserPlugin.Log), new NewtonsoftJsonSerializer(), serverHostName, serverApiPort, CLIENT_NAME, deviceName, deviceId, version)
+            : base(new MediaBrowserLogger(MediaBrowserPlugin.Log), serverHostName, serverApiPort, CLIENT_NAME, deviceName, deviceId, version)
         {
             // todo: logging
         }
@@ -208,6 +213,27 @@ namespace Pondman.MediaPortal.MediaBrowser
                     return item.ImageTags != null && item.ImageTags.TryGetValue(options.ImageType, out guid) ? guid : (Guid?)null;
             }
         }
+
+        public Task<AuthenticationResult> AuthenticateUserAsync(string username, string password)
+        {
+            using (SHA1 provider = SHA1.Create())
+            {
+                byte[] hash = provider.ComputeHash(Encoding.UTF8.GetBytes(password ?? string.Empty));
+                return AuthenticateUserAsync(username, hash);
+            }
+        }
+
+        public async Task<ItemsResult> GetItemsByNameAsync(string name, ItemsByNameQuery query)
+        {
+            var url = GetItemByNameListUrl(name, query);
+
+            using (var stream = await GetSerializedStreamAsync(url).ConfigureAwait(false))
+            {
+                return DeserializeFromStream<ItemsResult>(stream);
+            }
+        }
+
+        
 
     }
 }

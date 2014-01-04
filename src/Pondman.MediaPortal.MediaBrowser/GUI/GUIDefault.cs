@@ -1,5 +1,6 @@
 ﻿using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Entities;
+using MediaBrowser.Model.Querying;
 using MediaPortal.GUI.Library;
 using Pondman.MediaPortal.MediaBrowser.Models;
 using Pondman.MediaPortal.MediaBrowser.Resources.Languages;
@@ -286,7 +287,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// </summary>
         /// <param name="items">The items.</param>
         /// <param name="forceSelect">if set to <c>true</c> [force select].</param>
-        protected void ShowUserProfilesDialog(List<GUIListItem> items = null, bool forceSelect = false)
+        protected async void ShowUserProfilesDialog(List<GUIListItem> items = null, bool forceSelect = false)
         {
             if (IsMainTaskRunning)
             {
@@ -338,55 +339,51 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
 
             // authenticate user with the gathered data with the media browser server
-            GUIContext.Instance.Client.AuthenticateUser(user.Id, password, success =>
-            {
-                if (success)
+            var auth = await GUIContext.Instance.Client.AuthenticateUserAsync(user.Name, password);
+            if (auth.User != null) 
+            { 
+                // if the user has a password but the remember me value has not been checked.
+                if (user.HasPassword && !profile.RememberMe.HasValue)
                 {
-                    
-                    // if the user has a password but the remember me value has not been checked.
-                    if (user.HasPassword && !profile.RememberMe.HasValue)
+                    // ask user to remember the login
+                    if (GUIUtils.ShowYesNoDialog(T.UserProfileRememberMe, T.UserProfileRememberMeText, true))
                     {
-                        // ask user to remember the login
-                        if (GUIUtils.ShowYesNoDialog(T.UserProfileRememberMe, T.UserProfileRememberMeText, true))
-                        {
-                            // store the encrypted password
-                            var encrypted = DataProtection.Encrypt(password);
-                            profile.RememberAuth(encrypted);
-                        }
+                        // store the encrypted password
+                        var encrypted = DataProtection.Encrypt(password);
+                        profile.RememberAuth(encrypted);
                     }
-
-                    if (!global.UseDefaultUser.HasValue)
-                    {
-                        // if we don't have a default user set, ask the user if he wants to set this profile up as the default
-                        if (GUIUtils.ShowYesNoDialog(T.UserProfileDefault, T.UserProfileDefaultText, true))
-                        {
-                            global.SetDefaultUser(user.Id);
-                        }
-                    }
-
-                    // update the user context, reset views and continue
-                    GUIContext.Instance.Client.CurrentUser = user;
-
-                    if (user.HasPrimaryImage)
-                    {
-                        var avatar = ImageResources["User"];
-                        avatar.Resource.Filename = GUIContext.Instance.Client.GetLocalUserImageUrl(user, new ImageOptions { Width = avatar.Width, Height = avatar.Height });
-                    }
-
-                    Reset();
-                    return;
                 }
 
-                // show to the user that the login failed.
-                GUIUtils.ShowOKDialog(MediaBrowserPlugin.UI.Resource.UserProfileLogin, MediaBrowserPlugin.UI.Resource.UserProfileLoginFailed);
-                
-                // forget auth because it has failed.
-                profile.ForgetAuth();
+                if (!global.UseDefaultUser.HasValue)
+                {
+                    // if we don't have a default user set, ask the user if he wants to set this profile up as the default
+                    if (GUIUtils.ShowYesNoDialog(T.UserProfileDefault, T.UserProfileDefaultText, true))
+                    {
+                        global.SetDefaultUser(user.Id);
+                    }
+                }
 
-                // reshow dialog
-                ShowUserProfilesDialog(items);
-            });
-            
+                // update the user context, reset views and continue
+                GUIContext.Instance.Client.CurrentUser = user;
+
+                if (user.HasPrimaryImage)
+                {
+                    var avatar = ImageResources["User"];
+                    avatar.Resource.Filename = GUIContext.Instance.Client.GetLocalUserImageUrl(user, new ImageOptions { Width = avatar.Width, Height = avatar.Height });
+                }
+
+                Reset();
+                return;
+            }
+
+            // show to the user that the login failed.
+            GUIUtils.ShowOKDialog(MediaBrowserPlugin.UI.Resource.UserProfileLogin, MediaBrowserPlugin.UI.Resource.UserProfileLoginFailed);
+                
+            // forget auth because it has failed.
+            profile.ForgetAuth();
+
+            // reshow dialog
+            ShowUserProfilesDialog(items);
         }
 
         /// <summary>
@@ -399,17 +396,16 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             task = task ?? GUITask.None;
             var list = new List<GUIListItem>();
 
-            WaitFor(x => GUIContext.Instance.Client.GetUsers(users =>
+            try
             {
+                var subtask = GUIContext.Instance.Client.GetUsersAsync(new UserQuery());
+                var users = subtask.Result;
                 list.AddRange(users.TakeWhile(user => !task.IsCancelled).Select(GetUserListItem));
-                x.Set();
-            }, e =>
+            }
+            catch (Exception e)
             {
-                // todo: show error?
                 Log.Error(e);
-                x.Set();
-            })
-                ); // todo: timeout?
+            }          
 
             return list;
         }

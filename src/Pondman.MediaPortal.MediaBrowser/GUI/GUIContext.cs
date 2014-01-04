@@ -3,6 +3,8 @@ using MediaBrowser.Model.System;
 using MediaPortal.GUI.Library;
 using MediaPortal.Services;
 using Pondman.MediaPortal.MediaBrowser.Events;
+using System;
+using System.Threading;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
 {
@@ -90,7 +92,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             Update(item.Type, item.Id, item.Name, context);
         }
 
-        public void Update(string itemType, string itemId, string itemName, string context = "")
+        public async void Update(string itemType, string itemId, string itemName, string context = "")
         {
             if (Client != null && Client.WebSocketConnection != null)
             {
@@ -100,7 +102,15 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     itemId = "";
                 }
 
-                Client.WebSocketConnection.SendContextMessage(itemType, itemId, itemName, context, MediaBrowserPlugin.Log.Error);
+                try
+                {
+                    await Client.WebSocketConnection.SendContextMessageAsync(itemType, itemId, itemName, context, CancellationToken.None);
+                }
+                catch (Exception e)
+                {
+                    MediaBrowserPlugin.Log.Error(e);
+                }
+                
             }
         }
 

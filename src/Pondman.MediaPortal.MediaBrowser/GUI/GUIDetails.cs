@@ -26,10 +26,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             RegisterCommand("Play", PlayCommand);
         }
 
-        private void OnPlayerProgress(TimeSpan timeSpan)
+        private async void OnPlayerProgress(TimeSpan timeSpan)
         {
-            GUIContext.Instance.Client.ReportPlaybackProgress(_movie.Id, GUIContext.Instance.ActiveUser.Id,
-                timeSpan.Ticks, false, false, x => Log.Debug("PlayerProgress: {0}", timeSpan.TotalSeconds));
+            await GUIContext.Instance.Client.ReportPlaybackProgressAsync(_movie.Id, GUIContext.Instance.ActiveUser.Id, timeSpan.Ticks, false, false);
+            Log.Debug("PlayerProgress: {0}", timeSpan.TotalSeconds);
         }
 
         #endregion
@@ -120,23 +120,21 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         protected BaseItemDto LoadMovieDetails(GUITask task)
         {
-            Log.Debug("Loading movie details for: {0}", Parameters.Id);
-            
-            Publish(".Loading", "True");
-            var mre = new ManualResetEvent(false);
+            // todo: update this logic with true async 
 
-            GUIContext.Instance.Client.GetItem(Parameters.Id, GUIContext.Instance.Client.CurrentUserId, (result) =>
+            Log.Debug("Loading movie details for: {0}", Parameters.Id);
+            Publish(".Loading", "True");
+
+            try
             {
-                _movie = result;
-                mre.Set();
+                var request = GUIContext.Instance.Client.GetItemAsync(Parameters.Id, GUIContext.Instance.Client.CurrentUserId);
+                _movie = request.Result;
             }
-            , (e) =>
+            catch (Exception e)
             {
                 Log.Error(e);
-                mre.Set();
-            });
+            }
 
-            mre.WaitOne(); // todo: timeout?
             Publish(".Loading", "False");
 
             return _movie;
@@ -150,27 +148,23 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             GUITask.MainThreadCallback(() => Play(Parameters.ResumeFrom));
         }
 
-        protected void OnPlaybackStarted(MediaPlayerInfo info)
+        protected async void OnPlaybackStarted(MediaPlayerInfo info)
         {
-            GUIContext.Instance.Client.ReportPlaybackStart(_movie.Id, GUIContext.Instance.ActiveUser.Id, PlaybackReported);
+            await GUIContext.Instance.Client.ReportPlaybackStartAsync(_movie.Id, GUIContext.Instance.ActiveUser.Id, true, null);
+            Log.Debug("Reporting playback started to MediaBrowser.");
         }
 
-        protected void OnPlaybackStopped(MediaPlayerInfo media, int progress)
+        protected async void OnPlaybackStopped(MediaPlayerInfo media, int progress)
         {
-            GUIContext.Instance.Client.ReportPlaybackStopped(_movie.Id, GUIContext.Instance.ActiveUser.Id,
-                TimeSpan.FromSeconds(progress).Ticks, PlaybackReported);
+            await GUIContext.Instance.Client.ReportPlaybackStoppedAsync(_movie.Id, GUIContext.Instance.ActiveUser.Id, TimeSpan.FromSeconds(progress).Ticks);
+            Log.Debug("Reporting playback stopped to MediaBrowser.");
         }
 
-        protected void OnPlaybackEnded(MediaPlayerInfo media)
+        protected async void OnPlaybackEnded(MediaPlayerInfo media)
         {
             // todo: doesn't account for multiparts!
-            GUIContext.Instance.Client.ReportPlaybackStopped(_movie.Id, GUIContext.Instance.ActiveUser.Id,
-                _movie.RunTimeTicks, PlaybackReported);
-        }
-
-        protected void PlaybackReported(bool response)
-        {
-            Log.Debug("Reporting playback state to MediaBrowser. {0}", response);
+            await GUIContext.Instance.Client.ReportPlaybackStoppedAsync(_movie.Id, GUIContext.Instance.ActiveUser.Id, _movie.RunTimeTicks);
+            Log.Debug("Reporting playback stopped to MediaBrowser.");
         }
 
     }

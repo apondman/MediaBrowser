@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MPGui = MediaPortal.GUI.Library;
+using System.Threading.Tasks;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
 {
@@ -124,7 +125,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             OnWindowStart();
         }
 
-        protected void OnWindowStart()
+        protected async void OnWindowStart()
         {
             // browse to item
             if (!String.IsNullOrEmpty(Parameters.Id))
@@ -137,7 +138,15 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 }
                 else
                 {
-                    GUIContext.Instance.Client.GetItem(Parameters.Id, GUIContext.Instance.Client.CurrentUserId, LoadItem, ShowItemsError);
+                    try 
+                    {
+                        var item = await GUIContext.Instance.Client.GetItemAsync(Parameters.Id, GUIContext.Instance.Client.CurrentUserId);
+                        LoadItem(item);
+                    } 
+                    catch(Exception e) 
+                    {
+                        ShowItemsError(e);
+                    }
                 }
                 return;
             }
@@ -146,8 +155,15 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             if (!_browser.Reload())
             {
                 // get root folder if there's nothing to reload
-                GUIContext.Instance.Client.GetRootFolder(GUIContext.Instance.Client.CurrentUserId, LoadItem,
-                    ShowItemsError);
+                try 
+                {
+                    var item = await GUIContext.Instance.Client.GetRootFolderAsync(GUIContext.Instance.Client.CurrentUserId);
+                    LoadItem(item);
+                }
+                catch(Exception e) 
+                {
+                    ShowItemsError(e);
+                }
             }
         }
 
@@ -417,14 +433,21 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 switch (item.Type)
                 {
                     case "MovieSearchResults":
-                        GUIContext.Instance.Client.GetSearchHints(
-                            userId, item.Id, result => LoadSearchResultsAndContinue(result, e), ShowItemsErrorAndContinue);
+                        try 
+                        {
+                            var hints = GUIContext.Instance.Client.GetSearchHintsAsync(userId, item.Id);
+                            LoadSearchResultsAndContinue(hints.Result, e);
+                        }
+                        catch(Exception ex) 
+                        {
+                            ShowItemsErrorAndContinue(ex);
+                        }
                         return;
                     case MediaBrowserType.Folder:
                         query = query.Recursive(false);
                         break;
                     case MediaBrowserType.UserRootFolder:
-                        query = query.Recursive(false).Fields(ItemFields.MetadataSettings);
+                        query = query.Recursive(false);//.Fields(ItemFields.);
                         break;
                     case MediaBrowserType.View:
                         switch (item.Id)
@@ -439,14 +462,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 LoadTvShowsViewsAndContinue(e);
                                 return;
                             case "movies-genres":
-                                GUIContext.Instance.Client.GetGenres(
-                                    MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Movie).Apply(_sortableQuery),
-                                    result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
+                                LoadItems(GUIContext.Instance.Client.GetGenresAsync(MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Movie).Apply(_sortableQuery)),e);
                                 return;
                             case "movies-studios":
-                                GUIContext.Instance.Client.GetStudios(
-                                    MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Movie).Apply(_sortableQuery),
-                                    result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
+                                LoadItems(GUIContext.Instance.Client.GetStudiosAsync(MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Movie).Apply(_sortableQuery)), e);
                                 return;
                             case "movies-boxset":
                                 query = query
@@ -473,9 +492,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                     .Descending();
                                 break;
                             case "movies-people":
-                                GUIContext.Instance.Client.GetPeople(
-                                    MediaBrowserQueries.Persons.User(userId).Fields(ItemFields.Overview).Include(MediaBrowserType.Movie).Apply(_sortableQuery),
-                                    result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
+                                LoadItems(GUIContext.Instance.Client.GetPeopleAsync(MediaBrowserQueries.Persons.User(userId).Fields(ItemFields.Overview).Include(MediaBrowserType.Movie).Apply(_sortableQuery)), e);
                                 return;
                             case "movies-all":
                                 query = query.Movies();
@@ -491,23 +508,20 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                     .SortBy(ItemSortBy.AlbumArtist, ItemSortBy.SortName);
                                 break;
                             case "music-artists":
-                                GUIContext.Instance.Client.GetItemsByName("Artists",
-                                    MediaBrowserQueries.Named.User(userId).Apply(_sortableQuery),
-                                    result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
+                                LoadItems(GUIContext.Instance.Client.GetItemsByNameAsync("Artists",
+                                    MediaBrowserQueries.Named.User(userId).Apply(_sortableQuery)),e);
                                 return;
                             case "tvshows-networks":
-                                GUIContext.Instance.Client.GetStudios(
-                                    MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Series).Apply(_sortableQuery),
-                                    result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
+                                LoadItems(GUIContext.Instance.Client.GetStudiosAsync(
+                                    MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Series).Apply(_sortableQuery)),e);
                                 return;
                             case "tvshows-all":
                                 query = query
                                     .Series();
                                 break;
                             case "tvshows-nextup":
-                                GUIContext.Instance.Client.GetNextUp(
-                                    MediaBrowserQueries.NextUp.User(userId).Fields(ItemFields.Overview).Limit(24),
-                                    result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
+                                LoadItems(GUIContext.Instance.Client.GetNextUpAsync(
+                                    MediaBrowserQueries.NextUp.User(userId).Fields(ItemFields.Overview).Limit(24)),e);
                                 return;
                             case "tvshows-latest":
                                 query = query
@@ -523,14 +537,12 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                     .Descending();
                                 break;
                             case "tvshows-genres":
-                                GUIContext.Instance.Client.GetGenres(
-                                    MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Series).Apply(_sortableQuery),
-                                    result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
+                                LoadItems(GUIContext.Instance.Client.GetGenresAsync(
+                                    MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Series).Apply(_sortableQuery)),e);
                                 return;
                             case "tvshows-people":
-                                GUIContext.Instance.Client.GetPeople(
-                                    MediaBrowserQueries.Persons.User(userId).Fields(ItemFields.Overview).Include(MediaBrowserType.Series).Apply(_sortableQuery),
-                                    result => LoadItemsAndContinue(result, e), ShowItemsErrorAndContinue);
+                                LoadItems(GUIContext.Instance.Client.GetPeopleAsync(
+                                    MediaBrowserQueries.Persons.User(userId).Fields(ItemFields.Overview).Include(MediaBrowserType.Series).Apply(_sortableQuery)),e);
                                 return;
                         }
                         break;
@@ -561,10 +573,20 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 }
 
                 // default is item query
-                GUIContext.Instance.Client.GetItems(query.Apply(_sortableQuery),
-                    result => LoadItemsAndContinue(result, e),
-                    ShowItemsErrorAndContinue);
+                LoadItems(GUIContext.Instance.Client.GetItemsAsync(query.Apply(_sortableQuery)),e);
             });
+        }
+
+        private void LoadItems(Task<ItemsResult> task, ItemRequestEventArgs args)
+        {
+            try
+            {
+                LoadItemsAndContinue(task.Result, args);
+            }
+            catch (Exception ex)
+            {
+                ShowItemsErrorAndContinue(ex);
+            }
         }
 
         private void LoadItemsAndContinue(ItemsResult result, ItemRequestEventArgs e)

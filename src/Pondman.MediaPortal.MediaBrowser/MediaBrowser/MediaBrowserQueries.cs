@@ -165,18 +165,6 @@ namespace Pondman.MediaPortal.MediaBrowser
         }
 
         /// <summary>
-        /// Indexes the by.
-        /// </summary>
-        /// <param name="query">The query.</param>
-        /// <param name="indexBy">The index by.</param>
-        /// <returns></returns>
-        public static ItemQuery IndexBy(this ItemQuery query, string indexBy)
-        {
-            query.IndexBy = indexBy;
-            return query; 
-        }
-
-        /// <summary>
         /// Shorthand to includes the item types this query should return.
         /// </summary>
         /// <param name="query">The query.</param>

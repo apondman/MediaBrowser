@@ -84,8 +84,7 @@ namespace Pondman.MediaPortal.MediaBrowser
             internal set
             {
                 _client = value;
-                ApiWebSocket.Create(_client, OnConnecting, _logger.Error);
-                Update();
+                StartWebSocket();
             }
         } MediaBrowserClient _client;
 
@@ -96,31 +95,55 @@ namespace Pondman.MediaPortal.MediaBrowser
                 _retryTimer.Dispose();
             }
 
-            _retryTimer = new Timer(x =>
+            _retryTimer = new Timer(FindServer, null, 0, retryIntervalMs);
+        }
+
+        private async void FindServer(object state)
+        {
+            _logger.Info("Discovering Media Browser Server.");
+            try
             {
-                _logger.Info("Discovering Media Browser Server.");
-                _locator.FindServer(OnServerDiscovered);
-            }, null, 0, retryIntervalMs);
+                var server = await _locator.FindServer(CancellationToken.None).ConfigureAwait(false);
+                OnServerDiscovered(server);
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e);
+            }
         }
 
-        public void Update()
+        public async void StartWebSocket() 
         {
-            if (!IsServerLocated) return;
-            Client.GetSystemInfo(info => System = info, _logger.Error);
-        }
-
-        #region internal event handlers
-
-        protected void OnConnecting(ApiWebSocket socket)
-        {
+            var info = await _client.GetSystemInfoAsync();
+            var socket = new ApiWebSocket(_client.ServerHostName, info.WebSocketPortNumber, _client.DeviceId, _client.ApplicationVersion, _client.ClientName, _client.DeviceName, ClientWebSocketFactory.CreateWebSocket);
+            
             _logger.Info("Connecting to Media Browser Server.");
-
+            
             socket.MessageCommand += OnSocketMessageCommand;
             socket.PlayCommand += OnPlayCommand;
             socket.BrowseCommand += OnBrowseCommand;
             socket.Connected += OnSocketConnected;
-            socket.Disconnected += OnSocketDisconnected;
+            socket.Closed += OnSocketDisconnected;
+
+            _client.WebSocketConnection = socket;
+            System = info;
         }
+
+        public async void Update()
+        {
+            if (!IsServerLocated) return;
+
+            try
+            {
+                System = await Client.GetSystemInfoAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e);
+            }
+        }
+
+        #region internal event handlers
 
         void OnSocketConnected(object sender, EventArgs e)
         {

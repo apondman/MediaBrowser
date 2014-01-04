@@ -9,6 +9,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using MPGui = MediaPortal.GUI.Library;
+using System.Threading.Tasks;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
 {
@@ -157,13 +158,19 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// </summary>
         /// <param name="control">The control.</param>
         /// <param name="actionType">Type of the action.</param>
-        public static void RandomMovieCommand(GUIControl control, MPGui.Action.ActionType actionType)
+        public static async void RandomMovieCommand(GUIControl control, MPGui.Action.ActionType actionType)
         {
             if (GUIContext.Instance.HasActiveUser)
             {
-                GUIContext.Instance.Client.GetItems(MediaBrowserQueries.RandomMovie(GUIContext.Instance.ActiveUser.Id).Watched(false),
-                    result => Window(MediaBrowserWindow.Details, MediaBrowserMedia.Browse(result.Items.First().Id))
-                    , ShowRequestErrorDialog);
+                try
+                {
+                    var result = await GUIContext.Instance.Client.GetItemsAsync(MediaBrowserQueries.RandomMovie(GUIContext.Instance.ActiveUser.Id).Watched(false));
+                    Window(MediaBrowserWindow.Details, MediaBrowserMedia.Browse(result.Items.First().Id));
+                }
+                catch (Exception e)
+                {
+                    ShowRequestErrorDialog(e);
+                }
             }
         }
 
@@ -241,7 +248,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// </summary>
         /// <param name="facade">The facade.</param>
         /// <returns></returns>
-        internal static bool HandleFacade(GUIFacadeControl facade)
+        internal async static Task<bool> HandleFacade(GUIFacadeControl facade)
         {
             // break the facade description down into tokens
             var tokens = facade.Description.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
@@ -353,9 +360,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             // set limit
             query = query.Limit(limit);
 
-            // execute query
-            GUIContext.Instance.Client.GetItems(query, result =>
+            try
             {
+                var result = await GUIContext.Instance.Client.GetItemsAsync(query);
                 facade.CycleLayout();   // pick first available layout
                 facade.ClearAll();      // clear items;
 
@@ -366,10 +373,17 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 }
 
                 facade.SelectIndex(0);
-                handler.SetLoading(false);
-
                 MediaBrowserPlugin.Log.Debug("Loaded Smart Control: {0}, Items: {1}", identifier, result.Items.Length);
-            }, MediaBrowserPlugin.Log.Error);
+            }
+            catch (Exception e)
+            {
+                MediaBrowserPlugin.Log.Error(e);
+                return false;
+            }
+            finally
+            {
+                handler.SetLoading(false);
+            }
 
             return true;
         }
