@@ -22,65 +22,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         Details = 201306032,
     }
 
-    public class FacadeItemHandler
-    {
-        private readonly Action<GUIListItem> _itemSelected;
-        private Timer _timer;
-        private double _lastPublishedTicks;
-        private readonly GUIFacadeControl _facade;
-
-        public FacadeItemHandler(GUIFacadeControl facade)
-        {
-            _facade = facade;
-            _itemSelected = OnItemSelected;
-        }
-
-        /// <summary>
-        /// Gets or sets the skin property.
-        /// </summary>
-        /// <value>
-        /// The property.
-        /// </value>
-        public string Property { get; set; }
-
-        public void SetLoading(bool isLoading)
-        {
-            isLoading.Publish(Property + ".Loading");
-        }
-
-        public void DelayedItemHandler(GUIListItem item, GUIControl parent)
-        {
-            double tickCount = AnimationTimer.TickCount;
-            int delay = MediaBrowserPlugin.Config.Settings.PublishDelayMs;
-
-            // Publish instantly when previous request has passed the required delay
-            if (delay < (int)(tickCount - _lastPublishedTicks))
-            {
-                _lastPublishedTicks = tickCount;
-                _itemSelected.BeginInvoke(item, _itemSelected.EndInvoke, null);
-                return;
-            }
-
-            _lastPublishedTicks = tickCount;
-            if (_timer == null)
-            {
-                _timer = new Timer(x => _itemSelected(_facade.SelectedListItem), null, delay, Timeout.Infinite);
-            }
-            else
-            {
-                _timer.Change(delay, Timeout.Infinite);
-            }
-        }
-
-        void OnItemSelected(GUIListItem item)
-        {
-            if (item == null) return;
-
-            var dto = item.TVTag as BaseItemDto;
-            dto.IfNotNull(x => x.Publish(Property + ".Selected"));
-        }
-    }
-
     /// <summary>
     /// Collection of common methods used by all the GUIWindows
     /// </summary>
@@ -93,44 +34,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             _itemHandlers = new Dictionary<GUIControl, FacadeItemHandler>();
         }
-
-        /// <summary>
-        /// Delegate to perform an image download  and assign it to a gui listitem
-        /// </summary>
-        public static readonly Action<GUIListItem> ItemImageDownloadAndAssign =
-            (item) =>
-            {
-                var dto = item.TVTag as BaseItemDto;
-                if (dto != null && dto.HasPrimaryImage)
-                {
-                    // todo: let skin define dimensions
-                    string imageUrl = GUIContext.Instance.Client.GetLocalImageUrl(dto, new ImageOptions { Width = 200, Height = 300 });
-
-                    if (!String.IsNullOrEmpty(imageUrl))
-                    {
-                        item.IconImage = imageUrl;
-                        item.IconImageBig = imageUrl;
-                    }
-                }
-            };
-
-        public static readonly Action<UserDto> UserPublishWorker = (user) => user.Publish(MediaBrowserPlugin.DefaultProperty + ".User");
-
-        public static readonly Action<GUIListItem> UserImageDownloadAndAssign =
-            (item) =>
-            {
-                var user = item.TVTag as UserDto;
-                if (user != null && user.HasPrimaryImage)
-                {
-                    // todo: setup image options
-                    string imageUrl = GUIContext.Instance.Client.GetLocalUserImageUrl(user, new ImageOptions());
-                    if (!String.IsNullOrEmpty(imageUrl))
-                    {
-                        item.IconImage = imageUrl;
-                        item.IconImageBig = imageUrl;
-                    }
-                }
-            };
 
         /// <summary>
         /// Wrapper for GUIWindowManager.ActivateWindow
@@ -402,17 +305,23 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             return success;
         }
 
-        public static void GetItemImage(GUIListItem item)
+        public static async void RetrieveImageData(GUIListItem item)
         {
-            ItemImageDownloadAndAssign.BeginInvoke(item, ItemImageDownloadAndAssign.EndInvoke, null);
+            var dto = item.TVTag as BaseItemDto;
+            if (dto != null && dto.HasPrimaryImage)
+            {
+                // todo: let skin define dimensions
+                string imageUrl = await GUIContext.Instance.Client.GetLocalImageUrl(dto, new ImageOptions { Width = 200, Height = 300 });
+
+                if (!String.IsNullOrEmpty(imageUrl))
+                {
+                    item.IconImage = imageUrl;
+                    item.IconImageBig = imageUrl;
+                }
+            }
         }
 
         public static GUIListItem ToListItem(this BaseItemDto dto, BaseItemDto context = null)
-        {
-            return GetBaseListItem(dto, context);
-        }
-
-        public static GUIListItem GetBaseListItem(BaseItemDto dto, BaseItemDto context = null)
         {
             var item = new GUIListItem(dto.Name)
             {
@@ -426,7 +335,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 RetrieveArt = true,
                 IsPlayed = dto.UserData != null && dto.UserData.Played,
             };
-            item.OnRetrieveArt += GetItemImage;
+            item.OnRetrieveArt += RetrieveImageData;
 
             switch (dto.Type)
             {

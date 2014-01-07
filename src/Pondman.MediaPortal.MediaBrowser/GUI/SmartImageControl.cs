@@ -3,6 +3,7 @@ using System.Linq;
 using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Entities;
 using MediaPortal.GUI.Library;
+using System.Threading.Tasks;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
 {
@@ -47,9 +48,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         public AsyncImageResource Resource { get; private set; }
 
-        public string GetImageUrl(BaseItemDto item)
+        public async Task<string> GetImageUrl(BaseItemDto item)
         {
-            return (item.ImageTags == null || item.ImageTags.Count == 0) ? string.Empty : GUIContext.Instance.Client.GetLocalImageUrl(item, new ImageOptions { ImageType = ImageType, Width = Width, Height = Height });
+            return (item.ImageTags == null || item.ImageTags.Count == 0) ? string.Empty : await GUIContext.Instance.Client.GetLocalImageUrl(item, new ImageOptions { ImageType = ImageType, Width = Width, Height = Height });
         }
 
         public static implicit operator SmartImageControl(GUIImage control)

@@ -10,6 +10,7 @@ using System.IO;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Pondman.MediaPortal.MediaBrowser
@@ -79,11 +80,11 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <param name="item">The item.</param>
         /// <param name="options">The options.</param>
         /// <returns></returns>
-        public virtual string GetLocalImageUrl(BaseItemDto item, ImageOptions options)
+        public virtual async Task<string> GetLocalImageUrl(BaseItemDto item, ImageOptions options)
         {
             options.Tag = GetImageTag(item, options);
 
-            return options.Tag != null ? GetCachedImageUrl("items", options, () => GetImageUrl(item, options)) : string.Empty;
+            return options.Tag != null ? await GetCachedImageUrl("items", options, () => GetImageUrl(item, options)) : string.Empty;
         }
 
         /// <summary>
@@ -92,11 +93,11 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <param name="user">The user.</param>
         /// <param name="options">The options.</param>
         /// <returns></returns>
-        public virtual string GetLocalUserImageUrl(UserDto user, ImageOptions options) 
+        public virtual async Task<string> GetLocalUserImageUrl(UserDto user, ImageOptions options) 
         {
             options.Tag = user.PrimaryImageTag;
 
-            return options.Tag != null ? GetCachedImageUrl("users", options, () => GetUserImageUrl(user, options)) : string.Empty;
+            return options.Tag != null ? await GetCachedImageUrl("users", options, () => GetUserImageUrl(user, options)) : string.Empty;
         }
 
         /// <summary>
@@ -105,13 +106,13 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <param name="item">The item.</param>
         /// <param name="options">The options.</param>
         /// <returns></returns>
-        public virtual string GetLocalBackdropImageUrl(BaseItemDto item, ImageOptions options)
+        public virtual async Task<string> GetLocalBackdropImageUrl(BaseItemDto item, ImageOptions options)
         {
             string[] urls = GetBackdropImageUrls(item, options);
             if (urls.Length == 0)
                 return string.Empty;
 
-            return GetCachedImageUrl("items", options, () => urls[options.ImageIndex ?? 0]);
+            return await GetCachedImageUrl("items", options, () => urls[options.ImageIndex ?? 0]);
         }
 
         /// <summary>
@@ -121,7 +122,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <param name="options">The options.</param>
         /// <param name="func">The func.</param>
         /// <returns></returns>
-        protected string GetCachedImageUrl(string subtype, ImageOptions options, Func<string> func)
+        protected async Task<string> GetCachedImageUrl(string subtype, ImageOptions options, Func<string> func)
         {
             string url = string.Empty;
             
@@ -147,14 +148,12 @@ namespace Pondman.MediaPortal.MediaBrowser
                         Directory.CreateDirectory(folder);
                     }
 
-                    WebRequest webReq = WebRequest.Create(url);
-                    WebResponse webResp = webReq.GetResponse();
-
-                    using (FileStream output = File.OpenWrite(cachedPath))
+                    using (var response = await HttpClient.GetAsync(url, CancellationToken.None))
                     {
-                        using(Stream input = webResp.GetResponseStream()) 
+                        
+                        using (FileStream output = File.OpenWrite(cachedPath))
                         {
-                            input.CopyStream(output);
+                            response.CopyStream(output);
                         }
                     }
                 }
@@ -214,12 +213,12 @@ namespace Pondman.MediaPortal.MediaBrowser
             }
         }
 
-        public Task<AuthenticationResult> AuthenticateUserAsync(string username, string password)
+        public async Task<AuthenticationResult> AuthenticateUserAsync(string username, string password)
         {
             using (SHA1 provider = SHA1.Create())
             {
                 byte[] hash = provider.ComputeHash(Encoding.UTF8.GetBytes(password ?? string.Empty));
-                return AuthenticateUserAsync(username, hash);
+                return await AuthenticateUserAsync(username, hash);
             }
         }
 

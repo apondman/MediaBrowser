@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using MPGUI = MediaPortal.GUI.Library;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
@@ -19,7 +20,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         static readonly Random _randomizer = new Random();
 
         protected readonly Dictionary<string, SmartImageControl> ImageResources;
-        protected readonly ManualResetEvent _mre;
         protected ImageSwapper _backdrop = null;
         protected Dictionary<string, Action<GUIControl, MPGUI.Action.ActionType>> _commands = null;
         protected string _commandPrefix = MediaBrowserPlugin.DefaultName + ".Command.";
@@ -36,7 +36,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             MainTask = null;
             _logger = MediaBrowserPlugin.Log;
             _commands = new Dictionary<string, Action<GUIControl, MPGUI.Action.ActionType>>();
-            _mre = new ManualResetEvent(false);
 
             ImageResources = new Dictionary<string, SmartImageControl>();
 
@@ -221,12 +220,12 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// Publishes the artwork.
         /// </summary>
         /// <param name="item">The item.</param>
-        protected virtual void PublishArtwork(BaseItemDto item)
+        protected virtual async void PublishArtwork(BaseItemDto item)
         {
-            var backdrop = GetBackdropUrl(item);
+            var backdrop = await GetBackdropUrl(item);
             if (backdrop != _backdrop.Filename)
             {
-                _backdrop.Filename = GetBackdropUrl(item);
+                _backdrop.Filename = backdrop;
             }
 
             if (ImageResources.Count == 0) return;
@@ -235,22 +234,22 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             if (ImageResources.TryGetValue(item.Type, out resource))
             {
                 // load specific image
-                resource.Resource.Filename = resource.GetImageUrl(item);
+                resource.Resource.Filename = resource.GetImageUrl(item).Result;
                 return;
             }
 
             // load default image
             if (ImageResources.TryGetValue("Default", out resource))
             {
-                resource.Resource.Filename = resource.GetImageUrl(item);
+                resource.Resource.Filename = resource.GetImageUrl(item).Result;
             }
         }
 
-        protected virtual string GetBackdropUrl(BaseItemDto item)
+        protected virtual async Task<string> GetBackdropUrl(BaseItemDto item)
         {
             var index = _randomizer.Next(item.BackdropCount);
             Log.Debug("Random Backdrop Index: {0} out of {1}", index, item.BackdropCount);
-            return GUIContext.Instance.Client.GetLocalBackdropImageUrl(item, new ImageOptions { ImageType = ImageType.Backdrop, ImageIndex = index });
+            return await GUIContext.Instance.Client.GetLocalBackdropImageUrl(item, new ImageOptions { ImageType = ImageType.Backdrop, ImageIndex = index });
         }
 
         protected void RegisterCommand(string name, Action<GUIControl, MPGUI.Action.ActionType> command) 
@@ -369,7 +368,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 if (user.HasPrimaryImage)
                 {
                     var avatar = ImageResources["User"];
-                    avatar.Resource.Filename = GUIContext.Instance.Client.GetLocalUserImageUrl(user, new ImageOptions { Width = avatar.Width, Height = avatar.Height });
+                    avatar.Resource.Filename = await GUIContext.Instance.Client.GetLocalUserImageUrl(user, new ImageOptions { Width = avatar.Width, Height = avatar.Height });
                 }
 
                 Reset();
@@ -439,22 +438,19 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         ///     Gets an image for users
         /// </summary>
         /// <param name="item">The item.</param>
-        public static void GetUserImage(GUIListItem item)
+        public static async void GetUserImage(GUIListItem item)
         {
-            GUICommon.UserImageDownloadAndAssign.BeginInvoke(item, GUICommon.UserImageDownloadAndAssign.EndInvoke, null);
-        }
-
-        
-
-        /// <summary>
-        ///     Execute the given action and blocks using the ManualResetEvent.
-        /// </summary>
-        /// <param name="action">The action.</param>
-        protected virtual void WaitFor(Action<ManualResetEvent> action)
-        {
-            _mre.Reset();
-            action(_mre);
-            _mre.WaitOne();
+            var user = item.TVTag as UserDto;
+            if (user != null && user.HasPrimaryImage)
+            {
+                // todo: setup image options
+                string imageUrl = await GUIContext.Instance.Client.GetLocalUserImageUrl(user, new ImageOptions());
+                if (!String.IsNullOrEmpty(imageUrl))
+                {
+                    item.IconImage = imageUrl;
+                    item.IconImageBig = imageUrl;
+                }
+            }
         }
 
         protected virtual void Reset()

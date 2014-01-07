@@ -86,6 +86,7 @@
   <ItemGroup>
     <Compile Include="Events\ServerChangedEventArgs.cs" />
     <Compile Include="Events\SystemInfoChangedEventArgs.cs" />
+    <Compile Include="GUI\FacadeItemHandler.cs" />
     <Compile Include="GUI\GUICommon.cs" />
     <Compile Include="GUI\GUIContext.cs" />
     <Compile Include="GUI\GUIDefault.cs" />

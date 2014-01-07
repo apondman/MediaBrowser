@@ -22,7 +22,7 @@
               <UpdateOption>AlwaysOverwrite</UpdateOption>
               <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\MediaBrowser.ApiInteraction.net35.dll</LocalFileName>
               <ZipFileName>Installer{CopyFile}\{6c51bd74-92dd-4f69-be0b-d8520cadd6e7}-MediaBrowser.ApiInteraction.net35.dll</ZipFileName>
-              <DestinationFilename>%Base%\MediaBrowser.ApiInteraction.net35.dll</DestinationFilename>
+              <DestinationFilename>%Base%\MediaBrowser.ApiInteraction.dll</DestinationFilename>
             </FileItem>
             <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
               <Param1 />
@@ -377,7 +377,7 @@ Click Next to continue or Cancel to exit Setup.</Value>
         <UpdateOption>AlwaysOverwrite</UpdateOption>
         <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\MediaBrowser.ApiInteraction.net35.dll</LocalFileName>
         <ZipFileName>Installer{CopyFile}\{6c51bd74-92dd-4f69-be0b-d8520cadd6e7}-MediaBrowser.ApiInteraction.net35.dll</ZipFileName>
-        <DestinationFilename>%Base%\MediaBrowser.ApiInteraction.net35.dll</DestinationFilename>
+        <DestinationFilename>%Base%\MediaBrowser.ApiInteraction.dll</DestinationFilename>
       </FileItem>
       <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
         <Param1 />

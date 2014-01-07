@@ -150,7 +150,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         protected async void OnPlaybackStarted(MediaPlayerInfo info)
         {
-            await GUIContext.Instance.Client.ReportPlaybackStartAsync(_movie.Id, GUIContext.Instance.ActiveUser.Id, true, null);
+            await GUIContext.Instance.Client.ReportPlaybackStartAsync(_movie.Id, GUIContext.Instance.ActiveUser.Id, true, info.MediaFiles.ToList());
             Log.Debug("Reporting playback started to MediaBrowser.");
         }
 

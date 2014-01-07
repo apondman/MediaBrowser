@@ -5,6 +5,7 @@ using MediaPortal.Services;
 using Pondman.MediaPortal.MediaBrowser.Events;
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
 {
@@ -136,9 +137,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
         }
 
-        public void PublishUser()
+        public async void PublishUser()
         {
-            GUICommon.UserPublishWorker.BeginInvoke(GUIContext.Instance.ActiveUser, GUICommon.UserPublishWorker.EndInvoke, null);
+            await Task.Run(() => GUIContext.Instance.ActiveUser.Publish(MediaBrowserPlugin.DefaultProperty + ".User"));
         }
        
     }

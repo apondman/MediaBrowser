@@ -62,10 +62,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             Facade.CycleLayout();
             Facade.Focus();
-             MediaBrowserPlugin.Config.Settings
-                    .ForUser(GUIContext.Instance.ActiveUser.Id)
-                    .ForContext(CurrentItem.GetContext())
-                    .Layout = Facade.CurrentLayout;
+            MediaBrowserPlugin.Config.Settings
+                   .ForUser(GUIContext.Instance.ActiveUser.Id)
+                   .ForContext(CurrentItem.GetContext())
+                   .Layout = Facade.CurrentLayout;
             Log.Debug("Cycle Layout Result: {0}", Facade.CurrentLayout);
         }
 
@@ -138,12 +138,12 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 }
                 else
                 {
-                    try 
+                    try
                     {
                         var item = await GUIContext.Instance.Client.GetItemAsync(Parameters.Id, GUIContext.Instance.Client.CurrentUserId);
                         LoadItem(item);
-                    } 
-                    catch(Exception e) 
+                    }
+                    catch (Exception e)
                     {
                         ShowItemsError(e);
                     }
@@ -155,12 +155,12 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             if (!_browser.Reload())
             {
                 // get root folder if there's nothing to reload
-                try 
+                try
                 {
                     var item = await GUIContext.Instance.Client.GetRootFolderAsync(GUIContext.Instance.Client.CurrentUserId);
                     LoadItem(item);
                 }
-                catch(Exception e) 
+                catch (Exception e)
                 {
                     ShowItemsError(e);
                 }
@@ -201,7 +201,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                         return;
                 }
             }
-            
+
 
             base.OnClicked(controlId, control, actionType);
         }
@@ -273,7 +273,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             if (item == null || !(item.TVTag is BaseItemDto)) return;
 
             var facade = GetTypedFacade(item.TVTag as BaseItemDto);
-            
+
             if (facade != Facade)
             {
                 // Attach the facade to the browser
@@ -301,12 +301,12 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             {
                 facade.CurrentLayout = savedLayout.Value;
             }
-            
+
             // if the facade changed
             if (facade != Facade)
             {
                 Log.Debug("Active Facade: Name={0}, Id={1}", facade.Description, facade.GetID);
-                
+
                 // Hide current facade (if it is not null)
                 Facade.IfNotNull(f => f.Visible(false));
 
@@ -364,9 +364,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <returns></returns>
         public GUIListItem GetViewListItem(string id, string label = null)
         {
-            var view = new BaseItemDto {Name = label ?? id, Id = id, Type = "View", IsFolder = true};
+            var view = new BaseItemDto { Name = label ?? id, Id = id, Type = "View", IsFolder = true };
 
-            return GUICommon.GetBaseListItem(view);
+            return view.ToListItem();
         }
 
         #endregion
@@ -377,9 +377,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <value>
         ///     The current item.
         /// </value>
-        public BaseItemDto CurrentItem {
+        public BaseItemDto CurrentItem
+        {
             get { return _currentItem; }
-            set { _currentItem = value; OnCurrentItemChanged();}
+            set { _currentItem = value; OnCurrentItemChanged(); }
         }private BaseItemDto _currentItem;
 
         private void OnCurrentItemChanged()
@@ -413,35 +414,28 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             Log.Debug("ItemsRequested()");
 
-            WaitFor(x =>
+            // todo: this is a mess, rethink
+            var userId = GUIContext.Instance.Client.CurrentUserId;
+            var query = MediaBrowserQueries.Item
+                            .UserId(userId)
+                            .Recursive()
+                            .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams);
+
+            if (_browser.Settings.Limit > 0)
             {
-                // todo: this is a mess, rethink
-                var userId = GUIContext.Instance.Client.CurrentUserId;
-                var query = MediaBrowserQueries.Item
-                                .UserId(userId)
-                                .Recursive()
-                                .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams);
+                _sortableQuery.Limit = _browser.Settings.Limit;
+                _sortableQuery.Offset = e.Offset;
+            }
 
-                if (_browser.Settings.Limit > 0)
-                {
-                    _sortableQuery.Limit = _browser.Settings.Limit;
-                    _sortableQuery.Offset = e.Offset;
-                }
+            Log.Debug("GetItems: Type={0}, Id={1}", item.Type, item.Id);
 
-                Log.Debug("GetItems: Type={0}, Id={1}", item.Type, item.Id);
-
+            try
+            {
                 switch (item.Type)
                 {
                     case "MovieSearchResults":
-                        try 
-                        {
-                            var hints = GUIContext.Instance.Client.GetSearchHintsAsync(userId, item.Id);
-                            LoadSearchResultsAndContinue(hints.Result, e);
-                        }
-                        catch(Exception ex) 
-                        {
-                            ShowItemsErrorAndContinue(ex);
-                        }
+                        var hints = GUIContext.Instance.Client.GetSearchHintsAsync(userId, item.Id);
+                        LoadSearchResultsAndContinue(hints.Result, e);
                         return;
                     case MediaBrowserType.Folder:
                         query = query.Recursive(false);
@@ -462,7 +456,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 LoadTvShowsViewsAndContinue(e);
                                 return;
                             case "movies-genres":
-                                LoadItems(GUIContext.Instance.Client.GetGenresAsync(MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Movie).Apply(_sortableQuery)),e);
+                                LoadItems(GUIContext.Instance.Client.GetGenresAsync(MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Movie).Apply(_sortableQuery)), e);
                                 return;
                             case "movies-studios":
                                 LoadItems(GUIContext.Instance.Client.GetStudiosAsync(MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Movie).Apply(_sortableQuery)), e);
@@ -509,11 +503,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 break;
                             case "music-artists":
                                 LoadItems(GUIContext.Instance.Client.GetItemsByNameAsync("Artists",
-                                    MediaBrowserQueries.Named.User(userId).Apply(_sortableQuery)),e);
+                                    MediaBrowserQueries.Named.User(userId).Apply(_sortableQuery)), e);
                                 return;
                             case "tvshows-networks":
                                 LoadItems(GUIContext.Instance.Client.GetStudiosAsync(
-                                    MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Series).Apply(_sortableQuery)),e);
+                                    MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Series).Apply(_sortableQuery)), e);
                                 return;
                             case "tvshows-all":
                                 query = query
@@ -521,7 +515,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 break;
                             case "tvshows-nextup":
                                 LoadItems(GUIContext.Instance.Client.GetNextUpAsync(
-                                    MediaBrowserQueries.NextUp.User(userId).Fields(ItemFields.Overview).Limit(24)),e);
+                                    MediaBrowserQueries.NextUp.User(userId).Fields(ItemFields.Overview).Limit(24)), e);
                                 return;
                             case "tvshows-latest":
                                 query = query
@@ -538,11 +532,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 break;
                             case "tvshows-genres":
                                 LoadItems(GUIContext.Instance.Client.GetGenresAsync(
-                                    MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Series).Apply(_sortableQuery)),e);
+                                    MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Series).Apply(_sortableQuery)), e);
                                 return;
                             case "tvshows-people":
                                 LoadItems(GUIContext.Instance.Client.GetPeopleAsync(
-                                    MediaBrowserQueries.Persons.User(userId).Fields(ItemFields.Overview).Include(MediaBrowserType.Series).Apply(_sortableQuery)),e);
+                                    MediaBrowserQueries.Persons.User(userId).Fields(ItemFields.Overview).Include(MediaBrowserType.Series).Apply(_sortableQuery)), e);
                                 return;
                         }
                         break;
@@ -573,20 +567,17 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 }
 
                 // default is item query
-                LoadItems(GUIContext.Instance.Client.GetItemsAsync(query.Apply(_sortableQuery)),e);
-            });
+                LoadItems(GUIContext.Instance.Client.GetItemsAsync(query.Apply(_sortableQuery)), e);
+            }
+            catch (Exception ex)
+            {
+                ShowItemsError(ex);
+            }
         }
 
         private void LoadItems(Task<ItemsResult> task, ItemRequestEventArgs args)
         {
-            try
-            {
-                LoadItemsAndContinue(task.Result, args);
-            }
-            catch (Exception ex)
-            {
-                ShowItemsErrorAndContinue(ex);
-            }
+            LoadItemsAndContinue(task.Result, args);
         }
 
         private void LoadItemsAndContinue(ItemsResult result, ItemRequestEventArgs e)
@@ -599,25 +590,23 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
             else
             {
-                foreach (var listitem in result.Items.Select(x => GUICommon.GetBaseListItem(x, dto)))
+                foreach (var listitem in result.Items.Select(x => x.ToListItem(dto)))
                 {
                     e.List.Add(listitem);
                 }
 
                 e.TotalItems = result.TotalRecordCount;
             }
-            _mre.Set();
         }
 
         private void LoadSearchResultsAndContinue(SearchHintResult result, ItemRequestEventArgs e)
         {
-            foreach (var listitem in result.SearchHints.Select(x => GUICommon.GetBaseListItem(new BaseItemDto { Id = x.ItemId, Type = x.Type, Name = x.Name }, e.Parent.TVTag as BaseItemDto)))
+            foreach (var listitem in result.SearchHints.Select(x => new BaseItemDto { Id = x.ItemId, Type = x.Type, Name = x.Name }.ToListItem(e.Parent.TVTag as BaseItemDto)))
             {
                 e.List.Add(listitem);
             }
 
             e.TotalItems = result.TotalRecordCount;
-            _mre.Set();
         }
 
         /// <summary>
@@ -647,7 +636,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <param name="dto">The dto.</param>
         protected void LoadItem(BaseItemDto dto)
         {
-            var listitem = GUICommon.GetBaseListItem(dto);
+            var listitem = dto.ToListItem();
             Navigate(listitem);
         }
 
@@ -657,8 +646,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             request.List.Add(GetViewListItem("root-tvshows", MediaBrowserPlugin.UI.Resource.TVShows));
             request.List.Add(GetViewListItem("root-music", MediaBrowserPlugin.UI.Resource.Music));
             request.TotalItems = request.List.Count;
-
-            _mre.Set();
         }
 
         /// <summary>
@@ -675,8 +662,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             request.List.Add(GetViewListItem("movies-studios", MediaBrowserPlugin.UI.Resource.Studios));
             request.List.Add(GetViewListItem("movies-people", MediaBrowserPlugin.UI.Resource.People));
             request.TotalItems = request.List.Count;
-
-            _mre.Set();
         }
 
         /// <summary>
@@ -689,8 +674,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             request.List.Add(GetViewListItem("music-albums", MediaBrowserPlugin.UI.Resource.Albums));
             //request.List.Add(GetViewListItem("music-genres", MediaBrowserPlugin.UI.Resource.Genres));
             request.List.Add(GetViewListItem("music-artists", MediaBrowserPlugin.UI.Resource.Artists));
-            request.TotalItems =  request.List.Count;
-            _mre.Set();
+            request.TotalItems = request.List.Count;
         }
 
         /// <summary>
@@ -706,14 +690,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             request.List.Add(GetViewListItem("tvshows-networks", MediaBrowserPlugin.UI.Resource.Networks));
             request.List.Add(GetViewListItem("tvshows-people", MediaBrowserPlugin.UI.Resource.People));
             request.TotalItems = request.List.Count;
-
-            _mre.Set();
-        }
-
-        protected void ShowItemsErrorAndContinue(Exception e)
-        {
-            _mre.Set();
-            ShowItemsError(e);
         }
 
         /// <summary>
@@ -730,7 +706,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         ///     Publishes the artwork.
         /// </summary>
         /// <param name="item">The item.</param>
-        protected override void PublishArtwork(BaseItemDto item)
+        protected override async void PublishArtwork(BaseItemDto item)
         {
             var cover = string.Empty;
 
@@ -738,14 +714,14 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             if (ImageResources.TryGetValue(item.Type, out resource))
             {
                 // load specific image
-                cover = resource.GetImageUrl(item);
-            } 
+                cover = await resource.GetImageUrl(item);
+            }
             else if (ImageResources.TryGetValue("Default", out resource))
             {
-                cover = resource.GetImageUrl(item);
+                cover = await resource.GetImageUrl(item);
             }
 
-            var backdrop = GetBackdropUrl(item);
+            var backdrop = await GetBackdropUrl(item);
 
             // todo: need a better way to do this 
             // the methods above are blocking (downloading and creating cache worst case and once they return 
@@ -776,7 +752,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             // root and root views don't have filter options
             if (Facade.Count == 0 || _currentItem.Id.Contains("root-") || _currentItem.Type == "UserRootFolder") return;
-            
+
             var filters = new List<GUIListItem>
             {
                 GetFilterItem(ItemFilter.IsFavorite),
@@ -811,9 +787,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             var filter = filters[result].TVTag;
             if (filter is ItemFilter)
             {
-                if (!_sortableQuery.Filters.Remove((ItemFilter) filter))
+                if (!_sortableQuery.Filters.Remove((ItemFilter)filter))
                 {
-                    _sortableQuery.Filters.Add((ItemFilter) filter);
+                    _sortableQuery.Filters.Add((ItemFilter)filter);
                 }
             }
             else
@@ -872,7 +848,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             var term = GUIUtils.ShowKeyboard("");
             if (term.IsNullOrWhiteSpace()) return;
-            
+
             var dto = new BaseItemDto
             {
                 Name = "Results for '" + term + "'",
@@ -881,16 +857,16 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 IsFolder = true
             };
 
-            Navigate(GUICommon.GetBaseListItem(dto));
+            Navigate(dto.ToListItem());
         }
 
         protected void ShowAlphabetDialog()
         {
             var list =
                 "#ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray()
-                    .Select(x => new GUIListItem {Label = x.ToString(), Path = x.ToString()});
+                    .Select(x => new GUIListItem { Label = x.ToString(), Path = x.ToString() });
             var items = new List<GUIListItem>(list);
-            
+
             var result = GUIUtils.ShowMenuDialog(T.StartsWith, items, items.FindIndex(x => x.Path == _sortableQuery.StartsWith));
             if (result == -1) return;
 
@@ -902,15 +878,15 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         private static GUIListItem GetSortItem(string label, string field = null)
         {
-            var item = new GUIListItem(label) {Path = field ?? label};
+            var item = new GUIListItem(label) { Path = field ?? label };
             return item;
         }
 
         private static GUIListItem GetFilterItem(ItemFilter filter)
         {
-            var item = new GUIListItem(filter.ToString()) {TVTag = filter};
+            var item = new GUIListItem(filter.ToString()) { TVTag = filter };
             return item;
         }
-        
+
     }
 }

@@ -1,13 +1,14 @@
 ﻿using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Querying;
-using System;
-using System.Linq;
-using System.Linq.Expressions;
-using Pondman.MediaPortal.MediaBrowser.Models;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
+    using Pondman.MediaPortal.MediaBrowser.Models;
+    using System;
+    using System.Linq;
+    using System.Linq.Expressions;
+
     /// <summary>
     /// MediaBrowser Query Helper
     /// </summary>

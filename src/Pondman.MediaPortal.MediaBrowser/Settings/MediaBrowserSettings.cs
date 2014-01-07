@@ -1,12 +1,13 @@
-﻿using System;
-using System.Linq;
-using MediaPortal.Configuration;
-using System.Collections.Generic;
-using System.IO;
-using System.Runtime.Serialization;
+﻿using MediaPortal.Configuration;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Runtime.Serialization;
+
     /// <summary>
     /// Global and User specific settings.
     /// </summary>

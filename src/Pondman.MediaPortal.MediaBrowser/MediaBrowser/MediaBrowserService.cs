@@ -127,6 +127,10 @@ namespace Pondman.MediaPortal.MediaBrowser
 
             _client.WebSocketConnection = socket;
             System = info;
+
+
+            await socket.EnsureConnectionAsync(CancellationToken.None);
+            _client.WebSocketConnection.StartEnsureConnectionTimer(10000);
         }
 
         public async void Update()
@@ -148,6 +152,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         void OnSocketConnected(object sender, EventArgs e)
         {
             _logger.Info("Connected to Media Browser Server.");
+            _client.WebSocketConnection.StartEnsureConnectionTimer(10000);
         }
 
         void OnSocketDisconnected(object sender, EventArgs e)
@@ -177,7 +182,7 @@ namespace Pondman.MediaPortal.MediaBrowser
             var client = new MediaBrowserClient(
                             endpoint.Address.ToString(),
                             endpoint.Port,
-                            Environment.OSVersion.VersionString,
+                            Environment.MachineName + " (" + Environment.OSVersion.VersionString + ")", // todo: add MediaPortal version instead of OS
                             Environment.MachineName,
                             Plugin.Version.ToString()
                             );
@@ -237,9 +242,11 @@ namespace Pondman.MediaPortal.MediaBrowser
             {
                 if (_retryTimer != null)
                     _retryTimer.Dispose();
-                
+
                 if (Client != null && Client.WebSocketConnection != null)
+                {
                     Client.WebSocketConnection.Dispose();
+                }
 
                 _logger.Info("MediaBrowserService shutdown.");
             }
