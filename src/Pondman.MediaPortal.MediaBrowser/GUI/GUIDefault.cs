@@ -19,8 +19,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
     {
         static readonly Random _randomizer = new Random();
 
-        protected readonly Dictionary<string, SmartImageControl> ImageResources;
-        protected ImageSwapper _backdrop = null;
+        protected readonly Dictionary<string, SmartImageControl> _smartImageControls;
         protected Dictionary<string, Action<GUIControl, MPGUI.Action.ActionType>> _commands = null;
         protected string _commandPrefix = MediaBrowserPlugin.DefaultName + ".Command.";
 
@@ -37,16 +36,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             _logger = MediaBrowserPlugin.Log;
             _commands = new Dictionary<string, Action<GUIControl, MPGUI.Action.ActionType>>();
 
-            ImageResources = new Dictionary<string, SmartImageControl>();
-
-            // create backdrop image swapper
-            _backdrop = new ImageSwapper
-            {
-                PropertyOne = MediaBrowserPlugin.DefaultProperty + ".Backdrop.1",
-                PropertyTwo = MediaBrowserPlugin.DefaultProperty + ".Backdrop.2"
-            };
-            
-            _backdrop.ImageResource.Delay = 0;
+            _smartImageControls = new Dictionary<string, SmartImageControl>();
 
             // auto register commands by convention
             //var commands = this.GetType().GetMethods().Where(m => m.Name.EndsWith("Command"));
@@ -91,7 +81,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 .Select(x =>
                                 {
                                     var smart = (SmartImageControl) x;
-                                    ImageResources[smart.Name] = smart;
+                                    _smartImageControls[smart.Name] = smart;
                                     return false;
                                 })
                                 .Count();
@@ -102,8 +92,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             // Publish User Info
             GUIContext.Instance.PublishUser();
 
-            _backdrop.GUIImageOne = _backdropControl1;
-            _backdrop.GUIImageTwo = _backdropControl2;
+            GUICommon.BackdropHandler.GUIImageOne = _backdropControl1;
+            GUICommon.BackdropHandler.GUIImageTwo = _backdropControl2;
 
             Log.Debug("Attached backdrop controls.");
         }
@@ -209,7 +199,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             (item.Studios ?? Enumerable.Empty<StudioDto>()).ToDelimited(x => x.Name).Publish(prefix + ".Studios.List");
 
             // Runtime
-            TimeSpan.FromTicks(item.OriginalRunTimeTicks ?? 0).Publish(prefix + ".OriginalRuntime");
+            //TimeSpan.FromTicks(item.OriginalRunTimeTicks ?? 0).Publish(prefix + ".OriginalRuntime");
             TimeSpan.FromTicks(item.RunTimeTicks ?? 0).Publish(prefix + ".Runtime");
 
             // Artwork
@@ -223,15 +213,15 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         protected virtual async void PublishArtwork(BaseItemDto item)
         {
             var backdrop = await GetBackdropUrl(item);
-            if (backdrop != _backdrop.Filename)
+            if (backdrop != GUICommon.BackdropHandler.Filename)
             {
-                _backdrop.Filename = backdrop;
+                GUICommon.BackdropHandler.Filename = backdrop;
             }
 
-            if (ImageResources.Count == 0) return;
+            if (_smartImageControls.Count == 0) return;
 
             SmartImageControl resource;
-            if (ImageResources.TryGetValue(item.Type, out resource))
+            if (_smartImageControls.TryGetValue(item.Type, out resource))
             {
                 // load specific image
                 resource.Resource.Filename = resource.GetImageUrl(item).Result;
@@ -239,7 +229,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
 
             // load default image
-            if (ImageResources.TryGetValue("Default", out resource))
+            if (_smartImageControls.TryGetValue("Default", out resource))
             {
                 resource.Resource.Filename = resource.GetImageUrl(item).Result;
             }
@@ -247,7 +237,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         protected virtual async Task<string> GetBackdropUrl(BaseItemDto item)
         {
-            var index = _randomizer.Next(item.BackdropCount);
+            var index = _randomizer.Next(item.BackdropCount); // todo: use random setting
             Log.Debug("Random Backdrop Index: {0} out of {1}", index, item.BackdropCount);
             return await GUIContext.Instance.Client.GetLocalBackdropImageUrl(item, new ImageOptions { ImageType = ImageType.Backdrop, ImageIndex = index });
         }
@@ -367,7 +357,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
                 if (user.HasPrimaryImage)
                 {
-                    var avatar = ImageResources["User"];
+                    var avatar = _smartImageControls["User"];
                     avatar.Resource.Filename = await GUIContext.Instance.Client.GetLocalUserImageUrl(user, new ImageOptions { Width = avatar.Width, Height = avatar.Height });
                 }
 

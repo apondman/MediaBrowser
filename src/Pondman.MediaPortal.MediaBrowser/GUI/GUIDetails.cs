@@ -102,14 +102,14 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             };
 
             SmartImageControl resource;
-            if (ImageResources.TryGetValue(_movie.Type, out resource))
+            if (_smartImageControls.TryGetValue(_movie.Type, out resource))
             {
                 // load specific image
                 info.Thumb = resource.Resource.Filename;
             }
 
             // load default image
-            if (ImageResources.TryGetValue("Default", out resource))
+            if (_smartImageControls.TryGetValue("Default", out resource))
             {
                 info.Thumb = resource.Resource.Filename;
             }

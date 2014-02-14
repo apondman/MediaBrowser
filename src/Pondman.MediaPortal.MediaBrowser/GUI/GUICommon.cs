@@ -29,6 +29,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
     {
         private static readonly Dictionary<GUIControl, FacadeItemHandler> _itemHandlers;
         private static bool _notifyDisabledSmartControls = true;
+        private static ImageSwapper _backdrop = null;
 
         static GUICommon()
         {
@@ -109,8 +110,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             return dto.Type == "View" ? dto.Type + "/" + dto.Id : dto.Type;
         }
 
-        internal static readonly Action<GUIWindow> HandleSmartControls = SmartControlHandler;
-
         /// <summary>
         /// Scans for "smart" controls in the active window and initiates the handlers.
         /// </summary>
@@ -132,13 +131,13 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             if (RetryUntilSuccessOrTimeout(() => window.WindowLoaded, TimeSpan.FromSeconds(5)))
             {
-                var facades = window.Children
+                window.Children
                     .OfType<GUIFacadeControl>()
                     .Where(x => x.Description.StartsWith("MediaBrowser.Query."))
-                    .Select(HandleFacade)
-                    .Count();
+                    .AsParallel()
+                    .ForAll(HandleFacade);
 
-                MediaBrowserPlugin.Log.Debug("Detected {0} smart facade controls.", facades);
+                MediaBrowserPlugin.Log.Debug("Handled smart facade controls.");
             }
             else
             {
@@ -151,13 +150,13 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// </summary>
         /// <param name="facade">The facade.</param>
         /// <returns></returns>
-        internal async static Task<bool> HandleFacade(GUIFacadeControl facade)
+        internal async static void HandleFacade(GUIFacadeControl facade)
         {
             // break the facade description down into tokens
             var tokens = facade.Description.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
             
             // if we have less than 4 segments there is not enough to be able to build a query
-            if (tokens.Length < 4) return false;
+            if (tokens.Length < 4) return;
 
             // skin proerty
             var skinProperty = "#" + String.Join(".", tokens.Take(3).ToArray());
@@ -281,14 +280,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             catch (Exception e)
             {
                 MediaBrowserPlugin.Log.Error(e);
-                return false;
             }
             finally
             {
                 handler.SetLoading(false);
             }
-
-            return true;
         }
 
         internal static bool RetryUntilSuccessOrTimeout(Func<bool> task, TimeSpan timeSpan)
@@ -307,17 +303,27 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         public static async void RetrieveImageData(GUIListItem item)
         {
-            var dto = item.TVTag as BaseItemDto;
-            if (dto != null && dto.HasPrimaryImage)
+            try
             {
-                // todo: let skin define dimensions
-                string imageUrl = await GUIContext.Instance.Client.GetLocalImageUrl(dto, new ImageOptions { Width = 200, Height = 300 });
+                await Task.Factory.StartNew(() =>
+                    {
+                        var dto = item.TVTag as BaseItemDto;
+                        if (dto != null && dto.HasPrimaryImage)
+                        {
 
-                if (!String.IsNullOrEmpty(imageUrl))
-                {
-                    item.IconImage = imageUrl;
-                    item.IconImageBig = imageUrl;
-                }
+                            // todo: let skin define dimensions
+                            string imageUrl = GUIContext.Instance.Client.GetLocalImageUrl(dto, new ImageOptions { Width = 200, Height = 300 }).Result;
+
+                            if (!String.IsNullOrEmpty(imageUrl))
+                            {
+                                item.LoadImageFromMemory(imageUrl);
+                            }
+                        }
+                    });
+            }
+            catch(Exception ex) 
+            {
+                MediaBrowserPlugin.Log.Error(ex);
             }
         }
 
@@ -355,16 +361,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                         ? dto.PremiereDate.Value.ToString(GUIUtils.Culture.DateTimeFormat.ShortDatePattern)
                         : String.Empty;
                     break;
-                case "Season":
-                case "BoxSet":
-                    item.Label2 = dto.ChildCount.HasValue ? dto.ChildCount.ToString() : String.Empty;
-                    break;
                 case "Artist":
                     item.Label2 = String.Format("{0}/{1}", (dto.AlbumCount ?? 0), (dto.SongCount ?? 0));
                     break;
                 case "Person":
-                case "Studio":
-                case "Genre":
                     if (context != null && context.Id.StartsWith("tvshows"))
                     {
                         item.Label2 = (dto.SeriesCount ?? 0).ToString();
@@ -373,6 +373,12 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     {
                         item.Label2 = (dto.MovieCount ?? 0).ToString();
                     }
+                    break;
+                case "Season":
+                case "BoxSet":
+                case "Studio":
+                case "Genre":
+                    item.Label2 = (dto.ChildCount ?? 0).ToString();
                     break;
                 default:
                     item.Label2 = dto.ProductionYear.HasValue ? dto.ProductionYear.ToString() : String.Empty;
@@ -389,5 +395,24 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             return handler;
         }
 
+        public static ImageSwapper BackdropHandler
+        {
+            get
+            {
+                if (_backdrop == null)
+                {
+                    // create backdrop image swapper
+                    _backdrop = new ImageSwapper
+                    {
+                        PropertyOne = MediaBrowserPlugin.DefaultProperty + ".Backdrop.1",
+                        PropertyTwo = MediaBrowserPlugin.DefaultProperty + ".Backdrop.2"
+                    };
+
+                    _backdrop.ImageResource.Delay = 0;
+                }
+
+                return _backdrop;
+            }
+        }
     }
 }

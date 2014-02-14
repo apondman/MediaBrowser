@@ -434,8 +434,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 switch (item.Type)
                 {
                     case "MovieSearchResults":
-                        var hints = GUIContext.Instance.Client.GetSearchHintsAsync(userId, item.Id);
-                        LoadSearchResultsAndContinue(hints.Result, e);
+                        var hints = GUIContext.Instance.Client.GetSearchHintsAsync(new SearchQuery { UserId = userId, SearchTerm = item.Id });
+                        LoadItems(hints.Result, e);
                         return;
                     case MediaBrowserType.Folder:
                         query = query.Recursive(false);
@@ -462,8 +462,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 LoadItems(GUIContext.Instance.Client.GetStudiosAsync(MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Movie).Apply(_sortableQuery)), e);
                                 return;
                             case "movies-boxset":
-                                query = query
-                                    .BoxSets();
+                                query = query.BoxSets();
                                 break;
                             case "movies-unwatched":
                                 query = query
@@ -560,6 +559,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                         query.Person(item.Name).SortBy(ItemSortBy.SortName);
                         query = CurrentItem.Id.Contains("movies") ? query.Movies() : query.Series();
                         break;
+                    case MediaBrowserType.BoxSet:
+                        query = query.ParentId(item.Id).SortBy(ItemSortBy.ProductionYear, ItemSortBy.SortName);
+                        break;
                     default:
                         // get by parent id
                         query = query.ParentId(item.Id).SortBy(ItemSortBy.SortName);
@@ -577,36 +579,35 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         private void LoadItems(Task<ItemsResult> task, ItemRequestEventArgs args)
         {
-            LoadItemsAndContinue(task.Result, args);
+            LoadItems(task.Result, args);
         }
 
-        private void LoadItemsAndContinue(ItemsResult result, ItemRequestEventArgs e)
+        private void LoadItems(ItemsResult result, ItemRequestEventArgs args)
         {
-            var dto = e.Parent.TVTag as BaseItemDto;
-
+            var dto = args.Parent.TVTag as BaseItemDto;
             if (dto.Type == MediaBrowserType.UserRootFolder)
             {
-                LoadRootViews(e);
+                LoadRootViews(args);
             }
             else
             {
-                foreach (var listitem in result.Items.Select(x => x.ToListItem(dto)))
-                {
-                    e.List.Add(listitem);
-                }
-
-                e.TotalItems = result.TotalRecordCount;
+                LoadItems(result.Items.Select(x => x.ToListItem(dto)), args, result.TotalRecordCount);  
             }
         }
 
-        private void LoadSearchResultsAndContinue(SearchHintResult result, ItemRequestEventArgs e)
+        private void LoadItems(SearchHintResult result, ItemRequestEventArgs args)
         {
-            foreach (var listitem in result.SearchHints.Select(x => new BaseItemDto { Id = x.ItemId, Type = x.Type, Name = x.Name }.ToListItem(e.Parent.TVTag as BaseItemDto)))
+            LoadItems(result.SearchHints.Select(x => new BaseItemDto { Id = x.ItemId, Type = x.Type, Name = x.Name }.ToListItem(args.Parent.TVTag as BaseItemDto)), args, result.TotalRecordCount);
+        }
+
+        private void LoadItems(IEnumerable<GUIListItem> items, ItemRequestEventArgs args, int total)
+        {
+            foreach (var item in items)
             {
-                e.List.Add(listitem);
+                args.List.Add(item);
             }
 
-            e.TotalItems = result.TotalRecordCount;
+            args.TotalItems = total;
         }
 
         /// <summary>
@@ -657,7 +658,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             request.List.Add(GetViewListItem("movies-unwatched", MediaBrowserPlugin.UI.Resource.LatestUnwatchedMovies));
             request.List.Add(GetViewListItem("movies-resume", MediaBrowserPlugin.UI.Resource.ResumableMovies));
             request.List.Add(GetViewListItem("movies-all", MediaBrowserPlugin.UI.Resource.AllMovies));
-            request.List.Add(GetViewListItem("movies-boxset", MediaBrowserPlugin.UI.Resource.BoxSets));
+            request.List.Add(GetViewListItem("movies-boxset", MediaBrowserPlugin.UI.Resource.Collections));
             request.List.Add(GetViewListItem("movies-genres", MediaBrowserPlugin.UI.Resource.Genres));
             request.List.Add(GetViewListItem("movies-studios", MediaBrowserPlugin.UI.Resource.Studios));
             request.List.Add(GetViewListItem("movies-people", MediaBrowserPlugin.UI.Resource.People));
@@ -711,12 +712,12 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             var cover = string.Empty;
 
             SmartImageControl resource;
-            if (ImageResources.TryGetValue(item.Type, out resource))
+            if (_smartImageControls.TryGetValue(item.Type, out resource))
             {
                 // load specific image
                 cover = await resource.GetImageUrl(item);
             }
-            else if (ImageResources.TryGetValue("Default", out resource))
+            else if (_smartImageControls.TryGetValue("Default", out resource))
             {
                 cover = await resource.GetImageUrl(item);
             }
@@ -728,12 +729,12 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             // the selection could be changed so we quickly check whether the image is still relevant
             if (!Facade.IsNull() && !Facade.SelectedListItem.IsNull() && Facade.SelectedListItem.TVTag == item)
             {
-                if (backdrop != _backdrop.Filename)
+                if (backdrop != GUICommon.BackdropHandler.Filename)
                 {
-                    _backdrop.Filename = backdrop ?? String.Empty;
+                    GUICommon.BackdropHandler.Filename = backdrop ?? String.Empty;
                 }
 
-                if (ImageResources.TryGetValue(item.Type, out resource))
+                if (_smartImageControls.TryGetValue(item.Type, out resource))
                 {
                     // load specific image
                     resource.Resource.Filename = cover;
@@ -741,7 +742,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 }
 
                 // load default image
-                if (ImageResources.TryGetValue("Default", out resource))
+                if (_smartImageControls.TryGetValue("Default", out resource))
                 {
                     resource.Resource.Filename = cover;
                 }

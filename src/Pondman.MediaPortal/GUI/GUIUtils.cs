@@ -1,8 +1,11 @@
 ﻿using MediaPortal.Dialogs;
+using MediaPortal.Util;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -398,5 +401,53 @@ namespace MediaPortal.GUI.Library
         }
 
         #endregion
+
+        public static Image LoadImage(string filepath)
+        {
+            if (string.IsNullOrEmpty(filepath) || !File.Exists(filepath)) return null;
+
+            Image img = null;
+
+            try
+            {
+                img = ImageFast.FromFile(filepath);
+            }
+            catch
+            {
+                try { img = Image.FromFile(filepath); }
+                catch { }
+            }
+
+            return img;
+        }
+
+        public static string LoadTexture(string filepath)
+        {
+            var image = LoadImage(filepath);
+            string texture = GetTextureIdentFromFile(filepath);
+            
+            if (GUITextureManager.LoadFromMemory(image, texture, 0, 0, 0) > 0) return texture;
+
+            return null;
+        }
+
+        public static string GetTextureIdentFromFile(string filename, string suffix = "")
+        {
+            return "[Image:" + (filename + suffix).GetHashCode() + "]";
+        }
+
+        public static void LoadImageFromMemory(this GUIListItem item, string filepath) 
+        {
+            var texture = LoadTexture(filepath);
+            if (texture == null) return;
+
+            item.ThumbnailImage = texture;
+            item.IconImage = texture;
+            item.IconImageBig = texture;
+
+            // todo: signal refresh?
+        }
+            
+
     }
 }

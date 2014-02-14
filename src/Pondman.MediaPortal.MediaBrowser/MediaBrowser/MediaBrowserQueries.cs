@@ -80,6 +80,13 @@ namespace Pondman.MediaPortal.MediaBrowser
             }
         }
 
+        public static ItemQuery IndexContainers(this ItemQuery query, bool include = true)
+        {
+            query.IncludeIndexContainers = include;
+            return query;
+        }
+
+
         /// <summary>
         /// Include Box Sets in the current query
         /// </summary>

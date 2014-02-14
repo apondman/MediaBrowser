@@ -9,6 +9,7 @@ using Pondman.MediaPortal.MediaBrowser.Events;
 using Pondman.MediaPortal.MediaBrowser.GUI;
 using Pondman.MediaPortal.MediaBrowser.Resources.Languages;
 using System;
+using System.Threading.Tasks;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
@@ -108,7 +109,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         static void OnActivateWindow(int windowId)
         {
             var window = GUIWindowManager.GetWindow(windowId);
-            GUICommon.HandleSmartControls.BeginInvoke(window, GUICommon.HandleSmartControls.EndInvoke, null);
+            Task.Factory.StartNew(() => GUICommon.SmartControlHandler(window));
         }
 
         #endregion
