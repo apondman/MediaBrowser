@@ -158,7 +158,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             // if we have less than 4 segments there is not enough to be able to build a query
             if (tokens.Length < 4) return;
 
-            // skin proerty
+            // skin property
             var skinProperty = "#" + String.Join(".", tokens.Take(3).ToArray());
 
             // store custom identifier for skin properties

@@ -1,9 +1,9 @@
-﻿using System;
-using System.Security.Cryptography;
-using System.Text;
-
-namespace Pondman.MediaPortal.MediaBrowser.Shared
+﻿namespace Pondman.MediaPortal.Utils
 {
+    using System;
+    using System.Security.Cryptography;
+    using System.Text;
+
     public class DataProtection
     {
         static readonly byte[] entropyBytes = { 3, 9, 7, 4, 5 };

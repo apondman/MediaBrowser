@@ -80,7 +80,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <param name="item">The item.</param>
         /// <param name="options">The options.</param>
         /// <returns></returns>
-        public virtual async Task<string> GetLocalImageUrl(BaseItemDto item, ImageOptions options)
+        public async Task<string> GetLocalImageUrl(BaseItemDto item, ImageOptions options)
         {
             options.Tag = GetImageTag(item, options);
 
@@ -93,7 +93,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <param name="user">The user.</param>
         /// <param name="options">The options.</param>
         /// <returns></returns>
-        public virtual async Task<string> GetLocalUserImageUrl(UserDto user, ImageOptions options) 
+        public async Task<string> GetLocalUserImageUrl(UserDto user, ImageOptions options) 
         {
             options.Tag = user.PrimaryImageTag;
 
@@ -106,7 +106,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <param name="item">The item.</param>
         /// <param name="options">The options.</param>
         /// <returns></returns>
-        public virtual async Task<string> GetLocalBackdropImageUrl(BaseItemDto item, ImageOptions options)
+        public async Task<string> GetLocalBackdropImageUrl(BaseItemDto item, ImageOptions options)
         {
             string[] urls = GetBackdropImageUrls(item, options);
             if (urls.Length == 0)
@@ -232,7 +232,11 @@ namespace Pondman.MediaPortal.MediaBrowser
             }
         }
 
-        
+        public new async Task<ItemsResult> GetStudiosAsync(ItemsByNameQuery query)
+        {
+            // todo: remove when fixed in API client
+            return await GetItemsByNameAsync("Studios", query);
+        }
 
     }
 }

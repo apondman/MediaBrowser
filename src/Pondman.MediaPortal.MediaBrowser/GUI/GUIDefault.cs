@@ -4,11 +4,10 @@ using MediaBrowser.Model.Querying;
 using MediaPortal.GUI.Library;
 using Pondman.MediaPortal.MediaBrowser.Models;
 using Pondman.MediaPortal.MediaBrowser.Resources.Languages;
-using Pondman.MediaPortal.MediaBrowser.Shared;
+using Pondman.MediaPortal.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using MPGUI = MediaPortal.GUI.Library;
 
