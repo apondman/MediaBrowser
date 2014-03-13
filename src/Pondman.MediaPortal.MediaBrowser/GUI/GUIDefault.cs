@@ -91,8 +91,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             // Publish User Info
             GUIContext.Instance.PublishUser();
 
+            GUICommon.BackdropHandler.Active = false;
             GUICommon.BackdropHandler.GUIImageOne = _backdropControl1;
             GUICommon.BackdropHandler.GUIImageTwo = _backdropControl2;
+            GUICommon.BackdropHandler.Active = true;
 
             Log.Debug("Attached backdrop controls.");
         }

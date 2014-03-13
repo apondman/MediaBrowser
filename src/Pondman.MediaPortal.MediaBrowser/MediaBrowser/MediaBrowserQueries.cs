@@ -14,6 +14,25 @@ namespace Pondman.MediaPortal.MediaBrowser
     /// </summary>
     public static class MediaBrowserQueries
     {
+        public static ItemQuery Missing(this ItemQuery query, bool value = true)
+        {
+            query.IsMissing = value;
+            return query;
+        }
+
+        public static ItemQuery Unaired(this ItemQuery query, bool value = true)
+        {
+            query.IsUnaired = value;
+            return query;
+        }         
+
+        public static ItemQuery Rated(this ItemQuery query, bool value = true)
+        {
+            query.HasParentalRating = value;
+            return query;
+        }        
+
+        
         /// <summary>
         /// Returns a randomized item query
         /// </summary>

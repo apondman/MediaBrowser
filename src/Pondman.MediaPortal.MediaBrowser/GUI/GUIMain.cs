@@ -415,11 +415,25 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             Log.Debug("ItemsRequested()");
 
             // todo: this is a mess, rethink
+            
+            //GUIContext.Instance.Client.CurrentUser.Configuration.DisplayMissingEpisodes
+            var userSettings = GUIContext.Instance.Client.CurrentUser.Configuration;
             var userId = GUIContext.Instance.Client.CurrentUserId;
             var query = MediaBrowserQueries.Item
                             .UserId(userId)
                             .Recursive()
                             .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams);
+
+            // Enforce user configuration
+            if (!userSettings.DisplayMissingEpisodes)
+            {
+                query = query.Missing(false);
+            }
+
+            if (!userSettings.DisplayUnairedEpisodes)
+            {
+                query = query.Unaired(false);
+            }
 
             if (_browser.Settings.Limit > 0)
             {
