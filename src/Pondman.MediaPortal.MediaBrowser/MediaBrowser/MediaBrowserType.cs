@@ -12,6 +12,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         public const string Audio = "Audio";
         public const string BoxSet = "BoxSet";
         public const string Episode = "Episode";
+        public const string CollectionFolder = "CollectionFolder";
         public const string Folder = "Folder";
         public const string Genre = "Genre";
         public const string Movie = "Movie";

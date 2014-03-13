@@ -451,11 +451,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                         var hints = GUIContext.Instance.Client.GetSearchHintsAsync(new SearchQuery { UserId = userId, SearchTerm = item.Id });
                         LoadItems(hints.Result, e);
                         return;
-                    case MediaBrowserType.Folder:
-                        query = query.Recursive(false);
-                        break;
                     case MediaBrowserType.UserRootFolder:
-                        query = query.Recursive(false);//.Fields(ItemFields.);
+                    case MediaBrowserType.CollectionFolder:
+                    case MediaBrowserType.Folder:
+                        query = query.Recursive(false).ParentId(item.Id).SortBy(ItemSortBy.SortName);
                         break;
                     case MediaBrowserType.View:
                         switch (item.Id)
@@ -599,14 +598,19 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         private void LoadItems(ItemsResult result, ItemRequestEventArgs args)
         {
             var dto = args.Parent.TVTag as BaseItemDto;
+            
+            var items = result.Items.Select(x => x.ToListItem(dto)).ToList();
+            var total = result.TotalRecordCount;
+            
             if (dto.Type == MediaBrowserType.UserRootFolder)
             {
-                LoadRootViews(args);
+                items.Insert(0,GetViewListItem("root-movies", MediaBrowserPlugin.UI.Resource.Movies));
+                items.Insert(1,GetViewListItem("root-tvshows", MediaBrowserPlugin.UI.Resource.TVShows));
+                items.Insert(2,GetViewListItem("root-music", MediaBrowserPlugin.UI.Resource.Music));
+                total = total + 3;
             }
-            else
-            {
-                LoadItems(result.Items.Select(x => x.ToListItem(dto)), args, result.TotalRecordCount);  
-            }
+
+            LoadItems(items, args, total);
         }
 
         private void LoadItems(SearchHintResult result, ItemRequestEventArgs args)
