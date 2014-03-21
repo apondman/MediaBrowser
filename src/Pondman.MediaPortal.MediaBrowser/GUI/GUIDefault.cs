@@ -27,7 +27,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         [SkinControl(2)]
         protected GUIImage _backdropControl2 = null;
-        
+
+        protected ImageSwapper backdropHandler;
+
         protected GUIDefault(MediaBrowserWindow window)
             : base(MediaBrowserPlugin.DefaultName + "." + window, (int)window)
         {
@@ -47,6 +49,14 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             RegisterCommand("ChangeUser", ChangeUserCommand);
             RegisterCommand("RandomMovie", GUICommon.RandomMovieCommand);
+
+            backdropHandler = new ImageSwapper
+                            {
+                                PropertyOne = MediaBrowserPlugin.DefaultProperty + ".Backdrop.1",
+                                PropertyTwo = MediaBrowserPlugin.DefaultProperty + ".Backdrop.2"
+                            };
+
+            backdropHandler.ImageResource.Delay = 0;
         }
 
         protected override void OnPageLoad()
@@ -91,10 +101,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             // Publish User Info
             GUIContext.Instance.PublishUser();
 
-            GUICommon.BackdropHandler.Active = false;
-            GUICommon.BackdropHandler.GUIImageOne = _backdropControl1;
-            GUICommon.BackdropHandler.GUIImageTwo = _backdropControl2;
-            GUICommon.BackdropHandler.Active = true;
+            backdropHandler.GUIImageOne = _backdropControl1;
+            backdropHandler.GUIImageTwo = _backdropControl2;
+            backdropHandler.Filename = "";
 
             Log.Debug("Attached backdrop controls.");
         }
@@ -153,7 +162,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// </summary>
         /// <param name="item">The item.</param>
         /// <param name="prefix">The prefix.</param>
-        protected virtual void PublishItemDetails(BaseItemDto item, string prefix = null)
+        protected virtual async Task PublishItemDetails(BaseItemDto item, string prefix = null)
         {
             Log.Debug("Publishing {0}: {1}", item.Type, item.Name);
 
@@ -204,20 +213,17 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             TimeSpan.FromTicks(item.RunTimeTicks ?? 0).Publish(prefix + ".Runtime");
 
             // Artwork
-            PublishArtwork(item);
+            await PublishArtwork(item);
         }
 
         /// <summary>
         /// Publishes the artwork.
         /// </summary>
         /// <param name="item">The item.</param>
-        protected virtual async void PublishArtwork(BaseItemDto item)
+        protected virtual async Task PublishArtwork(BaseItemDto item)
         {
             var backdrop = await GetBackdropUrl(item);
-            if (backdrop != GUICommon.BackdropHandler.Filename)
-            {
-                GUICommon.BackdropHandler.Filename = backdrop;
-            }
+            backdropHandler.Filename = backdrop;
 
             if (_smartImageControls.Count == 0) return;
 

@@ -3,6 +3,7 @@
   <id>201306032</id>
   <defaultcontrol>10</defaultcontrol>
   <define>#header.label:</define>
+  
   <controls>
     
     <!-- :: MAIN DETAILS ::            -->
@@ -40,7 +41,7 @@
       <dimColor>ffffffff</dimColor>
       <layout>StackLayout(7, Vertical, true)</layout>
       <visible>control.isvisible(30001)</visible>
-
+      
       <control>
         <description>MediaBrowser.Command.Play</description>
         <type>button</type>
@@ -60,17 +61,6 @@
         <id>10001</id>
         <label>207</label>
         <onup>10</onup>
-        <ondown>20002</ondown>
-        <textcolor>FF000000</textcolor>
-        <textcolorNoFocus>ffffffff</textcolorNoFocus>
-      </control>
-
-      <control>
-        <description>Technical Details</description>
-        <type>button</type>
-        <id>10002</id>
-        <label>Technical Details</label>
-        <onup>10001</onup>
         <ondown>10003</ondown>
         <textcolor>FF000000</textcolor>
         <textcolorNoFocus>ffffffff</textcolorNoFocus>
@@ -81,7 +71,7 @@
         <id>10003</id>
         <type>button</type>
         <label>Trailer</label>
-        <onup>20002</onup>
+        <onup>10001</onup>
         <ondown>10004</ondown>
         <hyperlink>4755</hyperlink>
         <hyperlinkParameter>site:IMDb Movie Trailers|search:#(iif(neq(#MediaBrowser.Details.ProviderIds.Imdb,''),#MediaBrowser.Details.ProviderIds.Imdb,#MediaBrowser.Details.Name))|return:Locked</hyperlinkParameter>
@@ -109,95 +99,12 @@
         <id>97270</id>
         <label>Trakt</label>
         <onup>10004</onup>
-        <ondown>6</ondown>
+        <ondown>10</ondown>
         <textcolor>FF000000</textcolor>
         <textcolorNoFocus>ffffffff</textcolorNoFocus>
         <visible>plugin.isenabled(Trakt)</visible>
       </control>
       
-    </control>
-
-    <!-- Dummy Buttons for technical infos-->
-
-    <control>
-      <description>Button group</description>
-      <type>group</type>
-      <animation effect="fade" time="250">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
-      <posX>119</posX>
-      <posY>364</posY>
-      <dimColor>ffffffff</dimColor>
-      <visible>Control.HasFocus(20002)</visible>
-      <layout>StackLayout(7, Vertical, true)</layout>
-
-      <control>
-        <description>Play Button</description>
-        <type>button</type>
-        <id>2006</id>
-        <label>208</label>
-        <textureFocus>myvideos_play_focus.png</textureFocus>
-        <textureNoFocus>myvideos_play_nofocus.png</textureNoFocus>
-        <textcolor>FF000000</textcolor>
-        <textcolorNoFocus>ffffffff</textcolorNoFocus>
-      </control>
-
-      <control>
-        <description>Plot</description>
-        <type>button</type>
-        <id>20001</id>
-        <label>207</label>
-        <textcolor>FF000000</textcolor>
-        <textcolorNoFocus>ffffffff</textcolorNoFocus>
-        <visible>!string.equals(#MediaBrowser.Details.Type,Audio)</visible>
-      </control>
-
-      <control>
-        <description>Technical Details</description>
-        <type>button</type>
-        <id>20002</id>
-        <label>Technical Details</label>
-        <onup>10001</onup>
-        <ondown>10003</ondown>
-        <textcolor>FF000000</textcolor>
-        <textcolorNoFocus>ffffffff</textcolorNoFocus>
-        <visible allowhiddenfocus="true">!string.equals(#MediaBrowser.Details.Type,Audio)</visible>
-      </control>
-
-      <control>
-        <description>Trailer Button</description>
-        <id>20003</id>
-        <type>button</type>
-        <label>Trailer</label>
-        <textcolor>FF000000</textcolor>
-        <textcolorNoFocus>ffffffff</textcolorNoFocus>
-        <onup>20002</onup>
-        <ondown>20004</ondown>
-        <visible>plugin.isenabled(OnlineVideos)+!string.equals(#MediaBrowser.Details.Type,Audio)</visible>
-      </control>
-
-      <control>
-        <description>Subtitle Button</description>
-        <id>20004</id>
-        <type>button</type>
-        <label>Subtitle</label>
-        <textcolor>FF000000</textcolor>
-        <textcolorNoFocus>ffffffff</textcolorNoFocus>
-        <onup>20003</onup>
-        <ondown>27270</ondown>
-        <visible>plugin.isenabled(SubCentral)+!string.equals(#MediaBrowser.Details.Type,Audio)</visible>
-      </control>
-
-      <control>
-        <description>Trakt Button</description>
-        <type>button</type>
-        <id>27270</id>
-        <label>Trakt</label>
-        <textcolor>FF000000</textcolor>
-        <textcolorNoFocus>ffffffff</textcolorNoFocus>
-        <onup>20004</onup>
-        <ondown>6</ondown>
-        <visible>plugin.isenabled(Trakt)+!string.equals(#MediaBrowser.Details.Type,'Audio')</visible>
-      </control>
     </control>
 
     <control>
@@ -209,9 +116,9 @@
       <width>114</width>
       <height>114</height>
       <texture>unwatched_flag_big.png</texture>
-      <visible>Control.HasThumb(60) + string.equals(#MediaBrowser.Details.UserData.Played,False) + !Control.HasFocus(20002)</visible>
-      <animation effect="fade" time="0">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
+      <visible>string.equals(#MediaBrowser.Details.UserData.Played,False)</visible>
+      <animation effect="fade" time="250">WindowOpen</animation>
+      <animation effect="fade" time="250">WindowClose</animation>
     </control>
 
     <control>
@@ -227,7 +134,7 @@
       <shadowDistance>2</shadowDistance>
       <shadowColor>FF000000</shadowColor>
       <label>#MediaBrowser.Details.Name</label>
-      <visible>!Control.HasFocus(10001) + !Control.HasFocus(20002) + control.isvisible(30001)</visible>
+      <visible>!Control.HasFocus(10001) + control.isvisible(30001)</visible>
       <animation effect="fade" time="250">Visible</animation>
       <animation effect="fade" time="0">WindowClose</animation>
     </control>
@@ -456,259 +363,6 @@
       <animation effect="fade" time="0">WindowClose</animation>
     </control>
 
-    <!-- Technical Details -->
-
-    <control Style="InfoLabelDetails">
-      <type>label</type>
-      <id>0</id>
-      <posX>585</posX>
-      <posY>422</posY>
-      <label>#Titan.VideoFormat</label>
-      <visible>Control.HasFocus(20002)</visible>
-      <animation effect="fade" time="250">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
-    </control>
-
-    <control Style="InfoValueDetails">
-      <type>fadelabel</type>
-      <id>0</id>
-      <posX>840</posX>
-      <posY>422</posY>
-      <label>#MediaBrowser.Details.MediaStreams.Video.0.Codec</label>
-      <visible>Control.HasFocus(20002)</visible>
-      <animation effect="fade" time="250">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
-    </control>
-
-    <control Style="InfoLabelDetails">
-      <type>label</type>
-      <id>0</id>
-      <posX>1142</posX>
-      <posY>422</posY>
-      <label>#Titan.Aspectratio</label>
-      <visible>Control.HasFocus(20002)</visible>
-      <animation effect="fade" time="250">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
-    </control>
-
-    <control Style="InfoValueDetails">
-      <type>fadelabel</type>
-      <id>0</id>
-      <posX>1395</posX>
-      <posY>422</posY>
-      <label>#MediaBrowser.Details.MediaStreams.Video.0.AspectRatio</label>
-      <visible>Control.HasFocus(20002)</visible>
-      <animation effect="fade" time="250">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
-    </control>
-
-    <control Style="InfoLabelDetails">
-      <type>label</type>
-      <id>0</id>
-      <posX>585</posX>
-      <posY>464</posY>
-      <label>#Titan.Resolution</label>
-      <visible>Control.HasFocus(20002)</visible>
-      <animation effect="fade" time="250">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
-    </control>
-
-    <control Style="InfoValueDetails">
-      <type>fadelabel</type>
-      <id>0</id>
-      <posX>840</posX>
-      <posY>464</posY>
-      <label>#MediaBrowser.Details.MediaStreams.Video.0.Width x #MediaBrowser.Details.MediaStreams.Video.0.Height</label>
-      <visible>Control.HasFocus(20002)</visible>
-      <animation effect="fade" time="250">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
-    </control>
-
-    <control Style="InfoLabelDetails">
-      <type>label</type>
-      <id>0</id>
-      <posX>585</posX>
-      <posY>505</posY>
-      <label>174</label>
-      <label>#Titan.Framerate</label>
-      <visible>Control.HasFocus(20002)</visible>
-      <animation effect="fade" time="250">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
-    </control>
-
-    <control Style="InfoValueDetails">
-      <type>fadelabel</type>
-      <id>0</id>
-      <posX>840</posX>
-      <posY>505</posY>
-      <label>#(math.round(cflt(#MediaBrowser.Details.MediaStreams.Video.0.AverageFrameRate.Localized),3)) fps</label>
-      <visible>Control.HasFocus(20002)</visible>
-      <animation effect="fade" time="250">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
-    </control>
-
-    <control Style="InfoLabelDetails">
-      <type>label</type>
-      <id>0</id>
-      <posX>585</posX>
-      <posY>556</posY>
-      <label>#Titan.AudioFormat</label>
-      <visible>Control.HasFocus(20002)</visible>
-      <animation effect="fade" time="250">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
-    </control>
-
-    <control Style="InfoValueDetails">
-      <type>fadelabel</type>
-      <id>0</id>
-      <posX>840</posX>
-      <posY>556</posY>
-      <label>#MediaBrowser.Details.MediaStreams.Audio.0.Codec</label>
-      <visible>Control.HasFocus(20002)</visible>
-      <animation effect="fade" time="250">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
-    </control>
-
-    <control Style="InfoLabelDetails">
-      <type>label</type>
-      <id>0</id>
-      <posX>585</posX>
-      <posY>587</posY>
-      <label>#Titan.AudioChannels</label>
-      <visible>Control.HasFocus(20002)</visible>
-      <animation effect="fade" time="250">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
-    </control>
-
-    <control Style="InfoValueDetails">
-      <type>fadelabel</type>
-      <id>0</id>
-      <posX>840</posX>
-      <posY>587</posY>
-      <label>#MediaBrowser.Details.MediaStreams.Audio.0.Channels</label>
-      <visible>Control.HasFocus(20002)</visible>
-      <animation effect="fade" time="250">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
-    </control>
-
-    <control Style="InfoLabelDetails">
-      <type>label</type>
-      <id>0</id>
-      <posX>585</posX>
-      <posY>670</posY>
-      <label>#Titan.DateAdded</label>
-      <visible>Control.HasFocus(20002)</visible>
-      <animation effect="fade" time="250">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
-    </control>
-
-    <control Style="InfoValueDetails">
-      <type>fadelabel</type>
-      <id>0</id>
-      <posX>840</posX>
-      <posY>670</posY>
-      <label>#MediaBrowser.Details.DateCreated.ShortDate #MediaBrowser.Details.DateCreated.TimeOfDay.Hours:#MediaBrowser.Details.DateCreated.TimeOfDay.Minutes</label>
-      <visible>Control.HasFocus(20002)</visible>
-      <animation effect="fade" time="250">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
-    </control>
-
-    <control Style="InfoLabelDetails">
-      <type>label</type>
-      <id>0</id>
-      <posX>585</posX>
-      <posY>711</posY>
-      <label>#Titan.MediaType</label>
-      <visible>Control.HasFocus(20002)</visible>
-      <animation effect="fade" time="250">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
-    </control>
-
-    <control Style="InfoValueDetails">
-      <type>fadelabel</type>
-      <id>0</id>
-      <posX>840</posX>
-      <posY>711</posY>
-      <label>#MediaBrowser.Details.MediaType</label>
-      <visible>Control.HasFocus(20002)</visible>
-      <animation effect="fade" time="250">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
-    </control>
-
-    <control Style="InfoLabelDetails">
-      <type>label</type>
-      <id>0</id>
-      <posX>1142</posX>
-      <posY>670</posY>
-      <label>#Titan.WatchedCount</label>
-      <visible>Control.HasFocus(20002)</visible>
-      <animation effect="fade" time="250">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
-    </control>
-
-    <control Style="InfoValueDetails">
-      <type>fadelabel</type>
-      <id>0</id>
-      <posX>1395</posX>
-      <posY>670</posY>
-      <label>#MediaBrowser.Details.UserData.PlayCount</label>
-      <visible>Control.HasFocus(20002)</visible>
-      <animation effect="fade" time="250">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
-    </control>
-
-    <control Style="InfoLabelDetails">
-      <type>label</type>
-      <id>0</id>
-      <posX>585</posX>
-      <posY>796</posY>
-      <label>#Titan.InfoUrl</label>
-      <visible>Control.HasFocus(20002)</visible>
-      <animation effect="fade" time="250">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
-    </control>
-
-    <control>
-      <type>fadelabel</type>
-      <id>0</id>
-      <posX>840</posX>
-      <posY>796</posY>
-      <width>770</width>
-      <font>TitanLight14</font>
-      <textcolor>FFffffff</textcolor>
-      <label>#MediaBrowser.Details.HomePageUrl</label>
-      <visible>Control.HasFocus(20002)</visible>
-      <animation effect="fade" time="250">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
-    </control>
-
-    <control Style="InfoLabelDetails">
-      <type>label</type>
-      <id>0</id>
-      <posX>585</posX>
-      <posY>877</posY>
-      <label>#Titan.Source</label>
-      <visible>Control.HasFocus(20002)</visible>
-      <animation effect="fade" time="250">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
-    </control>
-
-    <control>
-      <type>fadelabel</type>
-      <id>0</id>
-      <posX>840</posX>
-      <posY>877</posY>
-      <width>970</width>
-      <font>TitanLight12</font>
-      <textcolor>FFffffff</textcolor>
-      <label>#MediaBrowser.Details.Path</label>
-      <visible>Control.HasFocus(20002)</visible>
-      <animation effect="fade" time="250">Visible</animation>
-      <animation effect="fade" time="0">WindowClose</animation>
-    </control>
-
-    <!-- Fanart -->
-
     <control>
       <description>Info Bar</description>
       <type>image</type>
@@ -786,5 +440,6 @@
       <animation effect="fade" time="250">Visible</animation>
       <animation effect="fade" time="0">WindowClose</animation>
     </control>
+
   </controls>
 </window>

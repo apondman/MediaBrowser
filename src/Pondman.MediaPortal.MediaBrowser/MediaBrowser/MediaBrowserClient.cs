@@ -232,11 +232,5 @@ namespace Pondman.MediaPortal.MediaBrowser
             }
         }
 
-        public new async Task<ItemsResult> GetStudiosAsync(ItemsByNameQuery query)
-        {
-            // todo: remove when fixed in API client
-            return await GetItemsByNameAsync("Studios", query);
-        }
-
     }
 }

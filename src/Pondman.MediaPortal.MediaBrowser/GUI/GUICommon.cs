@@ -29,7 +29,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
     {
         private static readonly Dictionary<GUIControl, FacadeItemHandler> _itemHandlers;
         private static bool _notifyDisabledSmartControls = true;
-        private static ImageSwapper _backdrop = null;
 
         static GUICommon()
         {
@@ -395,24 +394,5 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             return handler;
         }
 
-        public static ImageSwapper BackdropHandler
-        {
-            get
-            {
-                if (_backdrop == null)
-                {
-                    // create backdrop image swapper
-                    _backdrop = new ImageSwapper
-                    {
-                        PropertyOne = MediaBrowserPlugin.DefaultProperty + ".Backdrop.1",
-                        PropertyTwo = MediaBrowserPlugin.DefaultProperty + ".Backdrop.2"
-                    };
-
-                    _backdrop.ImageResource.Delay = 0;
-                }
-
-                return _backdrop;
-            }
-        }
     }
 }

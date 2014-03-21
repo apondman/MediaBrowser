@@ -255,13 +255,16 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         ///     Handler for selected item
         /// </summary>
         /// <param name="item">The item.</param>
-        protected void OnBaseItemSelected(GUIListItem item)
+        protected async void OnBaseItemSelected(GUIListItem item)
         {
             if (item == null) return;
 
             // todo: check for specific dto
             var dto = item.TVTag as BaseItemDto;
-            dto.IfNotNull(x => PublishItemDetails(x, MediaBrowserPlugin.DefaultProperty + ".Selected"));
+            if (dto != null)
+            {
+                await PublishItemDetails(dto, MediaBrowserPlugin.DefaultProperty + ".Selected");
+            }
         }
 
         /// <summary>
@@ -383,13 +386,12 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             set { _currentItem = value; OnCurrentItemChanged(); }
         }private BaseItemDto _currentItem;
 
-        private void OnCurrentItemChanged()
+        private async void OnCurrentItemChanged()
         {
-
             if (_currentItem == null) return;
 
             GUIContext.Instance.Update(_currentItem); // todo: context?
-            PublishItemDetails(_currentItem, MediaBrowserPlugin.DefaultProperty + ".Current");
+            await PublishItemDetails(_currentItem, MediaBrowserPlugin.DefaultProperty + ".Current");
         }
 
         /// <summary>
@@ -417,8 +419,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             // todo: this is a mess, rethink
             
             //GUIContext.Instance.Client.CurrentUser.Configuration.DisplayMissingEpisodes
-            var userSettings = GUIContext.Instance.Client.CurrentUser.Configuration;
-            var userId = GUIContext.Instance.Client.CurrentUserId;
+            var client = GUIContext.Instance.Client;
+            var userSettings = client.CurrentUser.Configuration;
+            var userId = client.CurrentUserId;
             var query = MediaBrowserQueries.Item
                             .UserId(userId)
                             .Recursive()
@@ -448,7 +451,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 switch (item.Type)
                 {
                     case "MovieSearchResults":
-                        var hints = GUIContext.Instance.Client.GetSearchHintsAsync(new SearchQuery { UserId = userId, SearchTerm = item.Id });
+                        var hints = client.GetSearchHintsAsync(new SearchQuery { UserId = userId, SearchTerm = item.Id });
                         LoadItems(hints.Result, e);
                         return;
                     case MediaBrowserType.UserRootFolder:
@@ -469,10 +472,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 LoadTvShowsViewsAndContinue(e);
                                 return;
                             case "movies-genres":
-                                LoadItems(GUIContext.Instance.Client.GetGenresAsync(MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Movie).Apply(_sortableQuery)), e);
+                                LoadItems(client.GetGenresAsync(MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Movie).Apply(_sortableQuery)), e);
                                 return;
                             case "movies-studios":
-                                LoadItems(GUIContext.Instance.Client.GetStudiosAsync(MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Movie).Apply(_sortableQuery)), e);
+                                LoadItems(client.GetStudiosAsync(MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Movie).Apply(_sortableQuery)), e);
                                 return;
                             case "movies-boxset":
                                 query = query.BoxSets();
@@ -498,7 +501,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                     .Descending();
                                 break;
                             case "movies-people":
-                                LoadItems(GUIContext.Instance.Client.GetPeopleAsync(MediaBrowserQueries.Persons.User(userId).Fields(ItemFields.Overview).Include(MediaBrowserType.Movie).Apply(_sortableQuery)), e);
+                                LoadItems(client.GetPeopleAsync(MediaBrowserQueries.Persons.User(userId).Fields(ItemFields.Overview).Include(MediaBrowserType.Movie).Apply(_sortableQuery)), e);
                                 return;
                             case "movies-all":
                                 query = query.Movies();
@@ -514,11 +517,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                     .SortBy(ItemSortBy.AlbumArtist, ItemSortBy.SortName);
                                 break;
                             case "music-artists":
-                                LoadItems(GUIContext.Instance.Client.GetItemsByNameAsync("Artists",
+                                LoadItems(client.GetItemsByNameAsync("Artists",
                                     MediaBrowserQueries.Named.User(userId).Apply(_sortableQuery)), e);
                                 return;
                             case "tvshows-networks":
-                                LoadItems(GUIContext.Instance.Client.GetStudiosAsync(
+                                LoadItems(client.GetStudiosAsync(
                                     MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Series).Apply(_sortableQuery)), e);
                                 return;
                             case "tvshows-all":
@@ -526,7 +529,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                     .Series();
                                 break;
                             case "tvshows-nextup":
-                                LoadItems(GUIContext.Instance.Client.GetNextUpAsync(
+                                LoadItems(client.GetNextUpEpisodesAsync(
                                     MediaBrowserQueries.NextUp.User(userId).Fields(ItemFields.Overview).Limit(24)), e);
                                 return;
                             case "tvshows-latest":
@@ -543,11 +546,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                     .Descending();
                                 break;
                             case "tvshows-genres":
-                                LoadItems(GUIContext.Instance.Client.GetGenresAsync(
+                                LoadItems(client.GetGenresAsync(
                                     MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Series).Apply(_sortableQuery)), e);
                                 return;
                             case "tvshows-people":
-                                LoadItems(GUIContext.Instance.Client.GetPeopleAsync(
+                                LoadItems(client.GetPeopleAsync(
                                     MediaBrowserQueries.Persons.User(userId).Fields(ItemFields.Overview).Include(MediaBrowserType.Series).Apply(_sortableQuery)), e);
                                 return;
                         }
@@ -725,7 +728,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         ///     Publishes the artwork.
         /// </summary>
         /// <param name="item">The item.</param>
-        protected override async void PublishArtwork(BaseItemDto item)
+        protected override async Task PublishArtwork(BaseItemDto item)
         {
             var cover = string.Empty;
 
@@ -747,10 +750,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             // the selection could be changed so we quickly check whether the image is still relevant
             if (!Facade.IsNull() && !Facade.SelectedListItem.IsNull() && Facade.SelectedListItem.TVTag == item)
             {
-                if (backdrop != GUICommon.BackdropHandler.Filename)
-                {
-                    GUICommon.BackdropHandler.Filename = backdrop ?? String.Empty;
-                }
+                backdropHandler.Filename = backdrop ?? String.Empty;
 
                 if (_smartImageControls.TryGetValue(item.Type, out resource))
                 {

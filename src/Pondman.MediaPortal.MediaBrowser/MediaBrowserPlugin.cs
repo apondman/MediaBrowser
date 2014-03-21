@@ -29,20 +29,7 @@ namespace Pondman.MediaPortal.MediaBrowser
 
         #region Private Static Readonly Values
 
-        private static readonly Action<string, string> DeferredLog = (tag, tagValue) =>
-        {
-            if (!Config.Settings.LogProperties || !tag.StartsWith(DefaultProperty))
-                return;
-
-            if (tagValue != " ")
-            {
-                Log.Debug("SET: \"" + tag + ": \"" + tagValue + "\"");
-            }
-            else
-            {
-                Log.Debug("UNSET: \"" + tag + "\"");
-            }
-        };
+       
 
         #endregion
 
@@ -103,7 +90,17 @@ namespace Pondman.MediaPortal.MediaBrowser
 
         static void OnPropertyChanged(string tag, string tagValue)
         {
-            DeferredLog.BeginInvoke(tag, tagValue, DeferredLog.EndInvoke, null);
+            if (!Config.Settings.LogProperties || !tag.StartsWith(DefaultProperty))
+                return;
+
+            if (tagValue != " ")
+            {
+                Log.Debug("SET: \"" + tag + ": \"" + tagValue + "\"");
+            }
+            else
+            {
+                Log.Debug("UNSET: \"" + tag + "\"");
+            }
         }
 
         static void OnActivateWindow(int windowId)

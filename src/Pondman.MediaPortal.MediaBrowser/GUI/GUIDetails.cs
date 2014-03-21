@@ -4,6 +4,7 @@ using Pondman.MediaPortal.MediaBrowser.Models;
 using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using MPGui = MediaPortal.GUI.Library;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
@@ -39,6 +40,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             base.OnPageLoad();
 
             if (!GUIContext.Instance.IsServerReady || !GUIContext.Instance.Client.IsUserLoggedIn) return;
+            
             OnWindowStart();
         }
 
@@ -47,13 +49,13 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
              OnWindowStart();
         }
 
-        protected void OnWindowStart()
+        protected async void OnWindowStart()
         {
             if (String.IsNullOrEmpty(Parameters.Id))
             {
                 if (_movie != null)
                 {
-                    PublishItemDetails(_movie);
+                    await PublishItemDetails(_movie);
                 }
                 else
                 {
@@ -65,8 +67,19 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 // Clear details
                 GUIUtils.Unpublish(_publishPrefix);
                 
-                // Load movie 
-                GUITask.Run(LoadMovieDetails, PublishMovieDetailsTask, Log.Error);
+                // Load movie
+                Publish(".Loading", "True");
+                var item = await LoadMovieDetails();
+                await PublishItemDetails(item);
+                Publish(".Loading", "False");
+
+                if (Parameters.Playback)
+                {
+                    Parameters.Playback = false;
+                    Play(Parameters.ResumeFrom);
+                }               
+
+                
             }
         }
 
@@ -115,37 +128,25 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
 
             info.MediaFiles.Add(_movie.Path);
-            _player.Play(info);
+
+            GUITask.MainThreadCallback(() => _player.Play(info));
         }
 
-        protected BaseItemDto LoadMovieDetails(GUITask task)
+        protected async Task<BaseItemDto> LoadMovieDetails()
         {
             // todo: update this logic with true async 
 
             Log.Debug("Loading movie details for: {0}", Parameters.Id);
-            Publish(".Loading", "True");
-
             try
             {
-                var request = GUIContext.Instance.Client.GetItemAsync(Parameters.Id, GUIContext.Instance.Client.CurrentUserId);
-                _movie = request.Result;
+                _movie = await GUIContext.Instance.Client.GetItemAsync(Parameters.Id, GUIContext.Instance.Client.CurrentUserId);
             }
             catch (Exception e)
             {
                 Log.Error(e);
             }
 
-            Publish(".Loading", "False");
-
             return _movie;
-        }
-
-        protected void PublishMovieDetailsTask(BaseItemDto movie)
-        {
-            PublishItemDetails(movie);
-            if (!Parameters.Playback) return;
-            Parameters.Playback = false;
-            GUITask.MainThreadCallback(() => Play(Parameters.ResumeFrom));
         }
 
         protected async void OnPlaybackStarted(MediaPlayerInfo info)
