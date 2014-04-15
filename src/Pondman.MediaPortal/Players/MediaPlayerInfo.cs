@@ -22,6 +22,8 @@ namespace Pondman.MediaPortal
 
         public int ResumePlaybackPosition { get; set; }
 
+        public int MediaFileIndex { get; set; }
+
         public IList<string> MediaFiles { get; internal set; }
 
     }

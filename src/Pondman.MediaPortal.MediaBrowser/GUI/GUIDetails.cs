@@ -70,17 +70,17 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 
                 // Load movie
                 Publish(".Loading", "True");
+                GUIWaitCursor.Init();
+                GUIWaitCursor.Show();
                 var item = await LoadMovieDetails();
                 await PublishItemDetails(item);
                 Publish(".Loading", "False");
-
+                GUIWaitCursor.Hide();
                 if (Parameters.Playback)
                 {
                     Parameters.Playback = false;
                     Play(Parameters.ResumeFrom);
-                }               
-
-                
+                }
             }
         }
 
@@ -134,14 +134,13 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 info.Thumb = resource.Resource.Filename;
             }
 
-            info.MediaFiles.Add(_movie.Path);
+            _movie.MediaSources.ToList().ForEach(x => info.MediaFiles.Add(x.Path));
+
             GUITask.MainThreadCallback(() => _player.Play(info));
         }
 
         protected async Task<BaseItemDto> LoadMovieDetails()
         {
-            // todo: update this logic with true async 
-
             Log.Debug("Loading movie details for: {0}", Parameters.Id);
             try
             {
@@ -157,20 +156,19 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         protected async void OnPlaybackStarted(MediaPlayerInfo info)
         {
-            await GUIContext.Instance.Client.ReportPlaybackStartAsync( new PlaybackStartInfo { ItemId = _movie.Id, UserId = GUIContext.Instance.ActiveUser.Id, IsSeekable = true });
+            await GUIContext.Instance.Client.ReportPlaybackStartAsync( new PlaybackStartInfo { ItemId = _movie.Id, UserId = GUIContext.Instance.ActiveUser.Id, IsSeekable = true, MediaSourceId = _movie.MediaSources[info.MediaFileIndex].Id });
             Log.Debug("Reporting playback started to MediaBrowser.");
         }
 
         protected async void OnPlaybackStopped(MediaPlayerInfo media, int progress)
         {
-            await GUIContext.Instance.Client.ReportPlaybackStoppedAsync(new PlaybackStopInfo { ItemId = _movie.Id, UserId = GUIContext.Instance.ActiveUser.Id, PositionTicks = TimeSpan.FromSeconds(progress).Ticks });
+            await GUIContext.Instance.Client.ReportPlaybackStoppedAsync(new PlaybackStopInfo { ItemId = _movie.Id, UserId = GUIContext.Instance.ActiveUser.Id, PositionTicks = TimeSpan.FromSeconds(progress).Ticks, MediaSourceId = _movie.MediaSources[media.MediaFileIndex].Id });
             Log.Debug("Reporting playback stopped to MediaBrowser.");
         }
 
         protected async void OnPlaybackEnded(MediaPlayerInfo media)
         {
-            // todo: doesn't account for multiparts!
-            await GUIContext.Instance.Client.ReportPlaybackStoppedAsync(new PlaybackStopInfo { ItemId = _movie.Id, UserId = GUIContext.Instance.ActiveUser.Id, PositionTicks = _movie.RunTimeTicks });
+            await GUIContext.Instance.Client.ReportPlaybackStoppedAsync(new PlaybackStopInfo { ItemId = _movie.Id, UserId = GUIContext.Instance.ActiveUser.Id, PositionTicks = _movie.MediaSources[media.MediaFileIndex].RunTimeTicks, MediaSourceId = _movie.MediaSources[media.MediaFileIndex].Id });
             Log.Debug("Reporting playback stopped to MediaBrowser.");
         }
 

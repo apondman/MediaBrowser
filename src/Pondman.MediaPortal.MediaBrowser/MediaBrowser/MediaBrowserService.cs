@@ -122,8 +122,11 @@ namespace Pondman.MediaPortal.MediaBrowser
             socket.MessageCommand += OnSocketMessageCommand;
             socket.PlayCommand += OnPlayCommand;
             socket.BrowseCommand += OnBrowseCommand;
+            socket.LibraryChanged += OnLibraryChanged;  
+            
             socket.Connected += OnSocketConnected;
             socket.Closed += OnSocketDisconnected;
+
 
             _client.WebSocketConnection = socket;
             System = info;
@@ -131,6 +134,12 @@ namespace Pondman.MediaPortal.MediaBrowser
 
             await socket.EnsureConnectionAsync(CancellationToken.None);
             _client.WebSocketConnection.StartEnsureConnectionTimer(10000);
+        }
+
+        void OnLibraryChanged(object sender, LibraryChangedEventArgs e)
+        {
+            // todo: update items in memory
+            var info = e.UpdateInfo;
         }
 
         public async void Update()
@@ -245,6 +254,8 @@ namespace Pondman.MediaPortal.MediaBrowser
 
                 if (Client != null && Client.WebSocketConnection != null)
                 {
+                    Client.WebSocketConnection.StopEnsureConnectionTimer();
+                    Client.WebSocketConnection.StopReceivingSessionUpdates();
                     Client.WebSocketConnection.Dispose();
                 }
 

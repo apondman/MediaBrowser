@@ -130,7 +130,8 @@ namespace Pondman.MediaPortal
 
             if (_media.MediaFiles.Count > _mediaIndex+1)
             {
-                StartPlayback(_mediaIndex++);
+                _media.MediaFileIndex = _mediaIndex++;
+                StartPlayback(_media.MediaFileIndex);
                 return;
             }
 
