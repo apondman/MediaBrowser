@@ -212,10 +212,19 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             {
                 case MPGui.Action.ActionType.ACTION_PREVIOUS_MENU:
                     _browser.Cancel();
-                    base.OnPreviousWindow();
+
+                    if (MediaBrowserPlugin.Config.Settings.UiUseUniversalBackButton)
+                    {
+                        OnPreviousWindow();
+                    }
+                    else
+                    {
+                        base.OnPreviousWindow();
+                    }                 
+
                     break;
                 case MPGui.Action.ActionType.ACTION_PARENT_DIR:
-                    // reset sortable query
+                    _browser.Cancel();
                     OnPreviousWindow();
                     break;
                 default:

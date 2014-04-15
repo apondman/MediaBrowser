@@ -24,10 +24,11 @@ namespace Pondman.MediaPortal.MediaBrowser
         public MediaBrowserSettings()
         {
             MediaCacheFolder = Path.Combine(Config.GetFolder(Config.Dir.Thumbs), MediaBrowserPlugin.DefaultName);
-            LogProperties = true; // todo: change to false on release
+            LogProperties = false;
             DisplayName = MediaBrowserPlugin.DefaultName;
             DefaultItemLimit = 50;
             PublishDelayMs = 250;
+            UiUseUniversalBackButton = true;
 
             _userData = new HashSet<MediaBrowserUserSettings>();
         }
@@ -49,6 +50,15 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// </value>
         [DataMember]
         public string MediaCacheFolder { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to use the BACK button to navigate to parent folder.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if [UI use universal back button]; otherwise, <c>false</c>.
+        /// </value>
+        [DataMember]
+        public bool UiUseUniversalBackButton { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to log skin properties.
