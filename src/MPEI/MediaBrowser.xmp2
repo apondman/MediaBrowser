@@ -321,20 +321,14 @@ Click Next to continue or Cancel to exit Setup.</Value>
     <UpdateUrl />
     <Version>
       <Major>0</Major>
-      <Minor>20</Minor>
-      <Build>5193</Build>
-      <Revision>41081</Revision>
+      <Minor>21</Minor>
+      <Build>5221</Build>
+      <Revision>37496</Revision>
     </Version>
     <ExtensionDescription>MediaPortal client for MediaBrowser3 server (http://www.mediabrowser3.com). </ExtensionDescription>
-    <VersionDescription>- Fixed #27: Changed how previous/parent buttons work.
-- Fixed #30: Now enforcing user configuration from server.
-- Fixed #31: Added ability to navigate collection folders.
-- Fixed #25: Wrong backdrop intermittently displayed.
-- Improved search and results.
-- Initial support for "dashboard" skinning (load MB views from anywhere in MediaPortal) aka smart facade controls.
-- Tweaks and fixes related to loading of artwork
-- Refactored code to use NET4 (MediaBrowser ) components.
-- Improvements to generic skin based on Titan</VersionDescription>
+    <VersionDescription>- Updated to latest MediaBrowser components
+- Fixed missing loading cursor on details screen.
+- Fixed settings file issue with MediaPortal 1.7</VersionDescription>
     <DevelopmentStatus>Beta</DevelopmentStatus>
     <OnlineLocation />
     <ReleaseDate>2014-03-21T23:40:16</ReleaseDate>
@@ -511,7 +505,7 @@ Click Next to continue or Cancel to exit Setup.</Value>
         <Param1 />
         <UpdateOption>OverwriteIfOlder</UpdateOption>
         <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\Resources\Images\mblogoicon.png</LocalFileName>
-        <ZipFileName>Installer{CopyFile}\{a0e61bdb-4ccf-4f6a-a43f-d08137d3db88}-mblogoicon.png</ZipFileName>
+        <ZipFileName>Installer{CopyFile}\{00fddbab-d044-415e-a1e3-8828e23a5ccb}-mblogoicon.png</ZipFileName>
         <DestinationFilename />
       </FileItem>
     </Items>
