@@ -19,7 +19,7 @@ namespace Pondman.MediaPortal
         public SettingsManager(string name, ILogger logger = null)
         {
             _logger = logger ?? NullLogger.Instance;
-            _path = Config.GetFile(Config.Dir.Config, name + ".xml");
+            _path = Config.GetFile(Config.Dir.Config, name + ".config");
             Load();
         }
 
@@ -89,7 +89,7 @@ namespace Pondman.MediaPortal
                 {
                     try
                     {
-                        File.Copy(_path, _path.Replace(".xml", ".bak"), true);
+                        File.Copy(_path, _path.Replace(".config", ".bak"), true);
                     }
                     catch (Exception e)
                     {

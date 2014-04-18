@@ -146,7 +146,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <summary>
         /// Settings
         /// </summary>
-        public static readonly SettingsManager<MediaBrowserSettings> Config = new SettingsManager<MediaBrowserSettings>(MediaBrowserPlugin.DefaultName + ".Settings", Log);
+        public static readonly SettingsManager<MediaBrowserSettings> Config = new SettingsManager<MediaBrowserSettings>(MediaBrowserPlugin.DefaultName, Log);
 
         /// <summary>
         /// Shutdowns the MediaBrowser plugin.
