@@ -175,9 +175,21 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 controlList
                     .OfType<GUIFacadeControl>()
                     .Where(x => x.Description.StartsWith("MediaBrowser.Facade."))
-                    .Select(x => new { facade = x, name = x.Description.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries)[2] })
+                    .Select(x => new { facade = x, vars = x.Description.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries) })
                     .ToList()
-                    .ForEach(x => _facades[x.name] = x.facade);
+                    .ForEach(x => {
+
+                        int tokens = x.vars.Length;
+                        if (tokens > 2)
+                        {
+                            _facades[x.vars[2]] = x.facade; // type
+                        }
+                        if (tokens > 3)
+                        {
+                            _facades[x.vars[2] + "." + x.vars[3]] = x.facade; // type+id
+                        }
+                      }
+                    );
         }
 
         protected override void OnClicked(int controlId, GUIControl control, MPGui.Action.ActionType actionType)
@@ -350,14 +362,17 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         GUIFacadeControl GetTypedFacade(BaseItemDto dto)
         {
             GUIFacadeControl facade;
-            // try typed facade
-            if (!_facades.TryGetValue(dto.Type, out facade))
+            if (!_facades.TryGetValue(dto.Type + "." + dto.Id, out facade))
             {
-                // try the Default facade
-                if (!_facades.TryGetValue("Default", out facade))
+                // try typed facade
+                if (!_facades.TryGetValue(dto.Type, out facade))
                 {
-                    // just pick the first one 
-                    facade = _facades.First().Value;
+                    // try the Default facade
+                    if (!_facades.TryGetValue("Default", out facade))
+                    {
+                        // just pick the first one 
+                        facade = _facades.First().Value;
+                    }
                 }
             }
 
@@ -580,6 +595,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     case MediaBrowserType.Series:
                         query = item.SeasonCount > 0 ? query.Season().ParentId(item.Id).SortBy(ItemSortBy.SortName) : query.ParentId(item.Id);
                         break;
+                    case MediaBrowserType.Season:
+                        LoadItems(client.GetEpisodesAsync(new EpisodeQuery { IsVirtualUnaired = userSettings.DisplayUnairedEpisodes, IsMissing = !userSettings.DisplayMissingEpisodes ? false : (bool?)null, SeasonId = item.Id, SeriesId = item.SeriesId, UserId = userId, Fields = new ItemFields[] { ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams } }), e);
+                        return;
                     case MediaBrowserType.Person:
                         query.Person(item.Name).SortBy(ItemSortBy.SortName);
                         query = CurrentItem.Id.Contains("movies") ? query.Movies() : query.Series();
@@ -590,6 +608,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     default:
                         // get by parent id
                         query = query.ParentId(item.Id).SortBy(ItemSortBy.SortName);
+
                         break;
                 }
 
