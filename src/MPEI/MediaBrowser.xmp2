@@ -322,13 +322,11 @@ Click Next to continue or Cancel to exit Setup.</Value>
     <Version>
       <Major>0</Major>
       <Minor>21</Minor>
-      <Build>5221</Build>
-      <Revision>37496</Revision>
+      <Build>5234</Build>
+      <Revision>2740</Revision>
     </Version>
     <ExtensionDescription>MediaPortal client for MediaBrowser3 server (http://www.mediabrowser3.com). </ExtensionDescription>
-    <VersionDescription>- Updated to latest MediaBrowser components
-- Fixed missing loading cursor on details screen.
-- Fixed settings file issue with MediaPortal 1.7</VersionDescription>
+    <VersionDescription>this is a special skinners release</VersionDescription>
     <DevelopmentStatus>Beta</DevelopmentStatus>
     <OnlineLocation />
     <ReleaseDate>2014-03-21T23:40:16</ReleaseDate>
@@ -505,7 +503,7 @@ Click Next to continue or Cancel to exit Setup.</Value>
         <Param1 />
         <UpdateOption>OverwriteIfOlder</UpdateOption>
         <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\Resources\Images\mblogoicon.png</LocalFileName>
-        <ZipFileName>Installer{CopyFile}\{00fddbab-d044-415e-a1e3-8828e23a5ccb}-mblogoicon.png</ZipFileName>
+        <ZipFileName>Installer{CopyFile}\{683ec0a5-feb8-4813-922f-0c2078d09a39}-mblogoicon.png</ZipFileName>
         <DestinationFilename />
       </FileItem>
     </Items>
