@@ -195,21 +195,21 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <param name="item">The item.</param>
         /// <param name="options">The options.</param>
         /// <returns></returns>
-        static Guid? GetImageTag(BaseItemDto item, ImageOptions options)
+        static string GetImageTag(BaseItemDto item, ImageOptions options)
         {
             switch (options.ImageType)
             {
                 case ImageType.Backdrop:
-                    return item.BackdropCount > 0 ? item.BackdropImageTags[options.ImageIndex ?? 0] : (Guid?)null;
+                    return item.BackdropCount > 0 ? item.BackdropImageTags[options.ImageIndex ?? 0] : null;
                 case ImageType.Screenshot:
-                    return item.ScreenshotCount > 0 ? item.ScreenshotImageTags[options.ImageIndex ?? 0] : (Guid?)null;
+                    return item.ScreenshotCount > 0 ? item.ScreenshotImageTags[options.ImageIndex ?? 0] : null;
                 case ImageType.Chapter:
                     return item.Chapters != null && item.Chapters.Count > 0
                         ? item.Chapters[options.ImageIndex ?? 0].ImageTag ?? null
                         : null;
                 default:
-                    Guid guid;
-                    return item.ImageTags != null && item.ImageTags.TryGetValue(options.ImageType, out guid) ? guid : (Guid?)null;
+                    string guid;
+                    return item.ImageTags != null && item.ImageTags.TryGetValue(options.ImageType, out guid) ? guid : null;
             }
         }
 

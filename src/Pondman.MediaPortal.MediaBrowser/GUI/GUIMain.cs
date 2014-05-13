@@ -756,19 +756,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <param name="item">The item.</param>
         protected override async Task PublishArtwork(BaseItemDto item)
         {
-            var cover = string.Empty;
-
-            SmartImageControl resource;
-            if (_smartImageControls.TryGetValue(item.Type, out resource))
-            {
-                // load specific image
-                cover = await resource.GetImageUrl(item);
-            }
-            else if (_smartImageControls.TryGetValue("Default", out resource))
-            {
-                cover = await resource.GetImageUrl(item);
-            }
-
             var backdrop = await GetBackdropUrl(item);
 
             // todo: need a better way to do this 
@@ -777,19 +764,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             if (!Facade.IsNull() && !Facade.SelectedListItem.IsNull() && Facade.SelectedListItem.TVTag == item)
             {
                 backdropHandler.Filename = backdrop ?? String.Empty;
-
-                if (_smartImageControls.TryGetValue(item.Type, out resource))
-                {
-                    // load specific image
-                    resource.Resource.Filename = cover;
-                    return;
-                }
-
-                // load default image
-                if (_smartImageControls.TryGetValue("Default", out resource))
-                {
-                    resource.Resource.Filename = cover;
-                }
+                UpdateSmartImageControls(item);
             }
         }
 

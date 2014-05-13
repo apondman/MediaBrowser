@@ -121,19 +121,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 ResumePlaybackPosition = resumeTime
             };
 
-            SmartImageControl resource;
-            if (_smartImageControls.TryGetValue(_movie.Type, out resource))
+            var controls = GetSmartImageControls(_movie);
+            foreach(var control in controls) 
             {
-                // load specific image
-                info.Thumb = resource.Resource.Filename;
+                info.Thumb = control.Resource.Filename;
             }
-
-            // load default image
-            if (_smartImageControls.TryGetValue("Default", out resource))
-            {
-                info.Thumb = resource.Resource.Filename;
-            }
-
             _movie.MediaSources.ToList().ForEach(x => info.MediaFiles.Add(x.Path));
 
             GUITask.MainThreadCallback(() => _player.Play(info));

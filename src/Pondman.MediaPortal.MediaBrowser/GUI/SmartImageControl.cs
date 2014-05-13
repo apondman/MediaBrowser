@@ -14,9 +14,17 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         public SmartImageControl(GUIImage control)
         {
             var tokens = control.Description.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
+            try
+            {
+                Name = tokens[2];
+                ImageType = tokens.Length > 3 ? (ImageType)Enum.Parse(typeof(ImageType), tokens[3]) : ImageType.Primary;
+            }
+            catch (Exception e)
+            {
+                ImageType = ImageType.Primary;
+                MediaBrowserPlugin.Log.Error(e);
+            }
 
-            Name = tokens[2];
-            ImageType = ImageType.Primary;
             _control = control;
 
             Resource = new AsyncImageResource(MediaBrowserPlugin.Log)
@@ -47,6 +55,21 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         }
 
         public AsyncImageResource Resource { get; private set; }
+
+        public void Unload()
+        {
+            Resource.Filename = string.Empty;
+        }
+
+        public void Load(BaseItemDto item) 
+        {
+            Resource.Filename = GetImageUrl(item).Result;
+        }
+
+        public async void LoadAsync(BaseItemDto item)
+        {
+            Resource.Filename = await GetImageUrl(item);
+        }
 
         public async Task<string> GetImageUrl(BaseItemDto item)
         {

@@ -6,6 +6,7 @@ using Pondman.MediaPortal.MediaBrowser.Models;
 using Pondman.MediaPortal.MediaBrowser.Resources.Languages;
 using Pondman.MediaPortal.Utils;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
     {
         static readonly Random _randomizer = new Random();
 
-        protected readonly Dictionary<string, SmartImageControl> _smartImageControls;
+        protected readonly ConcurrentDictionary<string, List<SmartImageControl>> _smartImageControls;
         protected Dictionary<string, Action<GUIControl, MPGUI.Action.ActionType>> _commands = null;
         protected string _commandPrefix = MediaBrowserPlugin.DefaultName + ".Command.";
 
@@ -37,7 +38,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             _logger = MediaBrowserPlugin.Log;
             _commands = new Dictionary<string, Action<GUIControl, MPGUI.Action.ActionType>>();
 
-            _smartImageControls = new Dictionary<string, SmartImageControl>();
+            _smartImageControls = new ConcurrentDictionary<string, List<SmartImageControl>>();
 
             // auto register commands by convention
             //var commands = this.GetType().GetMethods().Where(m => m.Name.EndsWith("Command"));
@@ -78,6 +79,47 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             ShowUserProfilesDialog();
         }
 
+        protected void RegisterSmartImageControl(SmartImageControl control) 
+        {
+            List<SmartImageControl> list;
+            if (!_smartImageControls.TryGetValue(control.Name, out list))
+            {
+                list = new List<SmartImageControl>();
+                _smartImageControls[control.Name] = list;
+            }
+            list.Add(control);
+        }
+
+        protected List<SmartImageControl> GetSmartImageControls(BaseItemDto item)
+        {
+            return GetSmartImageControlsByType(item.Type);
+        }
+
+        protected List<SmartImageControl> GetSmartImageControlsByType(string type)
+        {
+            List<SmartImageControl> list;
+            if (!_smartImageControls.TryGetValue(type, out list))
+            {
+                if (!_smartImageControls.TryGetValue("Default", out list))
+                {
+                    list = new List<SmartImageControl>();
+                }
+            }
+
+            return list;
+        }
+
+        protected void UpdateSmartImageControls(BaseItemDto item) 
+        {
+            if (_smartImageControls.Count == 0) return;
+
+            var controls = GetSmartImageControls(item);
+            foreach (var control in controls)
+            {
+                control.LoadAsync(item);
+            }
+        }        
+
         protected override void OnWindowLoaded()
         {
             base.OnWindowLoaded();
@@ -87,15 +129,12 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 var detected = controlList
                                 .OfType<GUIImage>()
                                 .Where(x => x.Description.StartsWith("MediaBrowser.Image."))
-                                .Select(x =>
-                                {
-                                    var smart = (SmartImageControl) x;
-                                    _smartImageControls[smart.Name] = smart;
-                                    return false;
-                                })
-                                .Count();
+                                .Select(x => (SmartImageControl)x)
+                                .ToList();
 
-                Log.Debug("Detected {0} smart image controls.", detected);
+                detected.ForEach(RegisterSmartImageControl);
+
+                Log.Debug("Detected {0} smart image controls.", detected.Count);
             }
 
             // Publish User Info
@@ -225,21 +264,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             var backdrop = await GetBackdropUrl(item);
             backdropHandler.Filename = backdrop;
 
-            if (_smartImageControls.Count == 0) return;
-
-            SmartImageControl resource;
-            if (_smartImageControls.TryGetValue(item.Type, out resource))
-            {
-                // load specific image
-                resource.Resource.Filename = resource.GetImageUrl(item).Result;
-                return;
-            }
-
-            // load default image
-            if (_smartImageControls.TryGetValue("Default", out resource))
-            {
-                resource.Resource.Filename = resource.GetImageUrl(item).Result;
-            }
+            UpdateSmartImageControls(item);
         }
 
         protected virtual async Task<string> GetBackdropUrl(BaseItemDto item)
@@ -364,8 +389,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
                 if (user.HasPrimaryImage)
                 {
-                    var avatar = _smartImageControls["User"];
-                    avatar.Resource.Filename = await GUIContext.Instance.Client.GetLocalUserImageUrl(user, new ImageOptions { Width = avatar.Width, Height = avatar.Height });
+                    var avatars = GetSmartImageControlsByType("User");
+                    foreach(var avatar in avatars) 
+                    {
+                        avatar.Resource.Filename = await GUIContext.Instance.Client.GetLocalUserImageUrl(user, new ImageOptions { Width = avatar.Width, Height = avatar.Height, ImageType = avatar.ImageType });
+                    }
                 }
 
                 Reset();

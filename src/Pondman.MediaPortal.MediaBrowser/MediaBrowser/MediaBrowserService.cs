@@ -10,6 +10,9 @@ using MediaPortal.ExtensionMethods;
 using Pondman.MediaPortal.MediaBrowser.Events;
 using Pondman.MediaPortal.MediaBrowser.GUI;
 using Pondman.MediaPortal.MediaBrowser.Models;
+using MediaBrowser.Model.Events;
+using MediaBrowser.Model.Session;
+using MediaBrowser.Model.Entities;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
@@ -136,10 +139,10 @@ namespace Pondman.MediaPortal.MediaBrowser
             _client.WebSocketConnection.StartEnsureConnectionTimer(10000);
         }
 
-        void OnLibraryChanged(object sender, LibraryChangedEventArgs e)
+        void OnLibraryChanged(object sender, GenericEventArgs<LibraryUpdateInfo> e)
         {
             // todo: update items in memory
-            var info = e.UpdateInfo;
+            var info = e.Argument;
         }
 
         public async void Update()
@@ -169,9 +172,9 @@ namespace Pondman.MediaPortal.MediaBrowser
             _logger.Info("Lost connection with Media Browser Server.");
         }
 
-        void OnSocketMessageCommand(object sender, MessageCommandEventArgs e)
+        void OnSocketMessageCommand(object sender, GenericEventArgs<MessageCommand> e)
         {
-            _logger.Debug("Message: {0}", e.Request.Text);
+            _logger.Debug("Message: {0}", e.Argument.Text);
         }
 
         protected void OnServerDiscovered(IPEndPoint endpoint)
@@ -201,33 +204,35 @@ namespace Pondman.MediaPortal.MediaBrowser
 
         // todo: move command handlers to GUI code
 
-        protected void OnPlayCommand(object sender, PlayRequestEventArgs args)
+        protected void OnPlayCommand(object sender, GenericEventArgs<PlayRequest> args)
         {
+            var request = args.Argument;
             // todo: support multiple ids
-            _logger.Info("Remote Play Request: Id={1}, StartPositionTicks={2}", args.Request.ItemIds[0],
-                args.Request.StartPositionTicks);
-            var resumeTime = (int)TimeSpan.FromTicks(args.Request.StartPositionTicks ?? 0).TotalSeconds;
+            _logger.Info("Remote Play Request: Id={1}, StartPositionTicks={2}", request.ItemIds[0],
+                args.Argument.StartPositionTicks);
+            var resumeTime = (int)TimeSpan.FromTicks(request.StartPositionTicks ?? 0).TotalSeconds;
 
-            GUICommon.Window(MediaBrowserWindow.Details, MediaBrowserMedia.Play(args.Request.ItemIds[0], resumeTime));
+            GUICommon.Window(MediaBrowserWindow.Details, MediaBrowserMedia.Play(request.ItemIds[0], resumeTime));
         }
 
-        protected void OnBrowseCommand(object sender, BrowseRequestEventArgs args)
+        protected void OnBrowseCommand(object sender, GenericEventArgs<BrowseRequest> args)
         {
-            _logger.Info("Remote Browse Request: Type={0}, Id={1}, Name={2}", args.Request.ItemType, args.Request.ItemId,
-                args.Request.ItemName);
+            var request = args.Argument;
+            _logger.Info("Remote Browse Request: Type={0}, Id={1}, Name={2}", request.ItemType, request.ItemId,
+                args.Argument.ItemName);
 
-            switch (args.Request.ItemType)
+            switch (request.ItemType)
             {
                 case "Movie":
-                    GUICommon.Window(MediaBrowserWindow.Details, MediaBrowserMedia.Browse(args.Request.ItemId));
+                    GUICommon.Window(MediaBrowserWindow.Details, MediaBrowserMedia.Browse(request.ItemId));
                     return;
                 default:
                     GUICommon.Window(MediaBrowserWindow.Main,
                         new MediaBrowserItem
                         {
-                            Id = args.Request.ItemId,
-                            Type = args.Request.ItemType,
-                            Name = args.Request.ItemName
+                            Id = request.ItemId,
+                            Type = request.ItemType,
+                            Name = request.ItemName
                         });
                     return;
             }

@@ -29,11 +29,5 @@
       <animation effect="fade" time="250">WindowClose</animation>
       <animation effect="fade" time="250">Visible</animation>
     </control>
-
-    
-
-    
-
-
   </controls>
 </window>
