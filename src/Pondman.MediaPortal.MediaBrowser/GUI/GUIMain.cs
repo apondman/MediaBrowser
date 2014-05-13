@@ -486,6 +486,10 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     case MediaBrowserType.View:
                         switch (item.Id)
                         {
+                            case "root-mediafolders":
+                                var rootId = GUIContext.Instance.Client.GetRootFolderAsync(GUIContext.Instance.Client.CurrentUserId).Result.Id;
+                                query = query.Recursive(false).ParentId(rootId).SortBy(ItemSortBy.SortName);
+                                break;
                             case "root-music":
                                 LoadMusicViewsAndContinue(e);
                                 return;
@@ -633,12 +637,14 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             var items = result.Items.Select(x => x.ToListItem(dto)).ToList();
             var total = result.TotalRecordCount;
             
-            if (dto.Type == MediaBrowserType.UserRootFolder)
+            if (dto.Type == MediaBrowserType.UserRootFolder && dto.Id != "root-mediafolders")
             {
-                items.Insert(0,GetViewListItem("root-movies", MediaBrowserPlugin.UI.Resource.Movies));
-                items.Insert(1,GetViewListItem("root-tvshows", MediaBrowserPlugin.UI.Resource.TVShows));
-                items.Insert(2,GetViewListItem("root-music", MediaBrowserPlugin.UI.Resource.Music));
-                total = total + 3;
+                items.Clear();
+                items.Add(GetViewListItem("root-movies", MediaBrowserPlugin.UI.Resource.Movies));
+                items.Add(GetViewListItem("root-tvshows", MediaBrowserPlugin.UI.Resource.TVShows));
+                items.Add(GetViewListItem("root-music", MediaBrowserPlugin.UI.Resource.Music));
+                items.Add(GetViewListItem("root-mediafolders", MediaBrowserPlugin.UI.Resource.MediaFolders));
+                total = items.Count;
             }
 
             LoadItems(items, args, total);
@@ -688,14 +694,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             var listitem = dto.ToListItem();
             Navigate(listitem);
-        }
-
-        protected void LoadRootViews(ItemRequestEventArgs request)
-        {
-            request.List.Add(GetViewListItem("root-movies", MediaBrowserPlugin.UI.Resource.Movies));
-            request.List.Add(GetViewListItem("root-tvshows", MediaBrowserPlugin.UI.Resource.TVShows));
-            request.List.Add(GetViewListItem("root-music", MediaBrowserPlugin.UI.Resource.Music));
-            request.TotalItems = request.List.Count;
         }
 
         /// <summary>

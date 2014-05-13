@@ -98,6 +98,7 @@
         public string UserProfileProvidePassword = "Please provide the password for this user.";
         public string UserProfileRememberMe = "Remember Me";
         public string UserProfileRememberMeText = "Should I remember your login for next time?";
+        public string MediaFolders = "Media Folders";
 
         // todo: add more translations
         
