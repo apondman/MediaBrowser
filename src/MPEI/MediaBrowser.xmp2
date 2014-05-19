@@ -321,9 +321,9 @@ Click Next to continue or Cancel to exit Setup.</Value>
     <UpdateUrl />
     <Version>
       <Major>0</Major>
-      <Minor>22</Minor>
+      <Minor>23</Minor>
       <Build>5252</Build>
-      <Revision>23717</Revision>
+      <Revision>30255</Revision>
     </Version>
     <ExtensionDescription>MediaPortal client for MediaBrowser3 server (http://www.mediabrowser3.com). </ExtensionDescription>
     <VersionDescription>+ Media Folders are now placed into a sub view.
