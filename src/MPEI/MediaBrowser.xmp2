@@ -321,15 +321,18 @@ Click Next to continue or Cancel to exit Setup.</Value>
     <UpdateUrl />
     <Version>
       <Major>0</Major>
-      <Minor>21</Minor>
-      <Build>5234</Build>
-      <Revision>2740</Revision>
+      <Minor>22</Minor>
+      <Build>5252</Build>
+      <Revision>23717</Revision>
     </Version>
     <ExtensionDescription>MediaPortal client for MediaBrowser3 server (http://www.mediabrowser3.com). </ExtensionDescription>
-    <VersionDescription>this is a special skinners release</VersionDescription>
+    <VersionDescription>+ Media Folders are now placed into a sub view.
++ added support for additional image types
++ improved smart facade handling
+* Updated to latest Media Browser components</VersionDescription>
     <DevelopmentStatus>Beta</DevelopmentStatus>
     <OnlineLocation />
-    <ReleaseDate>2014-03-21T23:40:16</ReleaseDate>
+    <ReleaseDate>2014-05-19T23:40:16</ReleaseDate>
     <Tags />
     <Location>MediaBrowser-[Version].mpe1</Location>
     <Params>
@@ -503,7 +506,7 @@ Click Next to continue or Cancel to exit Setup.</Value>
         <Param1 />
         <UpdateOption>OverwriteIfOlder</UpdateOption>
         <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\Resources\Images\mblogoicon.png</LocalFileName>
-        <ZipFileName>Installer{CopyFile}\{683ec0a5-feb8-4813-922f-0c2078d09a39}-mblogoicon.png</ZipFileName>
+        <ZipFileName>Installer{CopyFile}\{a2a77d8c-04ac-4fab-b3e6-1503a73f32bd}-mblogoicon.png</ZipFileName>
         <DestinationFilename />
       </FileItem>
     </Items>

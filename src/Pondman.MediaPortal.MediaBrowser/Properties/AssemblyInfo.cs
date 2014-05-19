@@ -36,8 +36,8 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.21.*")]
-[assembly: AssemblyInformationalVersion("0.21 Beta")]
+[assembly: AssemblyVersion("0.22.*")]
+[assembly: AssemblyInformationalVersion("0.22 Beta")]
 
 // mediaportal compatible version
 [assembly: CompatibleVersion("1.6.0.0")]
