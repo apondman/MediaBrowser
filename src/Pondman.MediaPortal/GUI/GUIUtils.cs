@@ -50,10 +50,10 @@ namespace MediaPortal.GUI.Library
         /// </summary>
         /// <param name="tag">the tag of the property</param>
         /// <returns>the value of the property</returns>
-        public static string Read(string tag)
+        public static string Read(string tag, string defaultValue = "")
         {
             string value = GUIPropertyManager.GetProperty(tag);
-            return value ?? string.Empty;
+            return value ?? defaultValue;
         }
 
         /// <summary>

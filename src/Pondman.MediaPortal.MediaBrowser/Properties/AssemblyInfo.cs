@@ -14,7 +14,7 @@ using System.Runtime.InteropServices;
 #endif
 [assembly: AssemblyCompany("Armand Pondman")]
 [assembly: AssemblyProduct("Media Browser")]
-[assembly: AssemblyCopyright("Copyright ©  2013 Armand Pondman")]
+[assembly: AssemblyCopyright("Copyright © 2014 Armand Pondman")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

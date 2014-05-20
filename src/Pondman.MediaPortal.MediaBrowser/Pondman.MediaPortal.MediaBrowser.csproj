@@ -134,6 +134,9 @@
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Resources\Skins\Generic\MediaBrowser.Properties.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\Skins\Generic\Media\Logos\mediabrowser.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+
+<!-- if you want to use the colon (:) character in a define use '_' instead -->
+
+<window>
+  
+  <!-- ListControl Formatting Rules -->
+  
+  <define property="true">#MediaBrowser.List.Default.Label:{Name}</define>
+  <define property="true">#MediaBrowser.List.Default.Label2:{ProductionYear}</define>
+  <define property="true">#MediaBrowser.List.Default.Label3:</define>
+  <define property="true">#MediaBrowser.List.Genre.Label2:{ChildCount}</define>
+  <define property="true">#MediaBrowser.List.Studio.Label2:{ChildCount}</define>
+  <define property="true">#MediaBrowser.List.BoxSet.Label2:{ChildCount}</define>
+  <define property="true">#MediaBrowser.List.Audio.Label2:{Artists[0]}</define>
+  <define property="true">#MediaBrowser.List.MusicArtist.Label2:{AlbumCount}/{SongCount}</define>
+  <define property="true">#MediaBrowser.List.Series.Label2:{RecursiveUnplayedItemCount}/{RecursiveItemCount}</define>
+  <define property="true">#MediaBrowser.List.Season.Label2:{RecursiveUnplayedItemCount}/{RecursiveItemCount}</define>
+  <define property="true">#MediaBrowser.List.View/tvshows-people.Person.Label2:{SeriesCount}</define>
+  <define property="true">#MediaBrowser.List.Person.Label2:{MovieCount}</define>
+  <define property="true">#MediaBrowser.List.View.Episode.Label:{SeriesName} - {ParentIndexNumber}x{IndexNumber} - {Name}</define>
+  <define property="true">#MediaBrowser.List.Episode.Label:{IndexNumber}_ {Name}</define>
+  <define property="true">#MediaBrowser.List.Episode.Label2:{PremiereDate_d}</define>
+  
+</window>

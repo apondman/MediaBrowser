@@ -10,6 +10,9 @@ using System.Linq;
 using System.Threading;
 using MPGui = MediaPortal.GUI.Library;
 using System.Threading.Tasks;
+using System.Reflection;
+using System.Linq.Expressions;
+using System.Net;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
 {
@@ -342,48 +345,20 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             };
             item.OnRetrieveArt += RetrieveImageData;
 
-            switch (dto.Type)
-            {
-                case "Audio":
-                    item.Label2 = dto.Artists != null ? String.Join(",", dto.Artists.ToArray()) : "Unknown";
-                    break;
-                case "Episode":
-                    if (context != null && context.Type.IsIn(MediaBrowserType.View))
-                    {
-                        item.Label = dto.SeriesName + String.Format(" - {0}x{1} - {2}", dto.ParentIndexNumber ?? 0, dto.IndexNumber ?? 0, item.Label);
-                    }
-                    else
-                    {
-                        item.Label = String.Format("{0}: {1}", dto.IndexNumber ?? 0, item.Label);
-                    }
-                    item.Label2 = dto.PremiereDate.HasValue
-                        ? dto.PremiereDate.Value.ToString(GUIUtils.Culture.DateTimeFormat.ShortDatePattern)
-                        : String.Empty;
-                    break;
-                case "Artist":
-                    item.Label2 = String.Format("{0}/{1}", (dto.AlbumCount ?? 0), (dto.SongCount ?? 0));
-                    break;
-                case "Person":
-                    if (context != null && context.Id.StartsWith("tvshows"))
-                    {
-                        item.Label2 = (dto.SeriesCount ?? 0).ToString();
-                    }
-                    else
-                    {
-                        item.Label2 = (dto.MovieCount ?? 0).ToString();
-                    }
-                    break;
-                case "Season":
-                case "BoxSet":
-                case "Studio":
-                case "Genre":
-                    item.Label2 = (dto.ChildCount ?? 0).ToString();
-                    break;
-                default:
-                    item.Label2 = dto.ProductionYear.HasValue ? dto.ProductionYear.ToString() : String.Empty;
-                    break;
-            }
+            item.Label = dto.ParseDtoProperties("Label", context);
+            item.Label2 = dto.ParseDtoProperties("Label2", context);
+            item.Label3 = dto.ParseDtoProperties("Label3", context);
+
             return item;
+
+            //
+            //switch (dto.Type)
+            //{
+            //    case MediaBrowserType.Audio:
+            //        item.Label2 = dto.Artists != null ? String.Join(",", dto.Artists.ToArray()) : "Unknown";
+            //        break;
+            //}
+            
         }
 
         internal static FacadeItemHandler CreateFacadeHandler(GUIFacadeControl facade)
@@ -392,6 +367,52 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             _itemHandlers[facade] = handler;
 
             return handler;
+        }
+
+        public static string Variable<T>(Expression<Func<T>> reference)
+        {
+            var lambda = reference as LambdaExpression;
+            var member = lambda.Body as MemberExpression;
+
+            return "{" + member.Member.Name + "}";
+        }
+
+        public static string ParseDtoProperties(this BaseItemDto dto, string variable, BaseItemDto context = null)
+        {
+            string output = string.Empty;
+            string define = "#MediaBrowser.List.";
+
+            try 
+            {
+                List<string> variables = new List<string>();
+                variables.Add(define + dto.Type + "." + variable);
+                if (context != null) 
+                {
+                    variables.Insert(0, define + context.Type + "." + dto.Type + "." + variable);
+                    variables.Insert(0, define + context.GetContext() + "." + dto.Type + "." + variable);
+                    variables.Add(define + context.Type +  ".Default." + variable);
+                }
+
+                string property = define + "Default." + variable;
+                foreach(string v in variables) 
+                {
+                    if (GUIPropertyManager.PropertyIsDefined(v)) 
+                    {
+                        property = v;
+                        break;
+                    }
+                }               
+
+                string pattern = GUIUtils.Read(property);
+                output = pattern.Replace("_",":").FormatWith(GUIUtils.Culture, dto);
+            }
+            catch(Exception e) 
+            {
+                MediaBrowserPlugin.Log.Error(e);
+                output = e.Message;
+            }
+
+            return output;
         }
 
     }

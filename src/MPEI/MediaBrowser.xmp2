@@ -163,6 +163,13 @@
               <ZipFileName>Installer{GenericSkinFile}\{501409ae-6108-4353-b116-b9c2d727f101}-MediaBrowser.Main.Views.Thumb.xml</ZipFileName>
               <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Main.Views.Thumb.xml</DestinationFilename>
             </FileItem>
+            <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
+              <Param1 />
+              <UpdateOption>AlwaysOverwrite</UpdateOption>
+              <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Generic\MediaBrowser.Properties.xml</LocalFileName>
+              <ZipFileName>Installer{GenericSkinFile}\{347207a7-8f3c-449d-9af7-1a75ebf21e40}-MediaBrowser.Properties.xml</ZipFileName>
+              <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Properties.xml</DestinationFilename>
+            </FileItem>
           </Items>
         </Files>
       </GroupItem>
@@ -322,8 +329,8 @@ Click Next to continue or Cancel to exit Setup.</Value>
     <Version>
       <Major>0</Major>
       <Minor>23</Minor>
-      <Build>5252</Build>
-      <Revision>30255</Revision>
+      <Build>5253</Build>
+      <Revision>35295</Revision>
     </Version>
     <ExtensionDescription>MediaPortal client for MediaBrowser3 server (http://www.mediabrowser3.com). </ExtensionDescription>
     <VersionDescription>+ Media Folders are now placed into a sub view.
@@ -501,6 +508,13 @@ Click Next to continue or Cancel to exit Setup.</Value>
         <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Generic\MediaBrowser.Main.Views.Thumb.xml</LocalFileName>
         <ZipFileName>Installer{GenericSkinFile}\{501409ae-6108-4353-b116-b9c2d727f101}-MediaBrowser.Main.Views.Thumb.xml</ZipFileName>
         <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Main.Views.Thumb.xml</DestinationFilename>
+      </FileItem>
+      <FileItem InstallType="GenericSkinFile" SystemFile="false" Modified="true">
+        <Param1 />
+        <UpdateOption>AlwaysOverwrite</UpdateOption>
+        <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\bin\Release\Resources\Skins\Generic\MediaBrowser.Properties.xml</LocalFileName>
+        <ZipFileName>Installer{GenericSkinFile}\{347207a7-8f3c-449d-9af7-1a75ebf21e40}-MediaBrowser.Properties.xml</ZipFileName>
+        <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Properties.xml</DestinationFilename>
       </FileItem>
       <FileItem InstallType="CopyFile" SystemFile="true" Modified="true">
         <Param1 />

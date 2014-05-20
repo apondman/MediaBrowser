@@ -6,6 +6,7 @@
   <allowoverlay>no</allowoverlay>
   <define>#header.label:</define>
   <controls>
+    <import>MediaBrowser.Properties.xml</import>
     <import>MediaBrowser.Fanart.xml</import>
 
     <control>
