@@ -35,8 +35,8 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <param name="deviceName">Name of the device.</param>
         /// <param name="deviceId">The device id.</param>
         /// <param name="version">The version.</param>
-        public MediaBrowserClient(string serverHostName, int serverApiPort, string deviceName, string deviceId, string version)
-            : base(new MediaBrowserLogger(MediaBrowserPlugin.Log), serverHostName, serverApiPort, CLIENT_NAME, deviceName, deviceId, version)
+        public MediaBrowserClient(string serverAddress, string deviceName, string deviceId, string version)
+            : base(new MediaBrowserLogger(MediaBrowserPlugin.Log), serverAddress, CLIENT_NAME, deviceName, deviceId, version)
         {
             // todo: logging
         }
@@ -56,7 +56,6 @@ namespace Pondman.MediaPortal.MediaBrowser
             set
             {
                 _currentUser = value;
-                CurrentUserId = _currentUser.Id;
             }
         } UserDto _currentUser;
 
@@ -179,10 +178,9 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <summary>
         /// Called when the current user changes.
         /// </summary>
-        protected override void OnAuthorizationInfoChanged()
+        protected void OnAuthorizationInfoChanged()
         {
-            base.OnAuthorizationInfoChanged();
-
+           //base.OnAuthorizationInfoChanged();
             if (CurrentUserChanged != null) 
             {
                 CurrentUserChanged(CurrentUser);

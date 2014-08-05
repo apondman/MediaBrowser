@@ -6,15 +6,12 @@ using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.System;
 using System.Net;
 using Pondman.MediaPortal.MediaBrowser.Events;
+using MediaBrowser.Model.ApiClient;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
     public interface IMediaBrowserService : IDisposable
     {
-        /// <summary>
-        /// Occurs when the server changes.
-        /// </summary>
-        event EventHandler<ServerChangedEventArgs> ServerChanged;
 
         /// <summary>
         /// Occurs when system information changes.
@@ -43,7 +40,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <value>
         /// The server endpoint.
         /// </value>
-        IPEndPoint Server { get; set; }
+        ServerDiscoveryInfo Server { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether the media browser server has been located.
@@ -59,7 +56,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <value>
         /// The server info.
         /// </value>
-        SystemInfo System { get; }
+        PublicSystemInfo System { get; }
 
         /// <summary>
         /// Locates the MediaBrowser server on the network.

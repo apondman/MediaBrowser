@@ -70,7 +70,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             {
                 try
                 {
-                    var result = await GUIContext.Instance.Client.GetItemsAsync(MediaBrowserQueries.RandomMovie(GUIContext.Instance.ActiveUser.Id).Watched(false));
+                    var result = await GUIContext.Instance.Client.GetItemsAsync(MediaBrowserQueries.RandomMovie(GUIContext.Instance.ActiveUser.Id).Watched(false), CancellationToken.None);
                     Window(MediaBrowserWindow.Details, MediaBrowserMedia.Browse(result.Items.First().Id));
                 }
                 catch (Exception e)
@@ -266,7 +266,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             try
             {
-                var result = await GUIContext.Instance.Client.GetItemsAsync(query);
+                var result = await GUIContext.Instance.Client.GetItemsAsync(query, CancellationToken.None);
                 facade.CycleLayout();   // pick first available layout
                 facade.ClearAll();      // clear items;
 

@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MPGui = MediaPortal.GUI.Library;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
 {
@@ -529,7 +530,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                     .Descending();
                                 break;
                             case "movies-people":
-                                LoadItems(client.GetPeopleAsync(MediaBrowserQueries.Persons.User(userId).Fields(ItemFields.Overview).Include(MediaBrowserType.Movie).Apply(_sortableQuery)), e);
+                                LoadItems(client.GetPeopleAsync(MediaBrowserQueries.Persons.User(userId).Fields(ItemFields.Overview).Include(MediaBrowserType.Movie).Apply(_sortableQuery), CancellationToken.None), e);
                                 return;
                             case "movies-all":
                                 query = query.Movies();
@@ -558,7 +559,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 break;
                             case "tvshows-nextup":
                                 LoadItems(client.GetNextUpEpisodesAsync(
-                                    MediaBrowserQueries.NextUp.User(userId).Fields(ItemFields.Overview).Limit(24)), e);
+                                    MediaBrowserQueries.NextUp.User(userId).Fields(ItemFields.Overview).Limit(24), CancellationToken.None), e);
                                 return;
                             case "tvshows-latest":
                                 query = query
@@ -579,7 +580,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 return;
                             case "tvshows-people":
                                 LoadItems(client.GetPeopleAsync(
-                                    MediaBrowserQueries.Persons.User(userId).Fields(ItemFields.Overview).Include(MediaBrowserType.Series).Apply(_sortableQuery)), e);
+                                    MediaBrowserQueries.Persons.User(userId).Fields(ItemFields.Overview).Include(MediaBrowserType.Series).Apply(_sortableQuery), CancellationToken.None), e);
                                 return;
                         }
                         break;
@@ -600,7 +601,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                         query = item.SeasonCount > 0 ? query.Season().ParentId(item.Id).SortBy(ItemSortBy.SortName) : query.ParentId(item.Id);
                         break;
                     case MediaBrowserType.Season:
-                        LoadItems(client.GetEpisodesAsync(new EpisodeQuery { IsVirtualUnaired = userSettings.DisplayUnairedEpisodes, IsMissing = !userSettings.DisplayMissingEpisodes ? false : (bool?)null, SeasonId = item.Id, SeriesId = item.SeriesId, UserId = userId, Fields = new ItemFields[] { ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams } }), e);
+                        LoadItems(client.GetEpisodesAsync(new EpisodeQuery { IsVirtualUnaired = userSettings.DisplayUnairedEpisodes, IsMissing = !userSettings.DisplayMissingEpisodes ? false : (bool?)null, SeasonId = item.Id, SeriesId = item.SeriesId, UserId = userId, Fields = new ItemFields[] { ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams } }, CancellationToken.None), e);
                         return;
                     case MediaBrowserType.Person:
                         query.Person(item.Name).SortBy(ItemSortBy.SortName);
@@ -617,7 +618,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 }
 
                 // default is item query
-                LoadItems(GUIContext.Instance.Client.GetItemsAsync(query.Apply(_sortableQuery)), e);
+                LoadItems(GUIContext.Instance.Client.GetItemsAsync(query.Apply(_sortableQuery), CancellationToken.None), e);
             }
             catch (Exception ex)
             {

@@ -58,10 +58,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
                 return Client.CurrentUser;
             }
-            set
-            {
-                Client.CurrentUser = value;
-            }
         } 
 
         public IMediaBrowserService Service

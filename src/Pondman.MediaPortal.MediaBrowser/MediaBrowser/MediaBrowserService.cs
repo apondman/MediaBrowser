@@ -21,25 +21,20 @@ namespace Pondman.MediaPortal.MediaBrowser
         
         #region Private variables
 
-        private readonly ServerLocator _locator;
         private readonly ILogger _logger;
         private readonly MediaBrowserPlugin _plugin;
         private bool _disposed;
-        private Timer _retryTimer;
 
         #endregion
 
         public MediaBrowserService(MediaBrowserPlugin plugin, ILogger logger = null)
         {
-            _locator = new ServerLocator();
             _logger = logger ?? NullLogger.Instance;
             _plugin = plugin;
             _logger.Info("MediaBrowserService initialized.");
         }
 
         #region Events
-
-        public event EventHandler<ServerChangedEventArgs> ServerChanged;
 
         public event EventHandler<SystemInfoChangedEventArgs> SystemInfoChanged;
 
@@ -56,22 +51,22 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <value>
         ///     The server endpoint.
         /// </value>
-        public IPEndPoint Server
+        public ServerDiscoveryInfo Server
         {
-            get { return _endpoint; }
+            get { return _serverInfo; }
             set
             {
-                _endpoint = value;
-                OnServerChanged(_endpoint);
+                _serverInfo = value;
+                OnServerChanged(_serverInfo);
             }
-        } IPEndPoint _endpoint;
+        } ServerDiscoveryInfo _serverInfo;
 
         public bool IsServerLocated
         {
             get { return (Server != null); }
         }
 
-        public SystemInfo System
+        public PublicSystemInfo System
         {
             get { return _systemInfo; }
             internal set
@@ -79,7 +74,7 @@ namespace Pondman.MediaPortal.MediaBrowser
                 _systemInfo = value;
                 SystemInfoChanged.FireEvent(this, new SystemInfoChangedEventArgs(_systemInfo));
             } 
-        } SystemInfo _systemInfo;
+        } PublicSystemInfo _systemInfo;
 
         public MediaBrowserClient Client
         {
@@ -91,52 +86,39 @@ namespace Pondman.MediaPortal.MediaBrowser
             }
         } MediaBrowserClient _client;
 
-        public void Discover(int retryIntervalMs = 60000)
-        {
-            if (_retryTimer != null)
-            {
-                _retryTimer.Dispose();
-            }
-
-            _retryTimer = new Timer(FindServer, null, 0, retryIntervalMs);
-        }
-
-        private async void FindServer(object state)
+        public async void Discover(int retryIntervalMs = 60000)
         {
             _logger.Info("Discovering Media Browser Server.");
-            try
+            while (true)
             {
-                var server = await _locator.FindServer(CancellationToken.None).ConfigureAwait(false);
-                OnServerDiscovered(server);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e);
+                try
+                {
+                    var server = await new ServerLocator().FindServer(CancellationToken.None);
+                    OnServerDiscovered(server);
+                    return;
+                }
+                catch (Exception e)
+                {
+                    _logger.Error(e);
+                }
             }
         }
 
         public async void StartWebSocket() 
         {
-            var info = await _client.GetSystemInfoAsync();
-            var socket = new ApiWebSocket(_client.ServerHostName, info.WebSocketPortNumber, _client.DeviceId, _client.ApplicationVersion, _client.ClientName, _client.DeviceName, ClientWebSocketFactory.CreateWebSocket);
-            
             _logger.Info("Connecting to Media Browser Server.");
-            
+            var socket = await ApiWebSocket.Create(_client, ClientWebSocketFactory.CreateWebSocket, CancellationToken.None);
+            _logger.Info("Connected to Media Browser Server.");
+
             socket.MessageCommand += OnSocketMessageCommand;
             socket.PlayCommand += OnPlayCommand;
             socket.BrowseCommand += OnBrowseCommand;
             socket.LibraryChanged += OnLibraryChanged;  
-            
-            socket.Connected += OnSocketConnected;
             socket.Closed += OnSocketDisconnected;
-
-
-            _client.WebSocketConnection = socket;
-            System = info;
-
 
             await socket.EnsureConnectionAsync(CancellationToken.None);
             _client.WebSocketConnection.StartEnsureConnectionTimer(10000);
+            Update();
         }
 
         void OnLibraryChanged(object sender, GenericEventArgs<LibraryUpdateInfo> e)
@@ -151,7 +133,7 @@ namespace Pondman.MediaPortal.MediaBrowser
 
             try
             {
-                System = await Client.GetSystemInfoAsync();
+                System = await Client.GetPublicSystemInfoAsync(CancellationToken.None);
             }
             catch (Exception e)
             {
@@ -161,11 +143,6 @@ namespace Pondman.MediaPortal.MediaBrowser
 
         #region internal event handlers
 
-        void OnSocketConnected(object sender, EventArgs e)
-        {
-            _logger.Info("Connected to Media Browser Server.");
-            _client.WebSocketConnection.StartEnsureConnectionTimer(10000);
-        }
 
         void OnSocketDisconnected(object sender, EventArgs e)
         {
@@ -177,29 +154,23 @@ namespace Pondman.MediaPortal.MediaBrowser
             _logger.Debug("Message: {0}", e.Argument.Text);
         }
 
-        protected void OnServerDiscovered(IPEndPoint endpoint)
+        protected void OnServerDiscovered(ServerDiscoveryInfo info)
         {
-            if (_retryTimer == null) return;
-
-            _retryTimer.Dispose();
-            _retryTimer = null;
-
-            _logger.Info("Found MediaBrowser Server: {0}", endpoint);
-            Server = endpoint;
+            _logger.Info("Found MediaBrowser Server: {0}", info.Address);
+            Server = info;
         }
 
-        protected void OnServerChanged(IPEndPoint endpoint)
+        protected void OnServerChanged(ServerDiscoveryInfo info)
         {
             _logger.Debug("Creating Media Browser client.");
             var client = new MediaBrowserClient(
-                            endpoint.Address.ToString(),
-                            endpoint.Port,
+                            info.Address,
                             Environment.MachineName + " (" + Environment.OSVersion.VersionString + ")", // todo: add MediaPortal version instead of OS
                             Environment.MachineName,
                             Plugin.Version.ToString()
                             );
             Client = client;
-            ServerChanged.FireEvent(this, new ServerChangedEventArgs(endpoint));
+            //ServerChanged.FireEvent(this, new ServerChangedEventArgs(endpoint));
         }
 
         // todo: move command handlers to GUI code
@@ -254,9 +225,6 @@ namespace Pondman.MediaPortal.MediaBrowser
 
             if (disposing)
             {
-                if (_retryTimer != null)
-                    _retryTimer.Dispose();
-
                 if (Client != null && Client.WebSocketConnection != null)
                 {
                     Client.WebSocketConnection.StopEnsureConnectionTimer();

@@ -5,9 +5,9 @@ namespace Pondman.MediaPortal.MediaBrowser.Events
 {
     public class SystemInfoChangedEventArgs : EventArgs
     {
-        private readonly SystemInfo _systemInfo;
+        private readonly PublicSystemInfo _systemInfo;
 
-        public SystemInfoChangedEventArgs(SystemInfo info)
+        public SystemInfoChangedEventArgs(PublicSystemInfo info)
         {
             _systemInfo = info;
         }
@@ -18,7 +18,7 @@ namespace Pondman.MediaPortal.MediaBrowser.Events
         /// <value>
         /// The system information.
         /// </value>
-        public SystemInfo SystemInfo
+        public PublicSystemInfo SystemInfo
         {
             get
             {
