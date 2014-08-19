@@ -30,8 +30,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         {
             query.HasParentalRating = value;
             return query;
-        }        
-
+        } 
         
         /// <summary>
         /// Returns a randomized item query
@@ -111,7 +110,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// </summary>
         /// <param name="query">The query.</param>
         /// <returns></returns>
-        public static ItemQuery BoxSets(this ItemQuery query)
+        public static ItemQuery Collections(this ItemQuery query)
         {
             return query.IncludeItemTypes("BoxSet");
         }

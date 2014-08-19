@@ -1,4 +1,5 @@
 ﻿using MediaBrowser.Model.Dto;
+using MediaBrowser.Model.MediaInfo;
 using MediaBrowser.Model.Session;
 using MediaPortal.GUI.Library;
 using Pondman.MediaPortal.MediaBrowser.Models;
@@ -126,7 +127,19 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             {
                 info.Thumb = control.Resource.Filename;
             }
-            _movie.MediaSources.ToList().ForEach(x => info.MediaFiles.Add(x.Path));
+
+            var sources = _movie.MediaSources.ToList();
+            foreach(var source in sources) 
+            {
+                var path = source.Path;
+
+                if (String.IsNullOrWhiteSpace(path))
+                {
+                    path = GUIContext.Instance.Client.GetHlsVideoStreamUrl(new VideoStreamOptions { ItemId = source.Id });
+                }
+
+                info.MediaFiles.Add(path);
+            }
 
             GUITask.MainThreadCallback(() => _player.Play(info));
         }
@@ -156,12 +169,16 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             await GUIContext.Instance.Client.ReportPlaybackStoppedAsync(new PlaybackStopInfo { ItemId = _movie.Id, PositionTicks = TimeSpan.FromSeconds(progress).Ticks, MediaSourceId = _movie.MediaSources[media.MediaFileIndex].Id });
             Log.Debug("Reporting playback stopped to MediaBrowser.");
+
+            await GUIContext.Instance.Client.StopTranscodingProcesses(GUIContext.Instance.Client.DeviceId);
         }
 
         protected async void OnPlaybackEnded(MediaPlayerInfo media)
         {
             await GUIContext.Instance.Client.ReportPlaybackStoppedAsync(new PlaybackStopInfo { ItemId = _movie.Id, PositionTicks = _movie.MediaSources[media.MediaFileIndex].RunTimeTicks, MediaSourceId = _movie.MediaSources[media.MediaFileIndex].Id });
             Log.Debug("Reporting playback stopped to MediaBrowser.");
+
+            await GUIContext.Instance.Client.StopTranscodingProcesses(GUIContext.Instance.Client.DeviceId);
         }
 
     }

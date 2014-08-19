@@ -15,9 +15,9 @@
         public string Artist = "Artist";
         public string Artists = "Artists";
 
-        public string Collections = "Collections";
-
+        public string Channels = "Channels";
         public string Client = "Client";
+        public string Collections = "Collections";        
         public string CycleLayout = "Cycle Layout";
         public string ChangeUser = "Change User";
 

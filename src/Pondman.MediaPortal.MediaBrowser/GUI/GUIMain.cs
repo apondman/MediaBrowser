@@ -12,6 +12,7 @@ using System.Linq;
 using MPGui = MediaPortal.GUI.Library;
 using System.Threading.Tasks;
 using System.Threading;
+using MediaBrowser.Model.Channels;
 
 namespace Pondman.MediaPortal.MediaBrowser.GUI
 {
@@ -479,6 +480,12 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                         var hints = client.GetSearchHintsAsync(new SearchQuery { UserId = userId, SearchTerm = item.Id });
                         LoadItems(hints.Result, e);
                         return;
+                    case MediaBrowserType.Channel:
+                        LoadItems(client.GetChannelItems(new ChannelItemQuery { UserId = userId, ChannelId = item.Id }), e);
+                        return;
+                    case MediaBrowserType.ChannelFolderItem:
+                        LoadItems(client.GetChannelItems(new ChannelItemQuery { UserId = userId, ChannelId = item.ChannelId, FolderId = item.Id }), e);
+                        return;
                     case MediaBrowserType.UserRootFolder:
                     case MediaBrowserType.CollectionFolder:
                     case MediaBrowserType.Folder:
@@ -487,6 +494,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     case MediaBrowserType.View:
                         switch (item.Id)
                         {
+                            case "root-channels":
+                                LoadItems(client.GetChannels(new ChannelQuery { UserId = userId }), e);
+                                return;
                             case "root-mediafolders":
                                 var rootId = GUIContext.Instance.Client.GetRootFolderAsync(GUIContext.Instance.Client.CurrentUserId).Result.Id;
                                 query = query.Recursive(false).ParentId(rootId).SortBy(ItemSortBy.SortName);
@@ -500,15 +510,15 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                             case "root-tvshows":
                                 LoadTvShowsViewsAndContinue(e);
                                 return;
+                            case "root-collections":
+                                query = query.Collections();
+                                break;
                             case "movies-genres":
                                 LoadItems(client.GetGenresAsync(MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Movie).Apply(_sortableQuery)), e);
                                 return;
                             case "movies-studios":
                                 LoadItems(client.GetStudiosAsync(MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Movie).Apply(_sortableQuery)), e);
-                                return;
-                            case "movies-boxset":
-                                query = query.BoxSets();
-                                break;
+                                return;                           
                             case "movies-unwatched":
                                 query = query
                                     .Movies()
@@ -626,6 +636,16 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
         }
 
+        private void LoadItems(Task<QueryResult<BaseItemDto>> task, ItemRequestEventArgs args)
+        {
+            var result = task.Result;
+
+            var items = result.Items.Select(x => x.ToListItem()).ToList();
+            var total = result.TotalRecordCount;
+
+            LoadItems(items, args, total);
+        }
+
         private void LoadItems(Task<ItemsResult> task, ItemRequestEventArgs args)
         {
             LoadItems(task.Result, args);
@@ -641,9 +661,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             if (dto.Type == MediaBrowserType.UserRootFolder && dto.Id != "root-mediafolders")
             {
                 items.Clear();
+                items.Add(GetViewListItem("root-collections", MediaBrowserPlugin.UI.Resource.Collections));
                 items.Add(GetViewListItem("root-movies", MediaBrowserPlugin.UI.Resource.Movies));
                 items.Add(GetViewListItem("root-tvshows", MediaBrowserPlugin.UI.Resource.TVShows));
                 items.Add(GetViewListItem("root-music", MediaBrowserPlugin.UI.Resource.Music));
+                items.Add(GetViewListItem("root-channels", MediaBrowserPlugin.UI.Resource.Channels));
                 items.Add(GetViewListItem("root-mediafolders", MediaBrowserPlugin.UI.Resource.MediaFolders));
                 total = items.Count;
             }
@@ -676,7 +698,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 return;
 
             var dto = item.TVTag as BaseItemDto;
-            if (dto.Type.IsIn(MediaBrowserType.Movie, MediaBrowserType.Episode, MediaBrowserType.Audio))
+            if (dto.Type.IsIn(MediaBrowserType.Movie, MediaBrowserType.Episode, MediaBrowserType.Audio, MediaBrowserType.ChannelVideoItem))
             {
                 ShowDetails(item);
             }

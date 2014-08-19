@@ -93,8 +93,13 @@ namespace Pondman.MediaPortal.MediaBrowser
             {
                 try
                 {
-                    var server = await new ServerLocator().FindServer(CancellationToken.None);
-                    OnServerDiscovered(server);
+                    var servers = await new ServerLocator().FindServers(CancellationToken.None);
+                    foreach (var server in servers)
+                    {
+                        // todo: allow server selection
+                        OnServerDiscovered(server);
+                    }
+
                     return;
                 }
                 catch (Exception e)
