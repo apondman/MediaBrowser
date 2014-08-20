@@ -83,7 +83,7 @@
       <texture>#MediaBrowser.Image.Default</texture>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
-      <visible>string.starts(#MediaBrowser.Selected.PrimaryImageAspectRatio.Localized,0)</visible>
+      <visible>facadeview.list+string.starts(#MediaBrowser.Selected.PrimaryImageAspectRatio.Localized,0)</visible>
     </control>
 
     <control>
@@ -97,7 +97,7 @@
       <texture>#MediaBrowser.Image.Default</texture>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
-      <visible>string.starts(#MediaBrowser.Selected.PrimaryImageAspectRatio.Localized,1)</visible>
+      <visible>facadeview.list+string.starts(#MediaBrowser.Selected.PrimaryImageAspectRatio.Localized,1)</visible>
     </control>   
 
     <control Style="textBox">

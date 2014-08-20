@@ -328,14 +328,13 @@ Click Next to continue or Cancel to exit Setup.</Value>
     <UpdateUrl />
     <Version>
       <Major>0</Major>
-      <Minor>23</Minor>
-      <Build>5253</Build>
-      <Revision>35295</Revision>
+      <Minor>30</Minor>
+      <Build>5345</Build>
+      <Revision>3597</Revision>
     </Version>
     <ExtensionDescription>MediaPortal client for MediaBrowser3 server (http://www.mediabrowser3.com). </ExtensionDescription>
-    <VersionDescription>+ Media Folders are now placed into a sub view.
-+ added support for additional image types
-+ improved smart facade handling
+    <VersionDescription>+ Collections is now a root view
++ Added Channel support
 * Updated to latest Media Browser components</VersionDescription>
     <DevelopmentStatus>Beta</DevelopmentStatus>
     <OnlineLocation />
@@ -520,7 +519,7 @@ Click Next to continue or Cancel to exit Setup.</Value>
         <Param1 />
         <UpdateOption>OverwriteIfOlder</UpdateOption>
         <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\Resources\Images\mblogoicon.png</LocalFileName>
-        <ZipFileName>Installer{CopyFile}\{a2a77d8c-04ac-4fab-b3e6-1503a73f32bd}-mblogoicon.png</ZipFileName>
+        <ZipFileName>Installer{CopyFile}\{9dbc3f93-40e2-4ab0-97fb-ee003a0c45ec}-mblogoicon.png</ZipFileName>
         <DestinationFilename />
       </FileItem>
     </Items>
