@@ -10,7 +10,7 @@
       <id>0</id>
       <posX>510</posX>
       <posY>1015</posY>
-      <label>#MediaBrowser.Selected.Name</label>
+      <label>#MediaBrowser.Selected.Name</label>     
       <visible>control.isvisible(50)</visible>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
@@ -81,24 +81,24 @@
       <width>379</width>
       <height>563</height>
       <texture>#MediaBrowser.Image.Default</texture>
-      <visible>facadeview.list+!string.equals(#MediaBrowser.Selected.Type,Episode)</visible>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
+      <visible>string.starts(#MediaBrowser.Selected.PrimaryImageAspectRatio.Localized,0)</visible>
     </control>
 
     <control>
-      <description>MediaBrowser.Image.Episode</description>
-      <id>61</id>
+      <description>MediaBrowser.Image.Default</description>
       <type>image</type>
+      <id>61</id>
       <posX>123</posX>
       <posY>360</posY>
       <width>382</width>
       <height>215</height>
-      <texture>#MediaBrowser.Image.Episode</texture>
-      <visible>facadeview.list+string.equals(#MediaBrowser.Selected.Type,Episode)</visible>
+      <texture>#MediaBrowser.Image.Default</texture>
       <animation effect="fade" time="250">WindowOpen</animation>
       <animation effect="fade" time="250">WindowClose</animation>
-    </control>
+      <visible>string.starts(#MediaBrowser.Selected.PrimaryImageAspectRatio.Localized,1)</visible>
+    </control>   
 
     <control Style="textBox">
       <description>Summary (list)</description>

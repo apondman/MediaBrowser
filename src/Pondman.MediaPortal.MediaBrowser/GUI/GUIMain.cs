@@ -451,7 +451,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             var query = MediaBrowserQueries.Item
                             .UserId(userId)
                             .Recursive()
-                            .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams);
+                            .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams, ItemFields.PrimaryImageAspectRatio);
 
             // Enforce user configuration
             if (!userSettings.DisplayMissingEpisodes)
@@ -498,7 +498,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 LoadItems(client.GetChannels(new ChannelQuery { UserId = userId }), e);
                                 return;
                             case "root-mediafolders":
-                                var rootId = GUIContext.Instance.Client.GetRootFolderAsync(GUIContext.Instance.Client.CurrentUserId).Result.Id;
+                                var rootId = client.GetRootFolderAsync(client.CurrentUserId).Result.Id;
                                 query = query.Recursive(false).ParentId(rootId).SortBy(ItemSortBy.SortName);
                                 break;
                             case "root-music":
@@ -540,7 +540,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                     .Descending();
                                 break;
                             case "movies-people":
-                                LoadItems(client.GetPeopleAsync(MediaBrowserQueries.Persons.User(userId).Fields(ItemFields.Overview).Include(MediaBrowserType.Movie).Apply(_sortableQuery), CancellationToken.None), e);
+                                LoadItems(client.GetPeopleAsync(MediaBrowserQueries.Persons.User(userId).Fields(ItemFields.Overview, ItemFields.PrimaryImageAspectRatio).Include(MediaBrowserType.Movie).Apply(_sortableQuery), CancellationToken.None), e);
                                 return;
                             case "movies-all":
                                 query = query.Movies();
@@ -569,7 +569,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 break;
                             case "tvshows-nextup":
                                 LoadItems(client.GetNextUpEpisodesAsync(
-                                    MediaBrowserQueries.NextUp.User(userId).Fields(ItemFields.Overview).Limit(24), CancellationToken.None), e);
+                                    MediaBrowserQueries.NextUp.User(userId).Fields(ItemFields.Overview, ItemFields.PrimaryImageAspectRatio).Limit(24), CancellationToken.None), e);
                                 return;
                             case "tvshows-latest":
                                 query = query
@@ -590,7 +590,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 return;
                             case "tvshows-people":
                                 LoadItems(client.GetPeopleAsync(
-                                    MediaBrowserQueries.Persons.User(userId).Fields(ItemFields.Overview).Include(MediaBrowserType.Series).Apply(_sortableQuery), CancellationToken.None), e);
+                                    MediaBrowserQueries.Persons.User(userId).Fields(ItemFields.Overview, ItemFields.PrimaryImageAspectRatio).Include(MediaBrowserType.Series).Apply(_sortableQuery), CancellationToken.None), e);
                                 return;
                         }
                         break;
@@ -611,7 +611,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                         query = item.SeasonCount > 0 ? query.Season().ParentId(item.Id).SortBy(ItemSortBy.SortName) : query.ParentId(item.Id);
                         break;
                     case MediaBrowserType.Season:
-                        LoadItems(client.GetEpisodesAsync(new EpisodeQuery { IsVirtualUnaired = userSettings.DisplayUnairedEpisodes, IsMissing = !userSettings.DisplayMissingEpisodes ? false : (bool?)null, SeasonId = item.Id, SeriesId = item.SeriesId, UserId = userId, Fields = new ItemFields[] { ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams } }, CancellationToken.None), e);
+                        LoadItems(client.GetEpisodesAsync(new EpisodeQuery { IsVirtualUnaired = userSettings.DisplayUnairedEpisodes, IsMissing = !userSettings.DisplayMissingEpisodes ? false : (bool?)null, SeasonId = item.Id, SeriesId = item.SeriesId, UserId = userId, Fields = new ItemFields[] { ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams, ItemFields.PrimaryImageAspectRatio } }, CancellationToken.None), e);
                         return;
                     case MediaBrowserType.Person:
                         query.Person(item.Name).SortBy(ItemSortBy.SortName);
@@ -628,7 +628,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 }
 
                 // default is item query
-                LoadItems(GUIContext.Instance.Client.GetItemsAsync(query.Apply(_sortableQuery), CancellationToken.None), e);
+                LoadItems(client.GetItemsAsync(query.Apply(_sortableQuery), CancellationToken.None), e);
             }
             catch (Exception ex)
             {
