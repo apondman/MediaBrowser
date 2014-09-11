@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Pondman.MediaPortal.MediaBrowser
+﻿namespace Pondman.MediaPortal.MediaBrowser
 {
     public static class MediaBrowserType
     {
@@ -26,6 +21,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         public const string Studio = "Studio";
         public const string UserRootFolder = "UserRootFolder";
         public const string Video = "Video";
-        public const string View = "View"; // custom
+        public const string View = "View"; // todo: remove later
+        public const string UserView = "UserView";
     }
 }

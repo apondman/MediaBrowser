@@ -451,7 +451,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             var query = MediaBrowserQueries.Item
                             .UserId(userId)
                             .Recursive()
-                            .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams, ItemFields.PrimaryImageAspectRatio);
+                            .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaSources, ItemFields.PrimaryImageAspectRatio);
 
             // Enforce user configuration
             if (!userSettings.DisplayMissingEpisodes)
@@ -487,8 +487,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                         LoadItems(client.GetChannelItems(new ChannelItemQuery { UserId = userId, ChannelId = item.ChannelId, FolderId = item.Id }), e);
                         return;
                     case MediaBrowserType.UserRootFolder:
-                    case MediaBrowserType.CollectionFolder:
+                        LoadItems(client.GetUserViews(userId), e);
+                        return;
                     case MediaBrowserType.Folder:
+                    case MediaBrowserType.CollectionFolder:
+                    case MediaBrowserType.UserView:
                         query = query.Recursive(false).ParentId(item.Id).SortBy(ItemSortBy.SortName);
                         break;
                     case MediaBrowserType.View:
@@ -519,42 +522,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                             case "movies-studios":
                                 LoadItems(client.GetStudiosAsync(MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Movie).Apply(_sortableQuery)), e);
                                 return;                           
-                            case "movies-unwatched":
-                                query = query
-                                    .Movies()
-                                    .SortBy(ItemSortBy.DateCreated, ItemSortBy.SortName)
-                                    .Filters(ItemFilter.IsUnplayed)
-                                    .Descending();
-                                break;
-                            case "movies-latest":
-                                query = query
-                                    .Movies()
-                                    .SortBy(ItemSortBy.DateCreated, ItemSortBy.SortName)
-                                    .Descending();
-                                break;
-                            case "movies-resume":
-                                query = query
-                                    .Movies()
-                                    .SortBy(ItemSortBy.DatePlayed, ItemSortBy.SortName)
-                                    .Filters(ItemFilter.IsResumable)
-                                    .Descending();
-                                break;
                             case "movies-people":
                                 LoadItems(client.GetPeopleAsync(MediaBrowserQueries.Persons.User(userId).Fields(ItemFields.Overview, ItemFields.PrimaryImageAspectRatio).Include(MediaBrowserType.Movie).Apply(_sortableQuery), CancellationToken.None), e);
                                 return;
-                            case "movies-all":
-                                query = query.Movies();
-                                break;
-                            case "music-songs":
-                                query = query
-                                    .Audio()
-                                    .SortBy(ItemSortBy.Album, ItemSortBy.SortName);
-                                break;
-                            case "music-albums":
-                                query = query
-                                    .MusicAlbum()
-                                    .SortBy(ItemSortBy.AlbumArtist, ItemSortBy.SortName);
-                                break;
                             case "music-artists":
                                 LoadItems(client.GetItemsByNameAsync("Artists",
                                     MediaBrowserQueries.Named.User(userId).Apply(_sortableQuery)), e);
@@ -563,27 +533,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 LoadItems(client.GetStudiosAsync(
                                     MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Series).Apply(_sortableQuery)), e);
                                 return;
-                            case "tvshows-all":
-                                query = query
-                                    .Series();
-                                break;
-                            case "tvshows-nextup":
-                                LoadItems(client.GetNextUpEpisodesAsync(
-                                    MediaBrowserQueries.NextUp.User(userId).Fields(ItemFields.Overview, ItemFields.PrimaryImageAspectRatio).Limit(24), CancellationToken.None), e);
-                                return;
-                            case "tvshows-latest":
-                                query = query
-                                    .Episode()
-                                    .SortBy(ItemSortBy.DateCreated, ItemSortBy.SortName)
-                                    .Descending();
-                                break;
-                            case "tvshows-unwatched":
-                                query = query
-                                    .Episode()
-                                    .SortBy(ItemSortBy.DateCreated, ItemSortBy.SortName)
-                                    .Filters(ItemFilter.IsUnplayed)
-                                    .Descending();
-                                break;
                             case "tvshows-genres":
                                 LoadItems(client.GetGenresAsync(
                                     MediaBrowserQueries.Named.User(userId).Include(MediaBrowserType.Series).Apply(_sortableQuery)), e);
@@ -658,17 +607,18 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             var items = result.Items.Select(x => x.ToListItem(dto)).ToList();
             var total = result.TotalRecordCount;
             
+            /*
             if (dto.Type == MediaBrowserType.UserRootFolder && dto.Id != "root-mediafolders")
             {
-                items.Clear();
-                items.Add(GetViewListItem("root-collections", MediaBrowserPlugin.UI.Resource.Collections));
-                items.Add(GetViewListItem("root-movies", MediaBrowserPlugin.UI.Resource.Movies));
-                items.Add(GetViewListItem("root-tvshows", MediaBrowserPlugin.UI.Resource.TVShows));
-                items.Add(GetViewListItem("root-music", MediaBrowserPlugin.UI.Resource.Music));
-                items.Add(GetViewListItem("root-channels", MediaBrowserPlugin.UI.Resource.Channels));
-                items.Add(GetViewListItem("root-mediafolders", MediaBrowserPlugin.UI.Resource.MediaFolders));
+                //items.Clear();
+                //items.Add(GetViewListItem("root-collections", MediaBrowserPlugin.UI.Resource.Collections));
+                //items.Add(GetViewListItem("root-movies", MediaBrowserPlugin.UI.Resource.Movies));
+                //items.Add(GetViewListItem("root-tvshows", MediaBrowserPlugin.UI.Resource.TVShows));
+                //items.Add(GetViewListItem("root-music", MediaBrowserPlugin.UI.Resource.Music));
+                //items.Add(GetViewListItem("root-channels", MediaBrowserPlugin.UI.Resource.Channels));
+                //items.Add(GetViewListItem("root-mediafolders", MediaBrowserPlugin.UI.Resource.MediaFolders));
                 total = items.Count;
-            }
+            }*/
 
             LoadItems(items, args, total);
         }

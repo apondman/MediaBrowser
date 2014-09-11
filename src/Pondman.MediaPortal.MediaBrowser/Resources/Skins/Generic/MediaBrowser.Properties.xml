@@ -9,6 +9,7 @@
   <define property="true">#MediaBrowser.List.Default.Label:{Name}</define>
   <define property="true">#MediaBrowser.List.Default.Label2:{ProductionYear}</define>
   <define property="true">#MediaBrowser.List.Default.Label3:</define>
+  <define property="true">#MediaBrowser.List.UserView.Label2:{ChildCount}</define>
   <define property="true">#MediaBrowser.List.Genre.Label2:{ChildCount}</define>
   <define property="true">#MediaBrowser.List.Studio.Label2:{ChildCount}</define>
   <define property="true">#MediaBrowser.List.BoxSet.Label2:{ChildCount}</define>

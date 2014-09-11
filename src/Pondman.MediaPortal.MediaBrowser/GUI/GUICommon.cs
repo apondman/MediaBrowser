@@ -108,8 +108,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <returns></returns>
         public static string GetContext(this BaseItemDto dto)
         {
-            // todo: this will have to change
-            return dto.Type == "View" ? dto.Type + "/" + dto.Id : dto.Type;
+            return dto.Type + "/" + dto.CollectionType; // +"/" + dto.Id;
         }
 
         /// <summary>
@@ -349,16 +348,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             item.Label2 = dto.ParseDtoProperties("Label2", context);
             item.Label3 = dto.ParseDtoProperties("Label3", context);
 
-            return item;
-
-            //
-            //switch (dto.Type)
-            //{
-            //    case MediaBrowserType.Audio:
-            //        item.Label2 = dto.Artists != null ? String.Join(",", dto.Artists.ToArray()) : "Unknown";
-            //        break;
-            //}
-            
+            return item;           
         }
 
         internal static FacadeItemHandler CreateFacadeHandler(GUIFacadeControl facade)
