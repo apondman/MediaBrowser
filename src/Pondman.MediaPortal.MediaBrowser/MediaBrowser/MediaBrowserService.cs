@@ -82,7 +82,6 @@ namespace Pondman.MediaPortal.MediaBrowser
             internal set
             {
                 _client = value;
-                StartWebSocket();
             }
         } MediaBrowserClient _client;
 
@@ -109,6 +108,7 @@ namespace Pondman.MediaPortal.MediaBrowser
             }
         }
 
+        /*
         public async void StartWebSocket() 
         {
             _logger.Info("Connecting to Media Browser Server.");
@@ -124,7 +124,7 @@ namespace Pondman.MediaPortal.MediaBrowser
             await socket.EnsureConnectionAsync(CancellationToken.None);
             _client.WebSocketConnection.StartEnsureConnectionTimer(10000);
             Update();
-        }
+        }*/
 
         void OnLibraryChanged(object sender, GenericEventArgs<LibraryUpdateInfo> e)
         {
@@ -174,6 +174,18 @@ namespace Pondman.MediaPortal.MediaBrowser
                             Environment.MachineName,
                             Plugin.Version.ToString()
                             );
+
+            // setup event handlers
+            client.MessageCommand += OnSocketMessageCommand;
+            client.PlayCommand += OnPlayCommand;
+            client.BrowseCommand += OnBrowseCommand;
+            client.LibraryChanged += OnLibraryChanged;
+
+            if (Client != null)
+            {
+                Client.Dispose();
+            }
+
             Client = client;
             //ServerChanged.FireEvent(this, new ServerChangedEventArgs(endpoint));
         }
@@ -230,11 +242,9 @@ namespace Pondman.MediaPortal.MediaBrowser
 
             if (disposing)
             {
-                if (Client != null && Client.WebSocketConnection != null)
+                if (Client != null )
                 {
-                    Client.WebSocketConnection.StopEnsureConnectionTimer();
-                    Client.WebSocketConnection.StopReceivingSessionUpdates();
-                    Client.WebSocketConnection.Dispose();
+                    Client.Dispose();
                 }
 
                 _logger.Info("MediaBrowserService shutdown.");

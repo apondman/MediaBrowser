@@ -91,7 +91,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         public async void Update(string itemType, string itemId, string itemName, string context = "")
         {
-            if (Client != null && Client.WebSocketConnection != null)
+            if (Client != null )
             {
                 if (itemType == "View")
                 {
@@ -101,7 +101,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
                 try
                 {
-                    await Client.WebSocketConnection.SendContextMessageAsync(itemType, itemId, itemName, context, CancellationToken.None);
+                    await Client.SendContextMessageAsync(itemType, itemId, itemName, context, CancellationToken.None);
                 }
                 catch (Exception e)
                 {

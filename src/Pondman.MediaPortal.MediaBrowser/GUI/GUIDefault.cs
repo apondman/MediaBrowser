@@ -360,44 +360,53 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
 
             // authenticate user with the gathered data with the media browser server
-            var auth = await GUIContext.Instance.Client.AuthenticateUserAsync(user.Name, password);
-            if (auth.User != null) 
-            { 
-                // if the user has a password but the remember me value has not been checked.
-                if (user.HasPassword && !profile.RememberMe.HasValue)
+
+            try
+            {
+                var auth = await GUIContext.Instance.Client.AuthenticateUserAsync(user.Name, password);
+
+                if (auth.User != null)
                 {
-                    // ask user to remember the login
-                    if (GUIUtils.ShowYesNoDialog(T.UserProfileRememberMe, T.UserProfileRememberMeText, true))
+                    // if the user has a password but the remember me value has not been checked.
+                    if (user.HasPassword && !profile.RememberMe.HasValue)
                     {
-                        // store the encrypted password
-                        var encrypted = DataProtection.Encrypt(password);
-                        profile.RememberAuth(encrypted);
+                        // ask user to remember the login
+                        if (GUIUtils.ShowYesNoDialog(T.UserProfileRememberMe, T.UserProfileRememberMeText, true))
+                        {
+                            // store the encrypted password
+                            var encrypted = DataProtection.Encrypt(password);
+                            profile.RememberAuth(encrypted);
+                        }
                     }
-                }
 
-                if (!global.UseDefaultUser.HasValue)
-                {
-                    // if we don't have a default user set, ask the user if he wants to set this profile up as the default
-                    if (GUIUtils.ShowYesNoDialog(T.UserProfileDefault, T.UserProfileDefaultText, true))
+                    if (!global.UseDefaultUser.HasValue)
                     {
-                        global.SetDefaultUser(user.Id);
+                        // if we don't have a default user set, ask the user if he wants to set this profile up as the default
+                        if (GUIUtils.ShowYesNoDialog(T.UserProfileDefault, T.UserProfileDefaultText, true))
+                        {
+                            global.SetDefaultUser(user.Id);
+                        }
                     }
-                }
 
-                // update the user context, reset views and continue
-                GUIContext.Instance.Client.CurrentUser = user;
+                    // update the user context, reset views and continue
+                    GUIContext.Instance.Client.CurrentUser = user;
 
-                if (user.HasPrimaryImage)
-                {
-                    var avatars = GetSmartImageControlsByType("User");
-                    foreach(var avatar in avatars) 
+                    if (user.HasPrimaryImage)
                     {
-                        avatar.Resource.Filename = await GUIContext.Instance.Client.GetLocalUserImageUrl(user, new ImageOptions { Width = avatar.Width, Height = avatar.Height, ImageType = avatar.ImageType });
+                        var avatars = GetSmartImageControlsByType("User");
+                        foreach (var avatar in avatars)
+                        {
+                            avatar.Resource.Filename = await GUIContext.Instance.Client.GetLocalUserImageUrl(user, new ImageOptions { Width = avatar.Width, Height = avatar.Height, ImageType = avatar.ImageType });
+                        }
                     }
-                }
 
-                Reset();
-                return;
+                    Reset();
+                    return;
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error(e);
             }
 
             // show to the user that the login failed.

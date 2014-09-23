@@ -3,6 +3,7 @@ using MediaBrowser.ApiInteraction.WebSocket;
 using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Querying;
+using MediaBrowser.Model.Session;
 using MediaBrowser.Model.Users;
 using MediaPortal.GUI.Library;
 using System;
@@ -36,9 +37,9 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <param name="deviceId">The device id.</param>
         /// <param name="version">The version.</param>
         public MediaBrowserClient(string serverAddress, string deviceName, string deviceId, string version)
-            : base(new MediaBrowserLogger(MediaBrowserPlugin.Log), serverAddress, CLIENT_NAME, deviceName, deviceId, version)
+            : base(new MediaBrowserLogger(MediaBrowserPlugin.Log), serverAddress, CLIENT_NAME, deviceName, deviceId, version, new ClientCapabilities { })
         {
-            // todo: logging
+            
         }
 
         /// <summary>
@@ -216,6 +217,7 @@ namespace Pondman.MediaPortal.MediaBrowser
             using (SHA1 provider = SHA1.Create())
             {
                 byte[] hash = provider.ComputeHash(Encoding.UTF8.GetBytes(password ?? string.Empty));
+                
                 return await AuthenticateUserAsync(username, hash);
             }
         }
