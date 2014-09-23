@@ -7,6 +7,7 @@ using MediaBrowser.Model.Session;
 using MediaBrowser.Model.Users;
 using MediaPortal.GUI.Library;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Security.Cryptography;
@@ -37,9 +38,23 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <param name="deviceId">The device id.</param>
         /// <param name="version">The version.</param>
         public MediaBrowserClient(string serverAddress, string deviceName, string deviceId, string version)
-            : base(new MediaBrowserLogger(MediaBrowserPlugin.Log), serverAddress, CLIENT_NAME, deviceName, deviceId, version, new ClientCapabilities { })
+            : base(new MediaBrowserLogger(MediaBrowserPlugin.Log), serverAddress, CLIENT_NAME, deviceName, deviceId, version, new ClientCapabilities
+            {
+
+                PlayableMediaTypes = new List<string>
+                {
+                    MediaType.Audio,
+                    MediaType.Video,
+                    MediaType.Game,
+                    MediaType.Photo,
+                    MediaType.Book
+                },
+
+                SupportedCommands = new List<String>(Enum.GetNames(typeof(GeneralCommandType)))
+
+            })
         {
-            
+
         }
 
         /// <summary>

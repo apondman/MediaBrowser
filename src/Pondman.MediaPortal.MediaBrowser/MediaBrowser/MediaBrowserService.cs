@@ -82,6 +82,7 @@ namespace Pondman.MediaPortal.MediaBrowser
             internal set
             {
                 _client = value;
+                Update();
             }
         } MediaBrowserClient _client;
 
@@ -107,24 +108,6 @@ namespace Pondman.MediaPortal.MediaBrowser
                 }
             }
         }
-
-        /*
-        public async void StartWebSocket() 
-        {
-            _logger.Info("Connecting to Media Browser Server.");
-            var socket = await ApiWebSocket.Create(_client, ClientWebSocketFactory.CreateWebSocket, CancellationToken.None);
-            _logger.Info("Connected to Media Browser Server.");
-
-            socket.MessageCommand += OnSocketMessageCommand;
-            socket.PlayCommand += OnPlayCommand;
-            socket.BrowseCommand += OnBrowseCommand;
-            socket.LibraryChanged += OnLibraryChanged;  
-            socket.Closed += OnSocketDisconnected;
-
-            await socket.EnsureConnectionAsync(CancellationToken.None);
-            _client.WebSocketConnection.StartEnsureConnectionTimer(10000);
-            Update();
-        }*/
 
         void OnLibraryChanged(object sender, GenericEventArgs<LibraryUpdateInfo> e)
         {
@@ -180,6 +163,10 @@ namespace Pondman.MediaPortal.MediaBrowser
             client.PlayCommand += OnPlayCommand;
             client.BrowseCommand += OnBrowseCommand;
             client.LibraryChanged += OnLibraryChanged;
+            //client.WebSocketClosed += OnSocketDisconnected;
+
+            // connect websocket
+            client.OpenWebSocket(ClientWebSocketFactory.CreateWebSocket);
 
             if (Client != null)
             {
