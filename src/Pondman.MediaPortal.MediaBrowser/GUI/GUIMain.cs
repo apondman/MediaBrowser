@@ -211,6 +211,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                         // todo: bad place
                         _sortableQuery = new SortableQuery();
 
+
                         Navigate(Facade.SelectedListItem);
                         return;
                 }
@@ -654,6 +655,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
             else
             {
+                // get stored context filter
+                _sortableQuery.Filters = MediaBrowserPlugin.Config.Settings
+                                            .ForUser(GUIContext.Instance.ActiveUser.Id)
+                                            .ForContext(dto.GetContext()).Filters ?? new HashSet<ItemFilter>();
+
                 _browser.Settings.Limit = MediaBrowserPlugin.Config.Settings.DefaultItemLimit;
                 _browser.Browse(item, -1);
             }
@@ -783,9 +789,17 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     result = -1;
                 }
 
+                // update context settings
+                MediaBrowserPlugin.Config.Settings
+                   .ForUser(GUIContext.Instance.ActiveUser.Id)
+                   .ForContext(CurrentItem.GetContext())
+                   .Filters = _sortableQuery.Filters;
+
                 _sortableQuery.Publish(MediaBrowserPlugin.DefaultProperty + ".Sortable");
                 _browser.Reload(true);
             }
+
+            
 
             /*
                 filters.Add(GetFilterItem(PersonType.Actor));

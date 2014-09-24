@@ -1,6 +1,8 @@
 using System;
 using System.Runtime.Serialization;
 using MediaPortal.GUI.Library;
+using System.Collections.Generic;
+using MediaBrowser.Model.Querying;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
@@ -10,6 +12,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         public MediaBrowserContextSettings(string contextId)
         {
             Context = contextId;
+            Filters = new HashSet<ItemFilter>();
         }
 
         [DataMember]
@@ -17,6 +20,9 @@ namespace Pondman.MediaPortal.MediaBrowser
 
         [DataMember]
         public GUIFacadeControl.Layout? Layout { get; set; }
+
+        [DataMember]
+        public HashSet<ItemFilter> Filters { get; set; }
 
         public bool Equals(MediaBrowserContextSettings other)
         {
