@@ -19,7 +19,7 @@ namespace Pondman.MediaPortal
         public SettingsManager(string name, ILogger logger = null)
         {
             _logger = logger ?? NullLogger.Instance;
-            _path = Config.GetFile(Config.Dir.Config, name + ".config");
+            _path = Config.GetFile(Config.Dir.Config, name + ".xml");
             Load();
         }
 
