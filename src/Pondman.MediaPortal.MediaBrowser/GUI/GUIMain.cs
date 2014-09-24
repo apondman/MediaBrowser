@@ -744,57 +744,64 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         protected void ShowFilterMenuDialog()
         {
             // root and root views don't have filter options
-            if (Facade.Count == 0 || _currentItem.Id.Contains("root-") || _currentItem.Type == "UserRootFolder") return;
-
-            var filters = new List<GUIListItem>
+            if (_currentItem.Id.Contains("root-") || _currentItem.Type == "UserRootFolder") return;
+               
+            int result = 0;
+            while (result > -1) 
             {
-                GetFilterItem(ItemFilter.IsFavorite),
-                GetFilterItem(ItemFilter.Likes),
-                GetFilterItem(ItemFilter.Dislikes)
-            };
-
-            // todo: look at first item for now
-            var item = Facade[0].TVTag as BaseItemDto;
-            if (item == null) return;
-
-            if (item.Type.IsIn(MediaBrowserType.Movie, MediaBrowserType.Episode, MediaBrowserType.Video, MediaBrowserType.Audio))
-            {
-                filters.Add(GetFilterItem(ItemFilter.IsPlayed));
-                filters.Add(GetFilterItem(ItemFilter.IsUnplayed));
-                filters.Add(GetFilterItem(ItemFilter.IsResumable));
-            }
-
-            if (item.Type == MediaBrowserType.Person)
-            {
-                filters.Add(GetSortItem(PersonType.Actor));
-                filters.Add(GetSortItem(PersonType.Composer));
-                filters.Add(GetSortItem(PersonType.Director));
-                filters.Add(GetSortItem(PersonType.GuestStar));
-                filters.Add(GetSortItem(PersonType.Producer));
-                filters.Add(GetSortItem(PersonType.Writer));
-            }
-
-            var result = GUIUtils.ShowMenuDialog(T.FilterOptions, filters);
-            if (result == -1) return;
-
-            var filter = filters[result].TVTag;
-            if (filter is ItemFilter)
-            {
-                if (!_sortableQuery.Filters.Remove((ItemFilter)filter))
+                // get all filters, and put the active filters on top
+                var filters = ((ItemFilter[])Enum.GetValues(typeof(ItemFilter)))
+                    // filter unwanted filters (ha... )
+                                .Where(x => !x.IsIn("IsFolder", "IsNotFolder", "IsFavoriteOrLikes"))
+                                .Select(GetFilterItem)
+                                .OrderByDescending(x => x.Selected)
+                                .ToList();
+                
+                if (filters.Any(x => x.Selected))
                 {
-                    _sortableQuery.Filters.Add((ItemFilter)filter);
+                    // if there are filters active add the "Clear Filters" option
+                    filters.Insert(0, new GUIListItem(T.ClearFilters));
                 }
+
+                result = GUIUtils.ShowMenuDialog(T.FilterOptions, filters.ToList());
+                if (result == -1) return;
+
+                var filter = filters[result].TVTag;
+
+                if (filter != null)
+                {
+                    // add/remove the filter
+                    if (!_sortableQuery.Filters.Remove((ItemFilter)filter))
+                    {
+                        _sortableQuery.Filters.Add((ItemFilter)filter);
+                    }
+                }
+                else
+                {
+                    // we have no filter so clear filters was chosen
+                    _sortableQuery.Filters.Clear();
+                    result = -1;
+                }
+
+                _sortableQuery.Publish(MediaBrowserPlugin.DefaultProperty + ".Sortable");
+                _browser.Reload(true);
             }
-            else
-            {
+
+            /*
+                filters.Add(GetFilterItem(PersonType.Actor));
+                filters.Add(GetFilterItem(PersonType.Composer));
+                filters.Add(GetFilterItem(PersonType.Director));
+                filters.Add(GetFilterItem(PersonType.GuestStar));
+                filters.Add(GetFilterItem(PersonType.Producer));
+                filters.Add(GetFilterItem(PersonType.Writer));
+            
                 if (!_sortableQuery.PersonTypes.Remove(filters[result].Path))
                 {
                     _sortableQuery.PersonTypes.Add(filters[result].Path);
                 }
-            }
+            */
 
-            _sortableQuery.Publish(MediaBrowserPlugin.DefaultProperty + ".Sortable");
-            _browser.Reload(true);
+            
         }
 
         protected void ShowSortMenuDialog()
@@ -869,15 +876,21 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             _browser.Reload(true);
         }
 
-        private static GUIListItem GetSortItem(string label, string field = null)
+        private GUIListItem GetSortItem(string label, string field = null)
         {
             var item = new GUIListItem(label) { Path = field ?? label };
+            item.Selected = (_sortableQuery.SortBy == item.Path);
+
             return item;
         }
 
-        private static GUIListItem GetFilterItem(ItemFilter filter)
+        private GUIListItem GetFilterItem(ItemFilter filter)
         {
-            var item = new GUIListItem(filter.ToString()) { TVTag = filter };
+            var label = i18n.GetByName("Filter" + filter.ToString());
+
+            var item = new GUIListItem(label);
+            item.TVTag = filter;
+            item.Selected = (_sortableQuery.Filters.Contains(filter));
             return item;
         }
 

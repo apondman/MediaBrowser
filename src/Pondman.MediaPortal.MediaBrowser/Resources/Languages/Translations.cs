@@ -16,6 +16,7 @@
         public string Artists = "Artists";
 
         public string Channels = "Channels";
+        public string ClearFilters = "Clear Filters";
         public string Client = "Client";
         public string Collections = "Collections";        
         public string CycleLayout = "Cycle Layout";
@@ -28,6 +29,18 @@
         public string ErrorMakingRequest = "An error occured while making the request";
 
         public string Filter = "Filter";
+
+        public string FilterIsFolder = "Folder";
+        public string FilterIsNotFolder = "No Folder";
+        public string FilterIsUnplayed = "Unplayed";
+        public string FilterIsPlayed = "Played";
+        public string FilterIsFavorite = "Favorites";
+        public string FilterIsRecentlyAdded = "Recently Added";
+        public string FilterIsResumable = "Resumable";
+        public string FilterLikes = "Likes";
+        public string FilterDislikes = "Dislikes";
+        public string FilterIsFavoriteOrLikes = "Favorite or liked";
+
         public string FilterOptions = "Filter Options";
 
         public string Genre = "Genre";

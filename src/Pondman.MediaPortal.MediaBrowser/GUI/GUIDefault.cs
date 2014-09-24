@@ -299,7 +299,15 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             get
             {
-                return MediaBrowserPlugin.UI.Resource;
+                return i18n.Resource;
+            }
+        }
+
+        protected i18n<Translations> i18n
+        {
+            get
+            {
+                return MediaBrowserPlugin.UI;
             }
         }
 
