@@ -4,7 +4,7 @@ a plugin for MediaPortal
  
 ###Requirements
  
-MediaPortal 1.4 > and MediaBrowser 3 Server running somewhere on your network (reachable by the MediaPortal client).
+MediaPortal 1.6 > and MediaBrowser 3 Server running somewhere on your network (reachable by the MediaPortal client).
  
 ###Installation
  
