@@ -113,7 +113,17 @@
         public string UserProfileRememberMeText = "Should I remember your login for next time?";
         public string MediaFolders = "Media Folders";
 
+        public string Yes = "Yes";
+        public string No = "No";
+
+
+        public static string SettingPluginEnabledName = "Plugin Enabled";
+        public static string SettingPluginEnabledDescription = "Enable / Disable this setting to control if the MediaBrowser plugin is loaded with MediaPortal.";
+        public static string SettingListedHomeName = "Listed in Home";
+        public static string SettingListedHomeDescription = "Enable this setting for the MediaBrowser plugin to appear in the main Home screen menu items.";
+        public static string SettingListedPluginsName = "Listed in My Plugins";
+        public static string SettingListedPluginsDescription = "Enable this setting for the MediaBrowser plugin to appear in the My Plugins screen menu items.";
+
         // todo: add more translations
-        
     }
 }

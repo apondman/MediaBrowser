@@ -1,25 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Xml;
-using System.Xml.Serialization;
-using MediaPortal.Configuration;
-using MediaPortal.GUI.Library;
+﻿using MediaPortal.Profile;
+using System;
+using System.Reflection;
 
 namespace Pondman.MediaPortal
 {
-    public class SettingsManager<TResource> where TResource : class, new()
+    public interface ISettings
+    {
+        void OnLoad();
+
+        void OnSave();
+    }
+
+    public class SettingsManager<TResource> where TResource : class, ISettings, new()
     {
         readonly ILogger _logger;
-        readonly string _path = string.Empty;
+        readonly string _name;
+        readonly PropertyInfo[] _properties;
 
         public SettingsManager(string name, ILogger logger = null)
         {
             _logger = logger ?? NullLogger.Instance;
-            _path = Config.GetFile(Config.Dir.Config, name + ".xml");
+            _name = name;
+            _properties = typeof(TResource).GetProperties(BindingFlags.Public | BindingFlags.Instance);
             Load();
         }
 
@@ -32,46 +34,36 @@ namespace Pondman.MediaPortal
         public TResource Settings { get; private set; }
 
         /// <summary>
-        /// Gets the path to the settings file.
-        /// </summary>
-        /// <value>
-        /// The settings file.
-        /// </value>
-        public string Path
-        {
-            get
-            {
-                return _path;
-            }
-        }
-
-        /// <summary>
         /// Loads setings from file
         /// </summary>
         public void Load()
         {
-            if (File.Exists(_path))
+            var settings = new TResource();
+            using (var mp = new MPSettings())
             {
-                try
+                foreach (var p in _properties)
                 {
-                    var ser = new DataContractSerializer(typeof (TResource));
-                    using (var fs = new FileStream(_path, FileMode.Open))
-                    using (var reader = XmlDictionaryReader.CreateTextReader(fs, new XmlDictionaryReaderQuotas()))
+                    try
                     {
-                        Settings = (TResource) ser.ReadObject(reader, true);
-                        reader.Close();
-                        fs.Close();
+                        var value = mp.GetValue(_name, p.Name);
+                        if (string.IsNullOrEmpty(value)) continue;
+
+                        var safeType = Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType;
+
+                        object safeValue = (value == null) ? null : Convert.ChangeType(value, safeType);
+
+                        p.SetValue(settings, safeValue);
                     }
-                    return;
-                }
-                catch (Exception e)
-                {
-                    _logger.Error("Cannot read existing settings file.", e.Message);
+                    catch (Exception e)
+                    {
+                        _logger.Error("Cannot load setting '" + p.Name + "'", e.Message);
+                    }
                 }
             }
 
-            _logger.Info("Creating new settings file.");
-            Settings = new TResource();
+            settings.OnLoad();
+            Settings = settings;
+
             Save();
         }
 
@@ -84,33 +76,31 @@ namespace Pondman.MediaPortal
 
             lock (Settings)
             {
-                _logger.Info("Saving settings data...");
-                if (File.Exists(_path))
+                _logger.Info("Saving settings and cache...");
+                
+                using (var mp = new MPSettings())
                 {
-                    try
+                    foreach (var p in _properties)
                     {
-                        File.Copy(_path, _path.Replace(".config", ".bak"), true);
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.Error("Cannot create backup file for settings.", e);
+                        try
+                        {
+                            mp.SetValue(_name, p.Name, p.GetValue(Settings));
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.Error("Cannot save setting '" + p.Name + "'", e.Message);
+                        }
                     }
                 }
 
-                try
-                {
-                    var ser = new DataContractSerializer(typeof (TResource));
-                    using (var writer = new FileStream(_path, FileMode.Create))
-                    {
-                        ser.WriteObject(writer, Settings);
-                        writer.Close();
-                        _logger.Info("Settings saved.");
-                    }
-                }
-                catch (Exception e)
-                {
-                    _logger.Error("Cannot create settings file.", e);
-                }
+                // trigger additional logic
+                Settings.OnSave();
+
+                // trigger mediaportal settings cache
+                global::MediaPortal.Profile.Settings.SaveCache();
+
+                _logger.Info("Settings saved.");
+              
             }
         }
 

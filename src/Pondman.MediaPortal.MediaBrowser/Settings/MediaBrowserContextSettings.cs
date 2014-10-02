@@ -6,7 +6,6 @@ using MediaBrowser.Model.Querying;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
-    [DataContract(Name = "ContextSettings", Namespace = "urn://mediaportal/mb3/settings/context")]
     public class MediaBrowserContextSettings : IEquatable<MediaBrowserContextSettings>
     {
         public MediaBrowserContextSettings(string contextId)
@@ -15,13 +14,10 @@ namespace Pondman.MediaPortal.MediaBrowser
             Filters = new HashSet<ItemFilter>();
         }
 
-        [DataMember]
-        public string Context { get; private set; }
+        public string Context { get; set; }
 
-        [DataMember]
         public GUIFacadeControl.Layout? Layout { get; set; }
 
-        [DataMember]
         public HashSet<ItemFilter> Filters { get; set; }
 
         public bool Equals(MediaBrowserContextSettings other)

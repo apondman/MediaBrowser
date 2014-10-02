@@ -173,6 +173,23 @@
           </Items>
         </Files>
       </GroupItem>
+      <GroupItem Name="Settings">
+        <ParentGroup />
+        <DisplayName>Settings</DisplayName>
+        <DefaulChecked>false</DefaulChecked>
+        <Description>Settings</Description>
+        <Files>
+          <Items>
+            <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
+              <Param1 />
+              <UpdateOption>AlwaysOverwrite</UpdateOption>
+              <LocalFileName>extension_settings.xml</LocalFileName>
+              <ZipFileName>Installer{CopyFile}\{b95028e8-d773-44e5-93de-d43a00df5c38}-extension_settings.xml</ZipFileName>
+              <DestinationFilename>%Base%\extension_settings.xml</DestinationFilename>
+            </FileItem>
+          </Items>
+        </Files>
+      </GroupItem>
     </Items>
   </Groups>
   <Sections>
@@ -300,6 +317,25 @@ Click Next to continue or Cancel to exit Setup.</Value>
         <Message>requires MediaPortal version 1.1.6.27644 to 1.1.6.27644.</Message>
         <Name>MediaPortal</Name>
       </DependencyItem>
+      <DependencyItem>
+        <Type>Extension</Type>
+        <Id>a6afa4d6-4fd8-4607-8878-5911db044fd7</Id>
+        <MinVersion>
+          <Major>1</Major>
+          <Minor>2</Minor>
+          <Build>2</Build>
+          <Revision>199</Revision>
+        </MinVersion>
+        <MaxVersion>
+          <Major>1</Major>
+          <Minor>2</Minor>
+          <Build>2</Build>
+          <Revision>199</Revision>
+        </MaxVersion>
+        <WarnOnly>true</WarnOnly>
+        <Message>To enable user friendly settings this plugin requires the Extension plugin.</Message>
+        <Name>Extensions</Name>
+      </DependencyItem>
     </Items>
   </Dependencies>
   <PluginDependencies>
@@ -329,8 +365,8 @@ Click Next to continue or Cancel to exit Setup.</Value>
     <Version>
       <Major>0</Major>
       <Minor>30</Minor>
-      <Build>5345</Build>
-      <Revision>3597</Revision>
+      <Build>5388</Build>
+      <Revision>2288</Revision>
     </Version>
     <ExtensionDescription>MediaPortal client for MediaBrowser3 server (http://www.mediabrowser3.com). </ExtensionDescription>
     <VersionDescription>+ Collections is now a root view
@@ -515,11 +551,18 @@ Click Next to continue or Cancel to exit Setup.</Value>
         <ZipFileName>Installer{GenericSkinFile}\{347207a7-8f3c-449d-9af7-1a75ebf21e40}-MediaBrowser.Properties.xml</ZipFileName>
         <DestinationFilename>%Skin%\[DEFAULT]\MediaBrowser.Properties.xml</DestinationFilename>
       </FileItem>
+      <FileItem InstallType="CopyFile" SystemFile="false" Modified="true">
+        <Param1 />
+        <UpdateOption>AlwaysOverwrite</UpdateOption>
+        <LocalFileName>extension_settings.xml</LocalFileName>
+        <ZipFileName>Installer{CopyFile}\{b95028e8-d773-44e5-93de-d43a00df5c38}-extension_settings.xml</ZipFileName>
+        <DestinationFilename>%Base%\extension_settings.xml</DestinationFilename>
+      </FileItem>
       <FileItem InstallType="CopyFile" SystemFile="true" Modified="true">
         <Param1 />
         <UpdateOption>OverwriteIfOlder</UpdateOption>
         <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\Resources\Images\mblogoicon.png</LocalFileName>
-        <ZipFileName>Installer{CopyFile}\{9dbc3f93-40e2-4ab0-97fb-ee003a0c45ec}-mblogoicon.png</ZipFileName>
+        <ZipFileName>Installer{CopyFile}\{daee2be0-59de-46e4-975c-8f995bf7b3da}-mblogoicon.png</ZipFileName>
         <DestinationFilename />
       </FileItem>
     </Items>

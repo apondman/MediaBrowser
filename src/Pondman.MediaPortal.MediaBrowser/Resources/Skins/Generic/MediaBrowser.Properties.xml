@@ -19,7 +19,9 @@
   <define property="true">#MediaBrowser.List.Season.Label2:{RecursiveUnplayedItemCount}/{RecursiveItemCount}</define>
   <define property="true">#MediaBrowser.List.View/tvshows-people.Person.Label2:{SeriesCount}</define>
   <define property="true">#MediaBrowser.List.Person.Label2:{MovieCount}</define>
-  <define property="true">#MediaBrowser.List.View.Episode.Label:{SeriesName} - {ParentIndexNumber}x{IndexNumber} - {Name}</define>
+  <define property="true">#MediaBrowser.List.UserView/TvNextUp.Episode.Label:{SeriesName} - {ParentIndexNumber}x{IndexNumber} - {Name}</define>
+  <define property="true">#MediaBrowser.List.UserView/TvLatest.Episode.Label:{SeriesName} - {ParentIndexNumber}x{IndexNumber} - {Name}</define>
+  <define property="true">#MediaBrowser.List.UserView/TvResume.Episode.Label:{SeriesName} - {ParentIndexNumber}x{IndexNumber} - {Name}</define>
   <define property="true">#MediaBrowser.List.Episode.Label:{IndexNumber}_ {Name}</define>
   <define property="true">#MediaBrowser.List.Episode.Label2:{PremiereDate_d}</define>
   
