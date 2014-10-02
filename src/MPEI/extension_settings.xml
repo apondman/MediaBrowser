@@ -1,0 +1,40 @@
+﻿<extension_settings>
+  <disable_entry>
+    <setting entryname="plugins"
+             name="MediaBrowser"
+             displayname="Plugin Enabled"
+             defaultvalue="yes"
+             type="string"
+             listvalues="yes|no"
+             displaylistvalues="Yes|No"/>
+  </disable_entry>
+  <settings section="#MediaBrowser.Translation.Plugin.Label">
+    <setting entryname="plugins"
+             name="MediaBrowser"
+             displayname="#MediaBrowser.Translation.SettingPluginEnabledName.Label"
+             defaultvalue="yes"
+             type="string"
+             listvalues="yes|no"
+             displaylistvalues="#MediaBrowser.Translation.Yes.Label|#MediaBrowser.Translation.No.Label"
+             description="#MediaBrowser.Translation.SettingPluginEnabledDescription.Label"
+             configfile="MediaPortal.xml" />
+    <setting entryname="home"
+             name="MediaBrowser"
+             displayname="#MediaBrowser.Translation.SettingListedHomeName.Label"
+             defaultvalue="yes"
+             type="string"
+             listvalues="yes|no"
+             displaylistvalues="#MediaBrowser.Translation.Yes.Label|#MediaBrowser.Translation.No.Label"
+             description="#MediaBrowser.Translation.SettingListedHomeDescription.Label"
+             configfile="MediaPortal.xml" />
+    <setting entryname="myplugins"
+             name="MediaBrowser"
+             displayname="#MediaBrowser.Translation.SettingListedPluginsName.Label"
+             defaultvalue="no"
+             type="string"
+             listvalues="yes|no"
+             displaylistvalues="#MediaBrowser.Translation.Yes.Label|#MediaBrowser.Translation.No.Label"
+             description="#MediaBrowser.Translation.SettingListedPluginsDescription.Label"
+             configfile="MediaPortal.xml" />
+  </settings>
+</extension_settings>
