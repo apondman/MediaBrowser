@@ -163,9 +163,8 @@ namespace Pondman.MediaPortal.MediaBrowser
                         Directory.CreateDirectory(folder);
                     }
 
-                    using (var response = await HttpClient.GetAsync(url, CancellationToken.None))
+                    using (var response = await GetImageStreamAsync(url, CancellationToken.None))
                     {
-                        
                         using (FileStream output = File.OpenWrite(cachedPath))
                         {
                             response.CopyStream(output);
