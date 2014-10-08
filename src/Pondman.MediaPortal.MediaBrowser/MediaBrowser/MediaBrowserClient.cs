@@ -1,5 +1,6 @@
 ﻿using MediaBrowser.ApiInteraction;
 using MediaBrowser.ApiInteraction.WebSocket;
+using MediaBrowser.Model.ApiClient;
 using MediaBrowser.Model.Dto;
 using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Querying;
@@ -17,77 +18,8 @@ using System.Threading.Tasks;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
-    /// <summary>
-    /// MediaBrowser API Client for MediaPortal
-    /// </summary>
-    public class MediaBrowserClient : ApiClient
+    public static class MediaBrowserClient
     {
-        const string CLIENT_NAME = "MediaPortal";
-        
-        /// <summary>
-        /// Occurs when the current user changes.
-        /// </summary>
-        public event Action<UserDto> CurrentUserChanged;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MediaBrowserClient"/> class.
-        /// </summary>
-        /// <param name="serverHostName">Name of the server host.</param>
-        /// <param name="serverApiPort">The server API port.</param>
-        /// <param name="deviceName">Name of the device.</param>
-        /// <param name="deviceId">The device id.</param>
-        /// <param name="version">The version.</param>
-        public MediaBrowserClient(string serverAddress, string deviceName, string deviceId, string version)
-            : base(new MediaBrowserLogger(MediaBrowserPlugin.Log), serverAddress, CLIENT_NAME, deviceName, deviceId, version, new ClientCapabilities
-            {
-
-                PlayableMediaTypes = new List<string>
-                {
-                    MediaType.Audio,
-                    MediaType.Video,
-                    MediaType.Game,
-                    MediaType.Photo,
-                    MediaType.Book
-                },
-
-                SupportedCommands = new List<String>(Enum.GetNames(typeof(GeneralCommandType)))
-
-            })
-        {
-
-        }
-
-        /// <summary>
-        /// Gets or sets the current user.
-        /// </summary>
-        /// <value>
-        /// The current user.
-        /// </value>
-        public virtual UserDto CurrentUser
-        {
-            get
-            {
-                return _currentUser;
-            }
-            set
-            {
-                _currentUser = value;
-            }
-        } UserDto _currentUser;
-
-        /// <summary>
-        /// Gets a value indicating whether this instance is user logged in.
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if this instance is user logged in; otherwise, <c>false</c>.
-        /// </value>
-        public virtual bool IsUserLoggedIn
-        {
-            get
-            {
-                return (_currentUser != null);
-            }
-        }
 
         /// <summary>
         /// Gets the local image URL.
@@ -95,11 +27,11 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <param name="item">The item.</param>
         /// <param name="options">The options.</param>
         /// <returns></returns>
-        public async Task<string> GetLocalImageUrl(BaseItemDto item, ImageOptions options)
+        public static async Task<string> GetLocalImageUrl(this IApiClient client, BaseItemDto item, ImageOptions options)
         {
             options.Tag = GetImageTag(item, options);
 
-            return options.Tag != null ? await GetCachedImageUrl("items", options, () => GetImageUrl(item, options)) : string.Empty;
+            return options.Tag != null ? await client.GetCachedImageUrl("items", options, () => client.GetImageUrl(item, options)) : string.Empty;
         }
 
         /// <summary>
@@ -108,11 +40,11 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <param name="user">The user.</param>
         /// <param name="options">The options.</param>
         /// <returns></returns>
-        public async Task<string> GetLocalUserImageUrl(UserDto user, ImageOptions options) 
+        public static async Task<string> GetLocalUserImageUrl(this IApiClient client, UserDto user, ImageOptions options) 
         {
             options.Tag = user.PrimaryImageTag;
 
-            return options.Tag != null ? await GetCachedImageUrl("users", options, () => GetUserImageUrl(user, options)) : string.Empty;
+            return options.Tag != null ? await client.GetCachedImageUrl("users", options, () => client.GetUserImageUrl(user, options)) : string.Empty;
         }
 
         /// <summary>
@@ -121,13 +53,13 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <param name="item">The item.</param>
         /// <param name="options">The options.</param>
         /// <returns></returns>
-        public async Task<string> GetLocalBackdropImageUrl(BaseItemDto item, ImageOptions options)
+        public static async Task<string> GetLocalBackdropImageUrl(this IApiClient client, BaseItemDto item, ImageOptions options)
         {
-            string[] urls = GetBackdropImageUrls(item, options);
+            string[] urls = client.GetBackdropImageUrls(item, options);
             if (urls.Length == 0)
                 return string.Empty;
 
-            return await GetCachedImageUrl("items", options, () => urls[options.ImageIndex ?? 0]);
+            return await client.GetCachedImageUrl("items", options, () => urls[options.ImageIndex ?? 0]);
         }
 
         /// <summary>
@@ -137,7 +69,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// <param name="options">The options.</param>
         /// <param name="func">The func.</param>
         /// <returns></returns>
-        protected async Task<string> GetCachedImageUrl(string subtype, ImageOptions options, Func<string> func)
+        public static async Task<string> GetCachedImageUrl(this IApiClient client, string subtype, ImageOptions options, Func<string> func)
         {
             string url = string.Empty;
             
@@ -163,7 +95,7 @@ namespace Pondman.MediaPortal.MediaBrowser
                         Directory.CreateDirectory(folder);
                     }
 
-                    using (var response = await GetImageStreamAsync(url, CancellationToken.None))
+                    using (var response = await client.GetImageStreamAsync(url, CancellationToken.None))
                     {
                         using (FileStream output = File.OpenWrite(cachedPath))
                         {
@@ -191,18 +123,6 @@ namespace Pondman.MediaPortal.MediaBrowser
         }
 
         /// <summary>
-        /// Called when the current user changes.
-        /// </summary>
-        protected void OnAuthorizationInfoChanged()
-        {
-           //base.OnAuthorizationInfoChanged();
-            if (CurrentUserChanged != null) 
-            {
-                CurrentUserChanged(CurrentUser);
-            }
-        }
-
-        /// <summary>
         /// Gets the image tag.
         /// </summary>
         /// <param name="item">The item.</param>
@@ -226,25 +146,14 @@ namespace Pondman.MediaPortal.MediaBrowser
             }
         }
 
-        public async Task<AuthenticationResult> AuthenticateUserAsync(string username, string password)
+        public static async Task<AuthenticationResult> AuthenticateUserAsync(this IApiClient client, string username, string password)
         {
             using (SHA1 provider = SHA1.Create())
             {
                 byte[] hash = provider.ComputeHash(Encoding.UTF8.GetBytes(password ?? string.Empty));
-                
-                return await AuthenticateUserAsync(username, hash);
+
+                return await client.AuthenticateUserAsync(username, hash);
             }
-        }
-
-        public async Task<ItemsResult> GetItemsByNameAsync(string name, ItemsByNameQuery query)
-        {
-            var url = GetItemByNameListUrl(name, query);
-
-            using (var stream = await GetSerializedStreamAsync(url).ConfigureAwait(false))
-            {
-                return DeserializeFromStream<ItemsResult>(stream);
-            }
-        }
-
+        } 
     }
 }

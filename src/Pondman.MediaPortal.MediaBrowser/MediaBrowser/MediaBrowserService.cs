@@ -13,17 +13,25 @@ using Pondman.MediaPortal.MediaBrowser.Models;
 using MediaBrowser.Model.Events;
 using MediaBrowser.Model.Session;
 using MediaBrowser.Model.Entities;
+using MediaBrowser.ApiInteraction.Network;
+using System.Security.Principal;
+using System.DirectoryServices;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
     public class MediaBrowserService : IMediaBrowserService
     {
-        
+
+        const string CLIENT_NAME = "MediaPortal";
+
         #region Private variables
 
         private readonly ILogger _logger;
         private readonly MediaBrowserPlugin _plugin;
         private bool _disposed;
+        IConnectionManager _connectionManager;
 
         #endregion
 
@@ -31,6 +39,7 @@ namespace Pondman.MediaPortal.MediaBrowser
         {
             _logger = logger ?? NullLogger.Instance;
             _plugin = plugin;
+            
             _logger.Info("MediaBrowserService initialized.");
         }
 
@@ -40,180 +49,58 @@ namespace Pondman.MediaPortal.MediaBrowser
 
         #endregion
 
+        public IConnectionManager ConnectionManager
+        {
+            get
+            {
+                if (_connectionManager != null) return _connectionManager;
+
+                var logger = new MediaBrowserLogger(_logger);
+
+                var device = new Device
+                {
+                    DeviceName = Environment.MachineName,
+                    DeviceId = GetComputerSid().ToString()
+                };
+
+                var capabilities = new ClientCapabilities
+                {
+                    PlayableMediaTypes = new List<string>
+                    {
+                        MediaType.Audio,
+                        MediaType.Video
+                        //MediaType.Game,
+                        //MediaType.Photo,
+                        //MediaType.Book
+                    },
+
+                    SupportedCommands = new List<String>(Enum.GetNames(typeof(GeneralCommandType)))
+                };
+
+                var credentialProvider = new CredentialProvider();
+                var networkConnection = new NetworkConnection(logger);
+                var serverLocator = new ServerLocator(logger);
+
+                var connectionManager = new ConnectionManager(logger,
+                    credentialProvider,
+                    networkConnection,
+                    serverLocator,
+                    CLIENT_NAME,
+                    Plugin.Version.ToString(),
+                    device,
+                    capabilities,
+                    ClientWebSocketFactory.CreateWebSocket);
+
+                _connectionManager = connectionManager;
+
+                return _connectionManager;
+            }
+        }
+
         public MediaBrowserPlugin Plugin
         {
             get { return _plugin; }
         }
-
-        /// <summary>
-        ///     Gets or sets the endpoint of the server.
-        /// </summary>
-        /// <value>
-        ///     The server endpoint.
-        /// </value>
-        public ServerDiscoveryInfo Server
-        {
-            get { return _serverInfo; }
-            set
-            {
-                _serverInfo = value;
-                OnServerChanged(_serverInfo);
-            }
-        } ServerDiscoveryInfo _serverInfo;
-
-        public bool IsServerLocated
-        {
-            get { return (Server != null); }
-        }
-
-        public PublicSystemInfo System
-        {
-            get { return _systemInfo; }
-            internal set
-            {
-                _systemInfo = value;
-                SystemInfoChanged.FireEvent(this, new SystemInfoChangedEventArgs(_systemInfo));
-            } 
-        } PublicSystemInfo _systemInfo;
-
-        public MediaBrowserClient Client
-        {
-            get { return _client; }
-            internal set
-            {
-                _client = value;
-                Update();
-            }
-        } MediaBrowserClient _client;
-
-        public async void Discover(int retryIntervalMs = 60000)
-        {
-            _logger.Info("Discovering Media Browser Server.");
-            while (true)
-            {
-                try
-                {
-                    var servers = await new ServerLocator().FindServers(CancellationToken.None);
-                    foreach (var server in servers)
-                    {
-                        // todo: allow server selection
-                        OnServerDiscovered(server);
-                    }
-
-                    return;
-                }
-                catch (Exception e)
-                {
-                    _logger.Error(e);
-                }
-            }
-        }
-
-        void OnLibraryChanged(object sender, GenericEventArgs<LibraryUpdateInfo> e)
-        {
-            // todo: update items in memory
-            var info = e.Argument;
-        }
-
-        public async void Update()
-        {
-            if (!IsServerLocated) return;
-
-            try
-            {
-                System = await Client.GetPublicSystemInfoAsync(CancellationToken.None);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e);
-            }
-        }
-
-        #region internal event handlers
-
-
-        void OnSocketDisconnected(object sender, EventArgs e)
-        {
-            _logger.Info("Lost connection with Media Browser Server.");
-        }
-
-        void OnSocketMessageCommand(object sender, GenericEventArgs<MessageCommand> e)
-        {
-            _logger.Debug("Message: {0}", e.Argument.Text);
-        }
-
-        protected void OnServerDiscovered(ServerDiscoveryInfo info)
-        {
-            _logger.Info("Found MediaBrowser Server: {0}", info.Address);
-            Server = info;
-        }
-
-        protected void OnServerChanged(ServerDiscoveryInfo info)
-        {
-            _logger.Debug("Creating Media Browser client.");
-            var client = new MediaBrowserClient(
-                            info.Address,
-                            Environment.MachineName + " (" + Environment.OSVersion.VersionString + ")", // todo: add MediaPortal version instead of OS
-                            Environment.MachineName,
-                            Plugin.Version.ToString()
-                            );
-
-            // setup event handlers
-            client.MessageCommand += OnSocketMessageCommand;
-            client.PlayCommand += OnPlayCommand;
-            client.BrowseCommand += OnBrowseCommand;
-            client.LibraryChanged += OnLibraryChanged;
-            //client.WebSocketClosed += OnSocketDisconnected;
-
-            // connect websocket
-            client.OpenWebSocket(ClientWebSocketFactory.CreateWebSocket);
-
-            if (Client != null)
-            {
-                Client.Dispose();
-            }
-
-            Client = client;
-            //ServerChanged.FireEvent(this, new ServerChangedEventArgs(endpoint));
-        }
-
-        // todo: move command handlers to GUI code
-
-        protected void OnPlayCommand(object sender, GenericEventArgs<PlayRequest> args)
-        {
-            var request = args.Argument;
-            // todo: support multiple ids
-            _logger.Info("Remote Play Request: Id={1}, StartPositionTicks={2}", request.ItemIds[0],
-                args.Argument.StartPositionTicks);
-            var resumeTime = (int)TimeSpan.FromTicks(request.StartPositionTicks ?? 0).TotalSeconds;
-
-            GUICommon.Window(MediaBrowserWindow.Details, MediaBrowserMedia.Play(request.ItemIds[0], resumeTime));
-        }
-
-        protected void OnBrowseCommand(object sender, GenericEventArgs<BrowseRequest> args)
-        {
-            var request = args.Argument;
-            _logger.Info("Remote Browse Request: Type={0}, Id={1}, Name={2}", request.ItemType, request.ItemId,
-                args.Argument.ItemName);
-
-            switch (request.ItemType)
-            {
-                case "Movie":
-                    GUICommon.Window(MediaBrowserWindow.Details, MediaBrowserMedia.Browse(request.ItemId));
-                    return;
-                default:
-                    GUICommon.Window(MediaBrowserWindow.Main,
-                        new MediaBrowserItem
-                        {
-                            Id = request.ItemId,
-                            Type = request.ItemType,
-                            Name = request.ItemName
-                        });
-                    return;
-            }
-        }
-
-        #endregion
 
         #region IDisposable
 
@@ -229,9 +116,9 @@ namespace Pondman.MediaPortal.MediaBrowser
 
             if (disposing)
             {
-                if (Client != null )
+                if (ConnectionManager != null)
                 {
-                    Client.Dispose();
+                    ConnectionManager.Logout();
                 }
 
                 _logger.Info("MediaBrowserService shutdown.");
@@ -242,5 +129,9 @@ namespace Pondman.MediaPortal.MediaBrowser
 
         #endregion
 
+        public static SecurityIdentifier GetComputerSid()
+        {
+            return new SecurityIdentifier((byte[])new DirectoryEntry(string.Format("WinNT://{0},Computer", Environment.MachineName)).Children.Cast<DirectoryEntry>().First().InvokeGet("objectSID"), 0).AccountDomainSid;
+        }
     }
 }

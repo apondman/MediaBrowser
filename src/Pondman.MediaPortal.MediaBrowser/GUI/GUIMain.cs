@@ -65,7 +65,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             Facade.CycleLayout();
             Facade.Focus();
             MediaBrowserPlugin.Config.Settings
-                   .ForUser(GUIContext.Instance.ActiveUser.Id)
+                   .ForUser(GUISession.Instance.CurrentUser.Id)
                    .ForContext(CurrentItem.GetContext())
                    .Layout = Facade.CurrentLayout;
             Log.Debug("Cycle Layout Result: {0}", Facade.CurrentLayout);
@@ -123,7 +123,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 return;
             }
 
-            if (!GUIContext.Instance.IsServerReady || !GUIContext.Instance.Client.IsUserLoggedIn) return;
+            if (!GUISession.Instance.IsAuthenticated) return;
             OnWindowStart();
         }
 
@@ -142,7 +142,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 {
                     try
                     {
-                        var item = await GUIContext.Instance.Client.GetItemAsync(Parameters.Id, GUIContext.Instance.Client.CurrentUserId);
+                        var item = await GUISession.Instance.Client.GetItemAsync(Parameters.Id, GUISession.Instance.Client.CurrentUserId);
                         LoadItem(item);
                     }
                     catch (Exception e)
@@ -159,7 +159,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 // get root folder if there's nothing to reload
                 try
                 {
-                    var item = await GUIContext.Instance.Client.GetRootFolderAsync(GUIContext.Instance.Client.CurrentUserId);
+                    var item = await GUISession.Instance.Client.GetRootFolderAsync(GUISession.Instance.Client.CurrentUserId);
                     LoadItem(item);
                 }
                 catch (Exception e)
@@ -320,7 +320,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             // read layout from settings
             var savedLayout = MediaBrowserPlugin.Config.Settings
-                    .ForUser(GUIContext.Instance.ActiveUser.Id)
+                    .ForUser(GUISession.Instance.CurrentUser.Id)
                     .ForContext(dto.GetContext()).Layout;
 
             // apply layout if different
@@ -417,7 +417,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             if (_currentItem == null) return;
 
-            GUIContext.Instance.Update(_currentItem); // todo: context?
+            GUISession.Instance.Update(_currentItem); // todo: context?
             await PublishItemDetails(_currentItem, MediaBrowserPlugin.DefaultProperty + ".Current");
         }
 
@@ -446,8 +446,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             // todo: this is a mess, rethink
             
             //GUIContext.Instance.Client.CurrentUser.Configuration.DisplayMissingEpisodes
-            var client = GUIContext.Instance.Client;
-            var userSettings = client.CurrentUser.Configuration;
+            var client = GUISession.Instance.Client;
+            var userSettings = GUISession.Instance.CurrentUser.Configuration;
             var userId = client.CurrentUserId;
             var query = MediaBrowserQueries.Item
                             .UserId(userId)
@@ -527,8 +527,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 LoadItems(client.GetPeopleAsync(MediaBrowserQueries.Persons.User(userId).Fields(ItemFields.Overview, ItemFields.PrimaryImageAspectRatio).Include(MediaBrowserType.Movie).Apply(_sortableQuery), CancellationToken.None), e);
                                 return;
                             case "music-artists":
-                                LoadItems(client.GetItemsByNameAsync("Artists",
-                                    MediaBrowserQueries.Named.User(userId).Apply(_sortableQuery)), e);
+                                //LoadItems(client.GetItemsByNameAsync("Artists",
+                                //    MediaBrowserQueries.Named.User(userId).Apply(_sortableQuery)), e);
                                 return;
                             case "tvshows-networks":
                                 LoadItems(client.GetStudiosAsync(
@@ -657,7 +657,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             {
                 // get stored context filter
                 _sortableQuery.Filters = MediaBrowserPlugin.Config.Settings
-                                            .ForUser(GUIContext.Instance.ActiveUser.Id)
+                                            .ForUser(GUISession.Instance.CurrentUser.Id)
                                             .ForContext(dto.GetContext()).Filters ?? new HashSet<ItemFilter>();
 
                 _browser.Settings.Limit = MediaBrowserPlugin.Config.Settings.DefaultItemLimit;
@@ -791,7 +791,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
                 // update context settings
                 MediaBrowserPlugin.Config.Settings
-                   .ForUser(GUIContext.Instance.ActiveUser.Id)
+                   .ForUser(GUISession.Instance.CurrentUser.Id)
                    .ForContext(CurrentItem.GetContext())
                    .Filters = _sortableQuery.Filters;
 

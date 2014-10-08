@@ -66,11 +66,11 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         /// <param name="actionType">Type of the action.</param>
         public static async void RandomMovieCommand(GUIControl control, MPGui.Action.ActionType actionType)
         {
-            if (GUIContext.Instance.HasActiveUser)
+            if (GUISession.Instance.IsAuthenticated)
             {
                 try
                 {
-                    var result = await GUIContext.Instance.Client.GetItemsAsync(MediaBrowserQueries.RandomMovie(GUIContext.Instance.ActiveUser.Id).Watched(false), CancellationToken.None);
+                    var result = await GUISession.Instance.Client.GetItemsAsync(MediaBrowserQueries.RandomMovie(GUISession.Instance.CurrentUser.Id).Watched(false), CancellationToken.None);
                     Window(MediaBrowserWindow.Details, MediaBrowserMedia.Browse(result.Items.First().Id));
                 }
                 catch (Exception e)
@@ -265,7 +265,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             try
             {
-                var result = await GUIContext.Instance.Client.GetItemsAsync(query, CancellationToken.None);
+                var result = await GUISession.Instance.Client.GetItemsAsync(query, CancellationToken.None);
                 facade.CycleLayout();   // pick first available layout
                 facade.ClearAll();      // clear items;
 
@@ -313,7 +313,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                         {
 
                             // todo: let skin define dimensions
-                            string imageUrl = GUIContext.Instance.Client.GetLocalImageUrl(dto, new ImageOptions { Width = 200, Height = 300 }).Result;
+                            string imageUrl = GUISession.Instance.Client.GetLocalImageUrl(dto, new ImageOptions { Width = 200, Height = 300 }).Result;
 
                             if (!String.IsNullOrEmpty(imageUrl))
                             {

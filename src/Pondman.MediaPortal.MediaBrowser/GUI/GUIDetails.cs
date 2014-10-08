@@ -31,7 +31,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         private async void OnPlayerProgress(TimeSpan timeSpan)
         {
-            await GUIContext.Instance.Client.ReportPlaybackProgressAsync(new PlaybackProgressInfo { ItemId = _movie.Id, PositionTicks = timeSpan.Ticks });
+            await GUISession.Instance.Client.ReportPlaybackProgressAsync(new PlaybackProgressInfo { ItemId = _movie.Id, PositionTicks = timeSpan.Ticks });
             Log.Debug("PlayerProgress: {0}", timeSpan.TotalSeconds);
         }
 
@@ -41,7 +41,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             base.OnPageLoad();
 
-            if (!GUIContext.Instance.IsServerReady || !GUIContext.Instance.Client.IsUserLoggedIn) return;
+            if (!GUISession.Instance.IsAuthenticated) return;
             
             OnWindowStart();
         }
@@ -135,7 +135,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
                 if (String.IsNullOrWhiteSpace(path))
                 {
-                    path = GUIContext.Instance.Client.GetHlsVideoStreamUrl(new VideoStreamOptions { ItemId = source.Id });
+                    path = GUISession.Instance.Client.GetHlsVideoStreamUrl(new VideoStreamOptions { ItemId = source.Id });
                 }
 
                 info.MediaFiles.Add(path);
@@ -149,7 +149,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             Log.Debug("Loading movie details for: {0}", Parameters.Id);
             try
             {
-                _movie = await GUIContext.Instance.Client.GetItemAsync(Parameters.Id, GUIContext.Instance.Client.CurrentUserId);
+                _movie = await GUISession.Instance.Client.GetItemAsync(Parameters.Id, GUISession.Instance.Client.CurrentUserId);
             }
             catch (Exception e)
             {
@@ -161,24 +161,24 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         protected async void OnPlaybackStarted(MediaPlayerInfo info)
         {
-            await GUIContext.Instance.Client.ReportPlaybackStartAsync( new PlaybackStartInfo { ItemId = _movie.Id, MediaSourceId = _movie.MediaSources[info.MediaFileIndex].Id });
+            await GUISession.Instance.Client.ReportPlaybackStartAsync( new PlaybackStartInfo { ItemId = _movie.Id, MediaSourceId = _movie.MediaSources[info.MediaFileIndex].Id });
             Log.Debug("Reporting playback started to MediaBrowser.");
         }
 
         protected async void OnPlaybackStopped(MediaPlayerInfo media, int progress)
         {
-            await GUIContext.Instance.Client.ReportPlaybackStoppedAsync(new PlaybackStopInfo { ItemId = _movie.Id, PositionTicks = TimeSpan.FromSeconds(progress).Ticks, MediaSourceId = _movie.MediaSources[media.MediaFileIndex].Id });
+            await GUISession.Instance.Client.ReportPlaybackStoppedAsync(new PlaybackStopInfo { ItemId = _movie.Id, PositionTicks = TimeSpan.FromSeconds(progress).Ticks, MediaSourceId = _movie.MediaSources[media.MediaFileIndex].Id });
             Log.Debug("Reporting playback stopped to MediaBrowser.");
 
-            await GUIContext.Instance.Client.StopTranscodingProcesses(GUIContext.Instance.Client.DeviceId);
+            await GUISession.Instance.Client.StopTranscodingProcesses(GUISession.Instance.Client.DeviceId);
         }
 
         protected async void OnPlaybackEnded(MediaPlayerInfo media)
         {
-            await GUIContext.Instance.Client.ReportPlaybackStoppedAsync(new PlaybackStopInfo { ItemId = _movie.Id, PositionTicks = _movie.MediaSources[media.MediaFileIndex].RunTimeTicks, MediaSourceId = _movie.MediaSources[media.MediaFileIndex].Id });
+            await GUISession.Instance.Client.ReportPlaybackStoppedAsync(new PlaybackStopInfo { ItemId = _movie.Id, PositionTicks = _movie.MediaSources[media.MediaFileIndex].RunTimeTicks, MediaSourceId = _movie.MediaSources[media.MediaFileIndex].Id });
             Log.Debug("Reporting playback stopped to MediaBrowser.");
 
-            await GUIContext.Instance.Client.StopTranscodingProcesses(GUIContext.Instance.Client.DeviceId);
+            await GUISession.Instance.Client.StopTranscodingProcesses(GUISession.Instance.Client.DeviceId);
         }
 
     }

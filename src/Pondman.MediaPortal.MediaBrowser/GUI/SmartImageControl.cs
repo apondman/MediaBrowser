@@ -73,7 +73,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         public async Task<string> GetImageUrl(BaseItemDto item)
         {
-            return (item.ImageTags == null || item.ImageTags.Count == 0) ? string.Empty : await GUIContext.Instance.Client.GetLocalImageUrl(item, new ImageOptions { ImageType = ImageType, Width = Width, Height = Height });
+            return (item.ImageTags == null || item.ImageTags.Count == 0) ? string.Empty : await GUISession.Instance.Client.GetLocalImageUrl(item, new ImageOptions { ImageType = ImageType, Width = Width, Height = Height });
         }
 
         public static implicit operator SmartImageControl(GUIImage control)

@@ -60,20 +60,24 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             backdropHandler.ImageResource.Delay = 0;
         }
 
-        protected override void OnPageLoad()
+        protected override async void OnPageLoad()
         {
             base.OnPageLoad();
 
             // todo: move this somewhere more central? perhaps event handler on the service
-            if (!GUIContext.Instance.IsServerReady)
+            if (!GUISession.Instance.IsConnected)
             {
-                GUIUtils.ShowOKDialog(MediaBrowserPlugin.UI.Resource.Error, MediaBrowserPlugin.UI.Resource.ServerNotFoundOnTheNetwork);
-                GUIWindowManager.ShowPreviousWindow();
-                return;
+                await GUISession.Instance.Connect();
+
+                if (!GUISession.Instance.IsConnected)
+                {
+                    GUIWindowManager.ShowPreviousWindow();
+                    return;
+                }
             }
 
             // if we are already logged in we are done
-            if (GUIContext.Instance.Client.IsUserLoggedIn) return;
+            if (GUISession.Instance.IsAuthenticated) return;
 
             // if not show user dialog
             ShowUserProfilesDialog();
@@ -138,7 +142,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
 
             // Publish User Info
-            GUIContext.Instance.PublishUser();
+            GUISession.Instance.PublishUser();
 
             backdropHandler.GUIImageOne = _backdropControl1;
             backdropHandler.GUIImageTwo = _backdropControl2;
@@ -271,7 +275,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             var index = _randomizer.Next(item.BackdropCount); // todo: use random setting
             Log.Debug("Random Backdrop Index: {0} out of {1}", index, item.BackdropCount);
-            return await GUIContext.Instance.Client.GetLocalBackdropImageUrl(item, new ImageOptions { ImageType = ImageType.Backdrop, ImageIndex = index });
+            return await GUISession.Instance.Client.GetLocalBackdropImageUrl(item, new ImageOptions { ImageType = ImageType.Backdrop, ImageIndex = index });
         }
 
         protected void RegisterCommand(string name, Action<GUIControl, MPGUI.Action.ActionType> command) 
@@ -371,7 +375,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             try
             {
-                var auth = await GUIContext.Instance.Client.AuthenticateUserAsync(user.Name, password);
+                var auth = await GUISession.Instance.Client.AuthenticateUserAsync(user.Name, password);
 
                 if (auth.User != null)
                 {
@@ -397,14 +401,14 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     }
 
                     // update the user context, reset views and continue
-                    GUIContext.Instance.Client.CurrentUser = user;
+                    // GUIContext.Instance.CurrentUser = user;
 
                     if (user.HasPrimaryImage)
                     {
                         var avatars = GetSmartImageControlsByType("User");
                         foreach (var avatar in avatars)
                         {
-                            avatar.Resource.Filename = await GUIContext.Instance.Client.GetLocalUserImageUrl(user, new ImageOptions { Width = avatar.Width, Height = avatar.Height, ImageType = avatar.ImageType });
+                            avatar.Resource.Filename = await GUISession.Instance.Client.GetLocalUserImageUrl(user, new ImageOptions { Width = avatar.Width, Height = avatar.Height, ImageType = avatar.ImageType });
                         }
                     }
 
@@ -439,7 +443,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
             try
             {
-                var subtask = GUIContext.Instance.Client.GetUsersAsync(new UserQuery());
+                var subtask = GUISession.Instance.Client.GetUsersAsync(new UserQuery());
                 var users = subtask.Result;
                 list.AddRange(users.TakeWhile(user => !task.IsCancelled).Select(GetUserListItem));
             }
@@ -486,7 +490,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             if (user != null && user.HasPrimaryImage)
             {
                 // todo: setup image options
-                string imageUrl = await GUIContext.Instance.Client.GetLocalUserImageUrl(user, new ImageOptions());
+                string imageUrl = await GUISession.Instance.Client.GetLocalUserImageUrl(user, new ImageOptions());
                 if (!String.IsNullOrEmpty(imageUrl))
                 {
                     item.IconImage = imageUrl;
@@ -497,7 +501,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         protected virtual void Reset()
         {
-            GUIContext.Instance.PublishUser();
+            GUISession.Instance.PublishUser();
         }
     }
 

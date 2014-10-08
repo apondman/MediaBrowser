@@ -44,23 +44,11 @@ namespace Pondman.MediaPortal.MediaBrowser
             {
                 Log.Debug("Registering MediaBrowserService.");
 
-                // Publish Default System Info
-                GUIContext.OnSystemInfoChanged(null, new SystemInfoChangedEventArgs(new SystemInfo()));
-
-                // Publish Default User
-                GUIContext.Instance.PublishUser();
-
                 // if not register it with the global service provider
                 IMediaBrowserService service = new MediaBrowserService(this, MediaBrowserPlugin.Log);
 
-                // add event handlers
-                service.SystemInfoChanged += GUIContext.OnSystemInfoChanged;
-
                 // add service to the global service provider
                 GlobalServiceProvider.Add(service);
-
-                // trigger discovery so client gets loaded.
-                service.Discover();
             }
 
             // setup window listener
@@ -82,6 +70,9 @@ namespace Pondman.MediaPortal.MediaBrowser
 
             // Settings
             Config.Settings.Publish(DefaultProperty + ".Settings");
+
+            // todo: connection manager start?
+            var c = GUISession.Instance.IsConnected;
         }
 
         #endregion
