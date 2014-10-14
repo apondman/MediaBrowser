@@ -182,14 +182,15 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     .ForEach(x => {
 
                         int tokens = x.vars.Length;
-                        if (tokens > 2)
-                        {
-                            _facades[x.vars[2]] = x.facade; // type
-                        }
                         if (tokens > 3)
                         {
                             _facades[x.vars[2] + "." + x.vars[3]] = x.facade; // type+id
+                        } 
+                        else if (tokens > 2)
+                        {
+                            _facades[x.vars[2]] = x.facade; // type
                         }
+                        
                       }
                     );
         }
@@ -318,17 +319,6 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             var dto = item.TVTag as BaseItemDto;
             var facade = GetTypedFacade(dto);
 
-            // read layout from settings
-            var savedLayout = MediaBrowserPlugin.Config.Settings
-                    .ForUser(GUISession.Instance.CurrentUser.Id)
-                    .ForContext(dto.GetContext()).Layout;
-
-            // apply layout if different
-            if (savedLayout.HasValue && facade.CurrentLayout != savedLayout)
-            {
-                facade.CurrentLayout = savedLayout.Value;
-            }
-
             // if the facade changed
             if (facade != Facade)
             {
@@ -342,6 +332,22 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
                 // Show new facade
                 Facade.Visible(true);
+
+            }
+
+            // read layout from settings
+            var savedLayout = MediaBrowserPlugin.Config.Settings
+                    .ForUser(GUISession.Instance.CurrentUser.Id)
+                    .ForContext(dto.GetContext()).Layout;
+
+            if (savedLayout.HasValue && Facade.CurrentLayout != savedLayout)
+            {
+                Facade.CurrentLayout = savedLayout.Value;
+            }
+
+            if (Facade.LayoutControl == null)
+            {
+                Facade.CycleLayout();
             }
 
             CurrentItem = dto;
@@ -365,21 +371,21 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         GUIFacadeControl GetTypedFacade(BaseItemDto dto)
         {
             GUIFacadeControl facade;
-            if (!_facades.TryGetValue(dto.Type + "." + dto.Id, out facade))
-            {
-                // try typed facade
-                if (!_facades.TryGetValue(dto.Type, out facade))
-                {
-                    // try the Default facade
-                    if (!_facades.TryGetValue("Default", out facade))
-                    {
-                        // just pick the first one 
-                        facade = _facades.First().Value;
-                    }
-                }
-            }
 
-            return facade;
+            // try type + id
+            if (_facades.TryGetValue(dto.Type + "." + dto.Id, out facade)) return facade;
+
+            // try type + collection type
+            if (dto.Type == MediaBrowserType.UserView && _facades.TryGetValue(dto.Type + "." + dto.CollectionType, out facade)) return facade;
+
+            // try typed facade
+            if (_facades.TryGetValue(dto.Type, out facade)) return facade;
+            
+            // try the Default facade
+            if (_facades.TryGetValue("Default", out facade)) return facade;            
+
+            // just pick the first one 
+            return _facades.First().Value;
         }
 
         #endregion

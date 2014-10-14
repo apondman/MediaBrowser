@@ -43,12 +43,6 @@ namespace Pondman.MediaPortal.MediaBrowser
             _logger.Info("MediaBrowserService initialized.");
         }
 
-        #region Events
-
-        public event EventHandler<SystemInfoChangedEventArgs> SystemInfoChanged;
-
-        #endregion
-
         public IConnectionManager ConnectionManager
         {
             get
