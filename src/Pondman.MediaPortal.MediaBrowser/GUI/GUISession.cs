@@ -83,25 +83,38 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
 
         public async Task Connect(CancellationToken? token = null)
         {
-            var result = await Service.ConnectionManager.Connect(token ?? CancellationToken.None);
+            ConnectionResult result = null;
 
-            switch (result.State)
+            while (result == null)
             {
-                case ConnectionState.Unavailable:
-                    // No servers found. User must manually enter connection info.
-                    GUIUtils.ShowOKDialog(MediaBrowserPlugin.UI.Resource.Error, MediaBrowserPlugin.UI.Resource.ServerNotFoundOnTheNetwork);
-                    _logger.Error("MediaBrowserService not found.");
-                    IsConnected = false;
-                    return;
-                case ConnectionState.ServerSignIn:
-                    // A server was found and the user needs to login.
-                    // Display a login screen and authenticate with the server using result.ApiClient
+                if (MediaBrowserPlugin.Config.Settings.UseServerAddress)
+                {
+                    _logger.Info("Connecting to: {0}", MediaBrowserPlugin.Config.Settings.ServerAddress);
+                    result = await Service.ConnectionManager.Connect(MediaBrowserPlugin.Config.Settings.ServerAddress, token ?? CancellationToken.None);
+                }
+                else
+                {
+                    result = await Service.ConnectionManager.Connect(token ?? CancellationToken.None);
+                }
 
-                case ConnectionState.SignedIn:
-                    // A server was found and the user has been signed in using previously saved credentials.
-                    // Ready to browse using result.ApiClient    
+                switch (result.State)
+                {
+                    case ConnectionState.Unavailable:
+                        // No servers found. User must manually enter connection info.
+                        GUIUtils.ShowOKDialog(MediaBrowserPlugin.UI.Resource.Error, MediaBrowserPlugin.UI.Resource.ServerNotFoundOnTheNetwork);
+                        _logger.Error("MediaBrowserService not found.");
+                        IsConnected = false;
+                        return;
+                    case ConnectionState.ServerSignIn:
+                        // A server was found and the user needs to login.
+                        // Display a login screen and authenticate with the server using result.ApiClient
 
-                    break;
+                    case ConnectionState.SignedIn:
+                        // A server was found and the user has been signed in using previously saved credentials.
+                        // Ready to browse using result.ApiClient    
+
+                        break;
+                }
             }
 
             // set connected
@@ -117,6 +130,13 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             client.Authenticated += OnUserAuthenticated;
 
             _logger.Info("Found MediaBrowser Server: {0}", client.ServerAddress);
+
+            // Store server
+            if (MediaBrowserPlugin.Config.Settings.ServerAddress != client.ServerAddress)
+            {
+                MediaBrowserPlugin.Config.Settings.ServerAddress = client.ServerAddress;
+                MediaBrowserPlugin.Config.Save();
+            }
 
             // Get System Info
             System = await client.GetPublicSystemInfoAsync(token ?? CancellationToken.None);

@@ -26,6 +26,8 @@ namespace Pondman.MediaPortal.MediaBrowser
             DefaultItemLimit = 50;
             PublishDelayMs = 250;
             UiUseUniversalBackButton = true;
+            ServerAddress = string.Empty;
+            UseServerAddress = false;
 
             _userData = new MediaBrowserServerSettings();
         }
@@ -73,6 +75,10 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// The default item limit.
         /// </value>
         public int DefaultItemLimit { get; set; }
+
+        public string ServerAddress { get; set; }
+
+        public bool UseServerAddress { get; set; }     
 
         /// <summary>
         /// Gets or sets the default user.

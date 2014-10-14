@@ -124,6 +124,16 @@
         public static string SettingListedPluginsName = "Listed in My Plugins";
         public static string SettingListedPluginsDescription = "Enable this setting for the MediaBrowser plugin to appear in the My Plugins screen menu items.";
 
+
+        public static string SettingUiUseUniversalBackButtonName = "Use universal back button.";
+        public static string SettingUiUseUniversalBackButtonDescription = "Enable this setting to use the back button to navigate back instead of exiting the plugin.";
+
+        public static string SettingServerAddressName = "Server Address";
+        public static string SettingServerAddressDescription = "server ip/hostname:port";
+
+        public static string SettingUseServerAddressName = "Use Server Address";
+        public static string SettingUseServerAddressDescription = "Enable to force connection to given server address.";
+
         // todo: add more translations
     }
 }

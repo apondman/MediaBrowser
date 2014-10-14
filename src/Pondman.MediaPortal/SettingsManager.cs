@@ -1,4 +1,5 @@
-﻿using MediaPortal.Profile;
+﻿using MediaPortal.GUI.Library;
+using MediaPortal.Profile;
 using System;
 using System.Reflection;
 
@@ -22,7 +23,17 @@ namespace Pondman.MediaPortal
             _logger = logger ?? NullLogger.Instance;
             _name = name;
             _properties = typeof(TResource).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            GUIWindowManager.OnDeActivateWindow += GUIWindowManager_OnDeActivateWindow;
             Load();
+        }
+
+        void GUIWindowManager_OnDeActivateWindow(int windowId)
+        {
+            if (windowId == 803)
+            {
+                _logger.Debug("Reloading settings.");
+                Load();
+            }
         }
 
         /// <summary>

@@ -36,5 +36,30 @@
              displaylistvalues="#MediaBrowser.Translation.Yes.Label|#MediaBrowser.Translation.No.Label"
              description="#MediaBrowser.Translation.SettingListedPluginsDescription.Label"
              configfile="MediaPortal.xml" />
+    <setting entryname="MediaBrowser"
+             name="UiUseUniversalBackButton"
+             displayname="#MediaBrowser.Translation.SettingUiUseUniversalBackButtonName.Label"
+             defaultvalue="True"
+             type="boolean"
+             listvalues="True|False"
+             displaylistvalues="#MediaBrowser.Translation.Yes.Label|#MediaBrowser.Translation.No.Label"
+             description="#MediaBrowser.Translation.SettingUiUseUniversalBackButtonDescription.Label"
+             configfile="MediaPortal.xml" />
+    <setting entryname="MediaBrowser"
+             name="ServerAddress"
+             displayname="#MediaBrowser.Translation.SettingServerAddressName.Label"
+             defaultvalue=""
+             type="string"
+             description="#MediaBrowser.Translation.SettingServerAddressDescription.Label"
+             configfile="MediaPortal.xml" />
+    <setting entryname="MediaBrowser"
+             name="UseServerAddress"
+             displayname="#MediaBrowser.Translation.SettingUseServerAddressName.Label"
+             defaultvalue="False"
+             type="boolean"
+             listvalues="True|False"
+             displaylistvalues="#MediaBrowser.Translation.Yes.Label|#MediaBrowser.Translation.No.Label"
+             description="#MediaBrowser.Translation.SettingUseServerAddressDescription.Label"
+             configfile="MediaPortal.xml" />
   </settings>
 </extension_settings>
