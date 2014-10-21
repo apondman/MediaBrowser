@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using MediaBrowser.Model.ApiClient;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
@@ -138,14 +139,14 @@ namespace Pondman.MediaPortal.MediaBrowser
             return settings;
         }
 
-        public ServerCredentialConfiguration GetServerCredentialConfiguration()
+        public ServerCredentials GetServerCredentialConfiguration()
         {
-            return _userData.CredentialConfiguration;
+            return _userData.ServerCredentials;
         }
 
-        public void Save(ServerCredentialConfiguration config)
+        public void Save(ServerCredentials credentials)
         {
-            _userData.CredentialConfiguration = config;
+            _userData.ServerCredentials = credentials;
         }
 
         /// <summary>

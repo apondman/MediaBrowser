@@ -105,10 +105,17 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                         _logger.Error("MediaBrowserService not found.");
                         IsConnected = false;
                         return;
+                    case ConnectionState.ServerSelection:
+                    // Multiple servers available
+                    // Display a selection screen
+                        if (result.Servers.Count == 1)
+                        {
+                            result = await Service.ConnectionManager.Connect(result.Servers[0].LocalAddress, token ?? CancellationToken.None);
+                        }
+                        break;
                     case ConnectionState.ServerSignIn:
                         // A server was found and the user needs to login.
                         // Display a login screen and authenticate with the server using result.ApiClient
-
                     case ConnectionState.SignedIn:
                         // A server was found and the user has been signed in using previously saved credentials.
                         // Ready to browse using result.ApiClient    

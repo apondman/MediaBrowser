@@ -146,14 +146,5 @@ namespace Pondman.MediaPortal.MediaBrowser
             }
         }
 
-        public static async Task<AuthenticationResult> AuthenticateUserAsync(this IApiClient client, string username, string password)
-        {
-            using (SHA1 provider = SHA1.Create())
-            {
-                byte[] hash = provider.ComputeHash(Encoding.UTF8.GetBytes(password ?? string.Empty));
-
-                return await client.AuthenticateUserAsync(username, hash);
-            }
-        } 
     }
 }

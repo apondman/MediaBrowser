@@ -350,6 +350,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 Facade.CycleLayout();
             }
 
+            Facade.Focus();
+            Facade.SelectIndex(Facade.SelectedListItemIndex);
+
             CurrentItem = dto;
         }
 

@@ -1,4 +1,5 @@
 ﻿using MediaBrowser.ApiInteraction;
+using MediaBrowser.Model.ApiClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace Pondman.MediaPortal.MediaBrowser
     {
         private readonly SemaphoreSlim _asyncLock = new SemaphoreSlim(1, 1);
 
-        public async Task<ServerCredentialConfiguration> GetServerCredentials()
+        public async Task<ServerCredentials> GetServerCredentials()
         {
             await _asyncLock.WaitAsync().ConfigureAwait(false);
 
@@ -22,7 +23,7 @@ namespace Pondman.MediaPortal.MediaBrowser
             return config;
         }
 
-        public async Task SaveServerCredentials(ServerCredentialConfiguration configuration)
+        public async Task SaveServerCredentials(ServerCredentials configuration)
         {
             await _asyncLock.WaitAsync().ConfigureAwait(false);
             

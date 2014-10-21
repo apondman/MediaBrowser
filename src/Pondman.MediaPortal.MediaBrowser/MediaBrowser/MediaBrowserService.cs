@@ -18,6 +18,7 @@ using System.Security.Principal;
 using System.DirectoryServices;
 using System.Linq;
 using System.Collections.Generic;
+using MediaBrowser.ApiInteraction.Cryptography;
 
 namespace Pondman.MediaPortal.MediaBrowser
 {
@@ -74,6 +75,7 @@ namespace Pondman.MediaPortal.MediaBrowser
                 var credentialProvider = new CredentialProvider();
                 var networkConnection = new NetworkConnection(logger);
                 var serverLocator = new ServerLocator(logger);
+                var cryptoProvider = new CryptographyProvider();
 
                 var connectionManager = new ConnectionManager(logger,
                     credentialProvider,
@@ -83,6 +85,7 @@ namespace Pondman.MediaPortal.MediaBrowser
                     Plugin.Version.ToString(),
                     device,
                     capabilities,
+                    cryptoProvider,
                     ClientWebSocketFactory.CreateWebSocket);
 
                 _connectionManager = connectionManager;

@@ -12,11 +12,11 @@ namespace Pondman.MediaPortal.MediaBrowser
     {
         public MediaBrowserServerSettings() 
         {
-            CredentialConfiguration = new ServerCredentialConfiguration();
+            ServerCredentials = new ServerCredentials();
             UserConfiguration = new HashSet<MediaBrowserUserSettings>();
         }
 
-        public ServerCredentialConfiguration CredentialConfiguration { get; set; }
+        public ServerCredentials ServerCredentials { get; set; }
 
         public HashSet<MediaBrowserUserSettings> UserConfiguration { get; set; }
         
