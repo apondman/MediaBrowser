@@ -61,5 +61,19 @@
              displaylistvalues="#MediaBrowser.Translation.Yes.Label|#MediaBrowser.Translation.No.Label"
              description="#MediaBrowser.Translation.SettingUseServerAddressDescription.Label"
              configfile="MediaPortal.xml" />
+   <setting entryname="MediaBrowser"
+             name="LogProperties"
+             displayname="#MediaBrowser.Translation.SettingLogPropertiesName.Label"
+             defaultvalue="False"
+             type="boolean"
+             listvalues="True|False"
+             displaylistvalues="#MediaBrowser.Translation.Yes.Label|#MediaBrowser.Translation.No.Label"
+             description="#MediaBrowser.Translation.SettingsLogPropertiesDescription.Label"
+             configfile="MediaPortal.xml" />
   </settings>
+
+
+  
+
+
 </extension_settings>

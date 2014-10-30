@@ -217,7 +217,11 @@ namespace Pondman.MediaPortal.GUI
                 item.OnItemSelected += OnItemSelected; 
                 view.List.Add(item);
             }
-
+            if (data.Selected.HasValue)
+            {
+                view.Selected = GetKeyForItem(data.List[data.Selected.Value]);
+            }
+            
             view.Offset = offset;
             view.Total = data.TotalItems;
             e.Result = view;

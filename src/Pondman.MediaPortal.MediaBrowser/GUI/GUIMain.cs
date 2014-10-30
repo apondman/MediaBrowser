@@ -327,6 +327,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 // Hide current facade (if it is not null)
                 Facade.IfNotNull(f => f.Visible(false));
 
+                Facade.IfNotNull(f => f.Disabled = true);
+
                 // Replace active facade
                 Facade = facade;
 
@@ -350,8 +352,8 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                 Facade.CycleLayout();
             }
 
-            Facade.Focus();
-            Facade.SelectIndex(Facade.SelectedListItemIndex);
+            Facade.LayoutControl.Visible = true;
+            Facade.LayoutControl.Focus = true;
 
             CurrentItem = dto;
         }
@@ -646,6 +648,17 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             }
 
             args.TotalItems = total;
+
+
+            // todo: optimize
+            var dto = args.Parent.TVTag as BaseItemDto;
+            if (dto ==null) return;            
+            if (dto.Type.IsIn(MediaBrowserType.Season,MediaBrowserType.Series))
+            {
+                // selected the first unplayed item when in a serie/season
+                var selected = args.List.FirstOrDefault(x => !x.IsPlayed);
+                if (selected != null) args.Selected = args.List.IndexOf(selected);
+            }
         }
 
         /// <summary>

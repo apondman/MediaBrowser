@@ -365,8 +365,8 @@ Click Next to continue or Cancel to exit Setup.</Value>
     <Version>
       <Major>0</Major>
       <Minor>30</Minor>
-      <Build>5388</Build>
-      <Revision>2288</Revision>
+      <Build>5416</Build>
+      <Revision>27142</Revision>
     </Version>
     <ExtensionDescription>MediaPortal client for MediaBrowser3 server (http://www.mediabrowser3.com). </ExtensionDescription>
     <VersionDescription>+ Collections is now a root view
@@ -562,7 +562,7 @@ Click Next to continue or Cancel to exit Setup.</Value>
         <Param1 />
         <UpdateOption>OverwriteIfOlder</UpdateOption>
         <LocalFileName>..\Pondman.MediaPortal.MediaBrowser\Resources\Images\mblogoicon.png</LocalFileName>
-        <ZipFileName>Installer{CopyFile}\{daee2be0-59de-46e4-975c-8f995bf7b3da}-mblogoicon.png</ZipFileName>
+        <ZipFileName>Installer{CopyFile}\{511e2fda-841f-4fbb-852c-41ef61649b85}-mblogoicon.png</ZipFileName>
         <DestinationFilename />
       </FileItem>
     </Items>

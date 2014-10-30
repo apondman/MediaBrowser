@@ -17,6 +17,8 @@ namespace Pondman.MediaPortal.GUI
 
         public List<GUIListItem> List { get; private set; }
 
+        public int? Selected { get; set; }
+        
         public int Offset { get; private set; }
 
         public int TotalItems { get; set; }

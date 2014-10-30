@@ -134,6 +134,9 @@
         public static string SettingUseServerAddressName = "Use Server Address";
         public static string SettingUseServerAddressDescription = "Enable to force connection to given server address.";
 
+        public static string SettingsLogPropertiesName = "Log skin properties";
+        public static string SettingsLogPropertiesDescription = "Enable logging of skin properties.";
+
         // todo: add more translations
     }
 }
