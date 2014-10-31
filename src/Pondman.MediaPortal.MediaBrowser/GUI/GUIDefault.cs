@@ -272,7 +272,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         }
 
         protected virtual async Task<string> GetBackdropUrl(BaseItemDto item)
-        {
+        {           
             var index = _randomizer.Next(item.BackdropCount); // todo: use random setting
             Log.Debug("Random Backdrop Index: {0} out of {1}", index, item.BackdropCount);
             return await GUISession.Instance.Client.GetLocalBackdropImageUrl(item, new ImageOptions { ImageType = ImageType.Backdrop, ImageIndex = index });

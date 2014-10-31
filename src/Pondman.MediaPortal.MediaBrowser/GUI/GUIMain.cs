@@ -504,7 +504,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                     case MediaBrowserType.Folder:
                     case MediaBrowserType.CollectionFolder:
                     case MediaBrowserType.UserView:
-                        query = query.Recursive(false).ParentId(item.Id).SortBy(ItemSortBy.SortName);
+                        query = query.Recursive(false).ParentId(item.Id);
                         break;
                     case MediaBrowserType.View:
                         switch (item.Id)
@@ -514,7 +514,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                                 return;
                             case "root-mediafolders":
                                 var rootId = client.GetRootFolderAsync(client.CurrentUserId).Result.Id;
-                                query = query.Recursive(false).ParentId(rootId).SortBy(ItemSortBy.SortName);
+                                query = query.Recursive(false).ParentId(rootId);
                                 break;
                             case "root-music":
                                 LoadMusicViewsAndContinue(e);
@@ -569,21 +569,18 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                         query = CurrentItem.Id.Contains("tvshows") ? query.Series() : query.Movies();
                         break;
                     case MediaBrowserType.Series:
-                        query = item.SeasonCount > 0 ? query.Season().ParentId(item.Id).SortBy(ItemSortBy.SortName) : query.ParentId(item.Id);
+                        query = item.SeasonCount > 0 ? query.Season().ParentId(item.Id) : query.ParentId(item.Id);
                         break;
                     case MediaBrowserType.Season:
                         LoadItems(client.GetEpisodesAsync(new EpisodeQuery { IsVirtualUnaired = userSettings.DisplayUnairedEpisodes, IsMissing = !userSettings.DisplayMissingEpisodes ? false : (bool?)null, SeasonId = item.Id, SeriesId = item.SeriesId, UserId = userId, Fields = new ItemFields[] { ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams, ItemFields.MediaSources, ItemFields.PrimaryImageAspectRatio } }, CancellationToken.None), e);
                         return;
                     case MediaBrowserType.Person:
-                        query.Person(item.Name).SortBy(ItemSortBy.SortName);
+                        query.Person(item.Name);
                         query = CurrentItem.Id.Contains("movies") ? query.Movies() : query.Series();
-                        break;
-                    case MediaBrowserType.BoxSet:
-                        query = query.ParentId(item.Id).SortBy(ItemSortBy.ProductionYear, ItemSortBy.SortName);
                         break;
                     default:
                         // get by parent id
-                        query = query.ParentId(item.Id).SortBy(ItemSortBy.SortName);
+                        query = query.ParentId(item.Id);
 
                         break;
                 }

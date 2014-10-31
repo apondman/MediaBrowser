@@ -10,6 +10,7 @@ namespace Pondman.MediaPortal.MediaBrowser.Models
         {
             Filters = new HashSet<ItemFilter>();
             PersonTypes = new HashSet<string>();
+            SortBy = ItemSortBy.SortName;
         }
 
         public int? Limit { get; set; }
