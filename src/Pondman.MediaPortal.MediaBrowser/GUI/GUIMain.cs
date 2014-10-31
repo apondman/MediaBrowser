@@ -463,7 +463,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             var query = MediaBrowserQueries.Item
                             .UserId(userId)
                             .Recursive()
-                            .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaSources, ItemFields.PrimaryImageAspectRatio);
+                            .Fields(ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaSources, ItemFields.PrimaryImageAspectRatio, ItemFields.MediaStreams);
 
             // Enforce user configuration
             if (!userSettings.DisplayMissingEpisodes)
@@ -572,7 +572,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                         query = item.SeasonCount > 0 ? query.Season().ParentId(item.Id).SortBy(ItemSortBy.SortName) : query.ParentId(item.Id);
                         break;
                     case MediaBrowserType.Season:
-                        LoadItems(client.GetEpisodesAsync(new EpisodeQuery { IsVirtualUnaired = userSettings.DisplayUnairedEpisodes, IsMissing = !userSettings.DisplayMissingEpisodes ? false : (bool?)null, SeasonId = item.Id, SeriesId = item.SeriesId, UserId = userId, Fields = new ItemFields[] { ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams, ItemFields.PrimaryImageAspectRatio } }, CancellationToken.None), e);
+                        LoadItems(client.GetEpisodesAsync(new EpisodeQuery { IsVirtualUnaired = userSettings.DisplayUnairedEpisodes, IsMissing = !userSettings.DisplayMissingEpisodes ? false : (bool?)null, SeasonId = item.Id, SeriesId = item.SeriesId, UserId = userId, Fields = new ItemFields[] { ItemFields.Overview, ItemFields.People, ItemFields.Genres, ItemFields.MediaStreams, ItemFields.MediaSources, ItemFields.PrimaryImageAspectRatio } }, CancellationToken.None), e);
                         return;
                     case MediaBrowserType.Person:
                         query.Person(item.Name).SortBy(ItemSortBy.SortName);
