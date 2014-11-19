@@ -381,6 +381,9 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
             if (_facades.TryGetValue(dto.Type + "." + dto.Id, out facade)) return facade;
 
             // try type + collection type
+            if (_facades.TryGetValue(dto.Type + "." + dto.CollectionType, out facade)) return facade;
+
+            // try userview + collection type
             if (dto.Type == MediaBrowserType.UserView && _facades.TryGetValue(dto.Type + "." + dto.CollectionType, out facade)) return facade;
 
             // try typed facade
@@ -718,7 +721,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
         {
             request.List.Add(GetViewListItem("music-songs", MediaBrowserPlugin.UI.Resource.Songs));
             request.List.Add(GetViewListItem("music-albums", MediaBrowserPlugin.UI.Resource.Albums));
-            //request.List.Add(GetViewListItem("music-genres", MediaBrowserPlugin.UI.Resource.Genres));
+            request.List.Add(GetViewListItem("music-genres", MediaBrowserPlugin.UI.Resource.Genres));
             request.List.Add(GetViewListItem("music-artists", MediaBrowserPlugin.UI.Resource.Artists));
             request.TotalItems = request.List.Count;
         }
