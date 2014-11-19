@@ -313,7 +313,7 @@ namespace Pondman.MediaPortal.MediaBrowser.GUI
                         {
 
                             // todo: let skin define dimensions
-                            string imageUrl = GUISession.Instance.Client.GetLocalImageUrl(dto, new ImageOptions { Width = 200, Height = 300 }).Result;
+                            string imageUrl = GUISession.Instance.Client.GetLocalImageUrl(dto, new ImageOptions { MaxWidth = MediaBrowserPlugin.Config.Settings.ImageDimensions, MaxHeight = MediaBrowserPlugin.Config.Settings.ImageDimensions }).Result;
 
                             if (!String.IsNullOrEmpty(imageUrl))
                             {

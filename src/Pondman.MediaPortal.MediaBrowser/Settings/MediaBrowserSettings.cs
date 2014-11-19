@@ -26,6 +26,7 @@ namespace Pondman.MediaPortal.MediaBrowser
             DisplayName = MediaBrowserPlugin.DefaultName;
             DefaultItemLimit = 50;
             PublishDelayMs = 250;
+            ImageDimensions = 400;
             UiUseUniversalBackButton = true;
             ServerAddress = string.Empty;
             UseServerAddress = false;
@@ -96,6 +97,14 @@ namespace Pondman.MediaPortal.MediaBrowser
         /// publish delay in milliseconds.
         /// </value>
         public int PublishDelayMs { get; set; }
+
+        /// <summary>
+        /// Gets or sets the maximum height and width of images for list items.
+        /// </summary>
+        /// <value>
+        /// Max image dimension.
+        /// </value>
+        public int ImageDimensions { get; set; }
 
         /// <summary>
         /// Gets or sets the use default user.
